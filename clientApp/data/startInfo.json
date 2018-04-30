@@ -1,8 +1,8 @@
 {
-	"autoConnect": true,
+	"autoConnect": false,
 	"serverAdr": "localhost",
 	"serverPort": 2111,
-	"autoLogin": true,
+	"autoLogin": false,
 	"loginName":  "user1",
 	"loginID": "1a81c314e1af1b919e1fd1501811a015917b1471081c51831a81ca17a17f1121a81731cc14617318e14b14f1f6165106"
 	

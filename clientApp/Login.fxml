@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
@@ -29,7 +31,7 @@
             <DropShadow blurType="TWO_PASS_BOX" color="#2b2b2bad" height="0.0" radius="18.0925" spread="0.29" width="74.37" />
          </effect>
          <children>
-            <GridPane layoutY="14.0" prefHeight="450.0" prefWidth="340.0">
+            <GridPane layoutY="14.0" prefHeight="523.0" prefWidth="340.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="165.0" minWidth="10.0" prefWidth="32.0" />
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="311.0" minWidth="10.0" prefWidth="109.0" />
@@ -37,11 +39,11 @@
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="311.0" minWidth="10.0" prefWidth="89.0" />
               </columnConstraints>
               <rowConstraints>
-                <RowConstraints maxHeight="314.0" minHeight="6.0" prefHeight="92.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="464.0" minHeight="7.0" prefHeight="95.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="589.0" minHeight="10.0" prefHeight="111.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="589.0" minHeight="10.0" prefHeight="246.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="610.0" minHeight="10.0" prefHeight="74.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="314.0" minHeight="6.0" prefHeight="78.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="464.0" minHeight="7.0" prefHeight="77.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="589.0" minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="589.0" minHeight="10.0" prefHeight="164.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="610.0" minHeight="10.0" prefHeight="151.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Group />
@@ -116,7 +118,20 @@
                       </Tab>
                     </tabs>
                   </TabPane>
-                  <Text fx:id="infoText" strokeType="OUTSIDE" strokeWidth="0.0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+                  <VBox alignment="TOP_CENTER" prefHeight="129.0" prefWidth="145.0" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                     <children>
+                        <Text fx:id="infoText" strokeType="OUTSIDE" strokeWidth="0.0">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </Text>
+                        <ImageView fx:id="loadingGIF1" fitHeight="96.0" fitWidth="131.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@resources/loading_v1.gif" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </VBox>
                </children>
             </GridPane>
             <AnchorPane layoutX="3.0" prefHeight="800.0" prefWidth="361.0" stylesheets="@application.css" visible="false" />

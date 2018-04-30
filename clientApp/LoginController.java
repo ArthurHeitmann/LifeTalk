@@ -13,11 +13,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class LoginController {
+public class LoginController extends Thread {
 	@FXML
 	private TextField srvAdrInput;
 	@FXML
@@ -46,6 +47,8 @@ public class LoginController {
 	private CheckBox connectedCheckBox;
 	@FXML
 	private CheckBox loggedinCheckBox;
+	@FXML
+	private ImageView loadingGIF1;
 
 	public void autoConnect(String adress, int port) {
 		srvAdrInput.setText(adress);
@@ -55,6 +58,7 @@ public class LoginController {
 
 	public void connectToServer(ActionEvent event) {
 		try {
+			loadingGIF1.setVisible(true);
 			setInfoText("Connecting");
 			String srvAdr = srvAdrInput.getText();
 			int port = Integer.parseInt(portInput.getText());
@@ -81,6 +85,7 @@ public class LoginController {
 				hideAnimation.play();
 				showAnimation.play();
 				setInfoText("");
+				loadingGIF1.setVisible(false);
 				ClientConnection.autoLogin();
 			} else {
 				setInfoText("Couldn't connect to server");
@@ -94,11 +99,14 @@ public class LoginController {
 		} catch (Exception e) {
 			setInfoText("An Error occured");
 			e.printStackTrace();
+		} finally {
+			loadingGIF1.setVisible(false);
 		}
 	}
 
 	public void login(ActionEvent event) {
 		try {
+			loadingGIF1.setVisible(true);
 			String uName = uNameInp.getText();
 			String pw = pwInp.getText();
 			if (uName == null || uName.isEmpty() || pw == null || pw.isEmpty()) {
@@ -123,6 +131,8 @@ public class LoginController {
 			System.exit(0);
 		} catch (Exception e) {
 			setInfoText("An error occured");
+		} finally {
+			loadingGIF1.setVisible(false);
 		}
 
 	}
