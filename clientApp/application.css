@@ -1,0 +1,37 @@
+@font-face {
+	font-family: Alcubierre;
+	src: url("resources/Alcubierre.otf");
+}
+
+.text {
+	-fx-font-family: "Alcubierre";
+}
+
+.button {
+	-fx-font-size: 15px;
+	-fx-padding: 3px;
+}
+
+#h1 {
+	-fx-font-size: 63px;
+	-fx-font-family: "ONE DAY";
+}
+
+#h3 {
+	-fx-font-size: 18px;
+	-fx-font-family: "Alcubierre";
+}
+
+#h4 {
+	-fx-font-size: 16px;
+	-fx-font-family: "Alcubierre";
+}
+
+.label {
+	-fx-font-size: 15px;
+	-fx-font-family: "Alcubierre";	
+}
+
+#inpField {
+	-fx-border-radius: 0;
+}
