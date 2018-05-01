@@ -18,6 +18,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * Class to handle events from the GUI application, like connecting to the server, logging
+ * in or registering. Also takes into consideration if a users want's or is supposed to
+ * automatically log in
+ * 
+ * @author Arthur H.
+ *
+ */
 public class LoginController extends Thread {
 	@FXML
 	private TextField srvAdrInput;
@@ -50,27 +58,45 @@ public class LoginController extends Thread {
 	@FXML
 	private ImageView loadingGIF1;
 
-	public void autoConnect(String adress, int port) {
-		srvAdrInput.setText(adress);
+	/**
+	 * This method is being called when auto Connect is enabled. See Main class
+	 * 
+	 * @param address Server address
+	 * @param port Server port
+	 */
+	public void autoConnect(String address, int port) {
+		srvAdrInput.setText(address);
 		portInput.setText(Integer.toString(port));
 		connectToServer(null);
+
 	}
 
+	/**
+	 * Try to connect to a server using the server address and port from the GUI
+	 * application. If successful switch to login/register form
+	 * 
+	 * @param event
+	 */
 	public void connectToServer(ActionEvent event) {
 		try {
+			//User info
 			loadingGIF1.setVisible(true);
 			setInfoText("Connecting");
+			//save address and port into variables to save some typing work
 			String srvAdr = srvAdrInput.getText();
 			int port = Integer.parseInt(portInput.getText());
 			if (srvAdr == null || srvAdr.isEmpty() || port < 1) {
 				setInfoText("Inputs must be not empty!");
 				return;
 			}
+			//tries to connect to server
 			if (ClientConnection.connectToServer(srvAdr, port)) {
+				//save auto login informations to startup file
 				if (connectedCheckBox.isSelected()) {
 					ClientStartupOperations.setServerInfo(srvAdr, port);
 				}
 				setInfoText("Connected");
+				//animation for switching between server connect form and login/register form
 				Timeline hideAnimation = new Timeline();
 				hideAnimation.getKeyFrames().addAll(new KeyFrame(Duration.ZERO, new KeyValue(connectPane.translateXProperty(), 0)),
 						new KeyFrame(Duration.millis(100), new KeyValue(connectPane.translateXProperty(), 15)),
@@ -86,6 +112,7 @@ public class LoginController extends Thread {
 				showAnimation.play();
 				setInfoText("");
 				loadingGIF1.setVisible(false);
+				//check whether remember login was used before. If yes automatically log the user in
 				ClientConnection.autoLogin();
 			} else {
 				setInfoText("Couldn't connect to server");
@@ -104,16 +131,25 @@ public class LoginController extends Thread {
 		}
 	}
 
+	/**
+	 * Method get's called when the user tries to login. Tries to login to the server
+	 * using the login credentials the user entered. Allows to stay logged in
+	 * 
+	 * @param event
+	 */
 	public void login(ActionEvent event) {
 		try {
 			loadingGIF1.setVisible(true);
+			//get inputs
 			String uName = uNameInp.getText();
 			String pw = pwInp.getText();
 			if (uName == null || uName.isEmpty() || pw == null || pw.isEmpty()) {
 				setInfoText("Inputs must be not empty!");
 				return;
 			}
+			//try to login to the server. If successful switch to the users chat window
 			if (ClientConnection.loginToServer(uNameInp.getText(), pwInp.getText(), "LOGIN", loggedinCheckBox.isSelected())) {
+				//if the user checked the stay logged in check box save that into the startup file
 				if (loggedinCheckBox.isSelected()) {
 					ClientStartupOperations.setAutoLogin(true, uName, ClientStartupOperations.getloginID());
 				}
@@ -121,10 +157,13 @@ public class LoginController extends Thread {
 			} else {
 				setInfoText("Couldn't log in, please try again");
 			}
-		} catch (LoginException e) {
+		}
+		//Get's thrown when the user entered wrong credentials 4 times
+		//closes the application
+		catch (LoginException e) {
 			setInfoText("Server closed the connection");
 			try {
-				Thread.sleep(500);
+				Thread.sleep(1500);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
@@ -137,19 +176,30 @@ public class LoginController extends Thread {
 
 	}
 
+	/**
+	 * Method get's called when the user tries to register a new account. Tries to
+	 * register to the server using the register credentials the user entered
+	 * 
+	 * @param event
+	 */
 	public void register(ActionEvent event) {
+		//get inputs
 		String uName = uNameInpReg.getText();
 		String pw = pwInpReg.getText();
 		String pwConf = pwInpConf.getText();
 		if (uName == null || uName.isEmpty() || pw == null || pw.isEmpty()) {
 			setInfoText("Inputs must be not empty!");
 			return;
-		} else if (!pw.equals(pwConf)) {
+		}
+		//check whether the confirmation password equals the first password
+		else if (!pw.equals(pwConf)) {
 			setInfoText("Password must be the same");
 			return;
 		}
 		try {
+			//try to register to the server and if successful switch to chats window
 			if (ClientConnection.loginToServer(uNameInpReg.getText(), pwInpReg.getText(), "REGISTER", false)) {
+				setInfoText("");
 				//TODO switch to CHATS scene
 			} else {
 				setInfoText("Couldn't register, please try again");

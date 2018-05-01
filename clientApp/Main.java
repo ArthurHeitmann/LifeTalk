@@ -21,13 +21,13 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("NatTalk");
 			primaryStage.show();
+			//If user previously enabled auto connecting to the server than try to connect to the server automatically
 			if (ClientStartupOperations.isAutoConnectActive()) {
 				try {
-					String srvAdr = ClientStartupOperations.getServerAdr();
+					String srvAdr = ClientStartupOperations.getServerAddr();
 					int port = ClientStartupOperations.getServerPort();
+					loginController.setInfoText("Auto connecting to server");
 					loginController.autoConnect(srvAdr, port);
-					//loginController.setInfoText("Connecting to server");
-
 				} catch (Exception e) {
 					loginController.infoText.setText("Couldn't automatically connect to server");
 					ClientStartupOperations.setAutoConnect(false);

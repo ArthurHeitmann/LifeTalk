@@ -1,6 +1,6 @@
 {
 	"autoConnect": false,
-	"serverAdr": "localhost",
+	"serverAddr": "localhost",
 	"serverPort": 2111,
 	"autoLogin": false,
 	"loginName":  "user1",
