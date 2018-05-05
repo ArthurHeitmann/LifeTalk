@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Class with static methods to read and write from a specific file
@@ -26,7 +28,7 @@ public class FileRW {
 		StringBuilder sb = null;
 		try {
 			//Reads from the file
-			BufferedReader br = new BufferedReader(new FileReader(new File(location)));
+			BufferedReader br = new BufferedReader(new FileReader(new File(new URI(location))));
 			sb = new StringBuilder();
 			String line = br.readLine();
 			//read the file line by line and append the new line to the StringBuilder
@@ -36,7 +38,7 @@ public class FileRW {
 			}
 			br.close();
 			return sb.toString();
-		} catch (IOException e) {
+		} catch (IOException | URISyntaxException e) {
 			System.err.println(e);
 			return null;
 		}
@@ -49,10 +51,10 @@ public class FileRW {
 	 * @param content The text that should be written to the file
 	 */
 	public static void writeToFile(String fileLocation, String content) {
-		try (Writer writer = new BufferedWriter(new FileWriter(new File(fileLocation)))) {
+		try (Writer writer = new BufferedWriter(new FileWriter(new File(new URI(fileLocation))))) {
 			writer.write(content);
 			writer.flush();
-		} catch (IOException e) {
+		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}

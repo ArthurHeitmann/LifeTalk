@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import clientApp.ClientConnection;
+import clientApp.ClientStartConnection;
 
 /**
  * This class contains static methods to get and set informations the client application
@@ -18,7 +18,7 @@ public class ClientStartupOperations {
 	/**
 	 * Location of the JSON file that contains the informations for auto login/connect
 	 */
-	private static final String FILELOCATION = ClientConnection.class.getResource("data/startInfo.json").toExternalForm();
+	private static final String FILELOCATION = ClientStartConnection.class.getResource("data/startInfo.json").toExternalForm();
 	/**
 	 * This object reads the JSON file and allows to read/write specific properties
 	 */

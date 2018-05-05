@@ -15,7 +15,6 @@ public class Main extends Application {
 			AnchorPane root = fxmlLoader.load();
 			LoginController loginController = fxmlLoader.getController();
 			Scene scene = new Scene(root, 400, 400);
-			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setWidth(1200);
 			primaryStage.setHeight(800);
 			primaryStage.setScene(scene);
@@ -27,6 +26,7 @@ public class Main extends Application {
 					String srvAdr = ClientStartupOperations.getServerAddr();
 					int port = ClientStartupOperations.getServerPort();
 					loginController.setInfoText("Auto connecting to server");
+					loginController.mainStage = primaryStage;
 					loginController.autoConnect(srvAdr, port);
 				} catch (Exception e) {
 					loginController.infoText.setText("Couldn't automatically connect to server");

@@ -1,0 +1,48 @@
+
+
+#topBar {
+	-fx-background-color: #eaeaea;
+}
+
+#bg {
+	-fx-background-color: #b7b7b7;
+}
+
+#alpha {
+	-fx-background-color: transparent;
+}
+
+.scroll-bar {
+	-fx-background-color: transparent;
+	-fx-pref-width: 13px;
+	-fx-border-color: none;
+}
+
+.track {
+     -fx-background-color: transparent;
+	 -fx-background-radius: 0em;
+	
+}
+
+.thumb {
+    -fx-background-color:derive(black,90%);
+	-fx-background-insets: 0, 0, 0;
+	-fx-background-radius: 0em;
+ }
+ 
+ .thumb:hover {
+    -fx-background-color:derive(black,93%);
+ }
+ 
+ .thumb:pressed { 
+    -fx-background-color:derive(black,97%);
+    }
+ 
+ .increment-arrow, .decrement-arrow,  .increment-button, .decrement-button {
+ 	-fx-pref-height: 0;
+	visibility: false;
+}
+
+ .increment-button:hover, .decrement-button:hover,  .increment-button:pressed, .decrement-button:pressed {
+	visibility: false;
+}

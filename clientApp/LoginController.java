@@ -1,5 +1,6 @@
 package clientApp;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 
 import javax.security.auth.login.LoginException;
@@ -10,12 +11,16 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 /**
@@ -32,9 +37,9 @@ public class LoginController extends Thread {
 	@FXML
 	private TextField portInput;
 	@FXML
-	private TextField uNameInp;
+	public TextField uNameInp;
 	@FXML
-	private TextField pwInp;
+	public TextField pwInp;
 	@FXML
 	private TextField uNameInpReg;
 	@FXML
@@ -57,6 +62,9 @@ public class LoginController extends Thread {
 	private CheckBox loggedinCheckBox;
 	@FXML
 	private ImageView loadingGIF1;
+	public boolean autoLogin = false;
+	public Stage mainStage;
+	private ClientStartConnection connection = new ClientStartConnection();
 
 	/**
 	 * This method is being called when auto Connect is enabled. See Main class
@@ -90,7 +98,7 @@ public class LoginController extends Thread {
 				return;
 			}
 			//tries to connect to server
-			if (ClientConnection.connectToServer(srvAdr, port)) {
+			if (connection.connectToServer(srvAdr, port)) {
 				//save auto login informations to startup file
 				if (connectedCheckBox.isSelected()) {
 					ClientStartupOperations.setServerInfo(srvAdr, port);
@@ -113,7 +121,7 @@ public class LoginController extends Thread {
 				setInfoText("");
 				loadingGIF1.setVisible(false);
 				//check whether remember login was used before. If yes automatically log the user in
-				ClientConnection.autoLogin();
+				connection.autoLogin(this, mainStage);
 			} else {
 				setInfoText("Couldn't connect to server");
 			}
@@ -148,13 +156,20 @@ public class LoginController extends Thread {
 				return;
 			}
 			//try to login to the server. If successful switch to the users chat window
-			if (ClientConnection.loginToServer(uNameInp.getText(), pwInp.getText(), "LOGIN", loggedinCheckBox.isSelected())) {
+			if (connection.loginToServer(uNameInp.getText(), pwInp.getText(), autoLogin ? "AUTOLOGIN" : "LOGIN", loggedinCheckBox.isSelected())) {
 				//if the user checked the stay logged in check box save that into the startup file
 				if (loggedinCheckBox.isSelected()) {
 					ClientStartupOperations.setAutoLogin(true, uName, ClientStartupOperations.getloginID());
 				}
-				//TODO switch to CHATS scene
+				new CliServComm(connection.getSocket()).start();
+				if (autoLogin)
+					((Scene) event.getSource()).setRoot(FXMLLoader.load(this.getClass().getResource("ChatsScreen.fxml")));
+				else
+					((Node) event.getSource()).getScene().setRoot(FXMLLoader.load(this.getClass().getResource("ChatsScreen.fxml")));
+
 			} else {
+				if (autoLogin)
+					autoLogin = false;
 				setInfoText("Couldn't log in, please try again");
 			}
 		}
@@ -169,6 +184,7 @@ public class LoginController extends Thread {
 			}
 			System.exit(0);
 		} catch (Exception e) {
+			e.printStackTrace();
 			setInfoText("An error occured");
 		} finally {
 			loadingGIF1.setVisible(false);
@@ -198,14 +214,18 @@ public class LoginController extends Thread {
 		}
 		try {
 			//try to register to the server and if successful switch to chats window
-			if (ClientConnection.loginToServer(uNameInpReg.getText(), pwInpReg.getText(), "REGISTER", false)) {
+			if (connection.loginToServer(uNameInpReg.getText(), pwInpReg.getText(), "REGISTER", false)) {
 				setInfoText("");
-				//TODO switch to CHATS scene
+				Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+				stage.setScene(FXMLLoader.load(this.getClass().getResource("ChatsScreen.fxml")));
+				((Node) event.getSource()).getScene().setRoot(FXMLLoader.load(this.getClass().getResource("ChatsScreen.fxml")));
 			} else {
 				setInfoText("Couldn't register, please try again");
 			}
 		} catch (LoginException e) {
 			//Exception can not happen in this method only when logging in
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
