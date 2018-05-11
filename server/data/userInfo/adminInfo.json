@@ -1,0 +1,6 @@
+{
+	"name": "admin",
+	"status": "The Server Admin",
+	"rights": "admin",
+	"contacts": ["user1"]
+}

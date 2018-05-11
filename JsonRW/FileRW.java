@@ -1,4 +1,4 @@
-package JsonRW;
+package jsonRW;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -42,6 +42,28 @@ public class FileRW {
 			System.err.println(e);
 			return null;
 		}
+	}
+
+	public static String readFromFile(String location, int lastLine) {
+		StringBuilder sb = null;
+		try {
+			//Reads from the file
+			BufferedReader br = new BufferedReader(new FileReader(new File(new URI(location))));
+			sb = new StringBuilder();
+			String line = br.readLine();
+			//read the file line by line and append the new line to the StringBuilder
+			int linesRead = 1;
+			while (line != null && linesRead <= lastLine) {
+				sb.append(line + System.lineSeparator());
+				line = br.readLine();
+			}
+			br.close();
+			return sb.toString();
+		} catch (IOException | URISyntaxException e) {
+			System.err.println(e);
+			return null;
+		}
+
 	}
 
 	/**

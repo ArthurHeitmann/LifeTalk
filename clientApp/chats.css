@@ -1,4 +1,5 @@
 
+/* === General background stuff === */
 
 #topBar {
 	-fx-background-color: #eaeaea;
@@ -11,6 +12,19 @@
 #alpha {
 	-fx-background-color: transparent;
 }
+
+/* ===  === */
+
+#search1 {
+	-fx-background-radius: 3px;
+}
+
+.scroll-pane#alpha > .viewport {
+	-fx-background-color: transparent;
+}
+
+
+/* === Scroll Bar  === */
 
 .scroll-bar {
 	-fx-background-color: transparent;

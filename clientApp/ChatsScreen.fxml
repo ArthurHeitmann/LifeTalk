@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.shape.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clientApp.ChatsController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clientApp.ChatsController">
    <children>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#8d8d8d" height="800.0" stroke="BLACK" strokeType="INSIDE" width="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <HBox layoutX="17.0" layoutY="9.0" prefHeight="100.0" prefWidth="200.0" stylesheets="@chats.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -21,20 +29,51 @@
                         <HBox id="topBar" minHeight="76.0" prefHeight="113.0" prefWidth="400.0" VBox.vgrow="NEVER">
                            <effect>
                               <DropShadow blurType="TWO_PASS_BOX" height="49.0" radius="17.0" />
-                           </effect></HBox>
-                        <TextField minHeight="36.0" prefHeight="79.0" prefWidth="400.0" promptText="Search Chats and Contact" VBox.vgrow="NEVER">
+                           </effect>
+                           <children>
+                              <Circle radius="32.0" stroke="TRANSPARENT" strokeType="INSIDE">
+                                 <HBox.margin>
+                                    <Insets left="6.0" top="6.0" />
+                                 </HBox.margin>
+                                 <fill>
+                                    <LinearGradient endX="1.0" endY="1.0">
+                                       <stops>
+                                          <Stop color="#aeaeae" />
+                                          <Stop color="#eaeaea00" offset="1.0" />
+                                       </stops>
+                                    </LinearGradient>
+                                 </fill>
+                              </Circle>
+                              <Label fx:id="nameTitle" prefHeight="52.0" prefWidth="220.0" text="Name" textFill="#20ad25">
+                                 <font>
+                                    <Font name="Alcubierre" size="38.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets bottom="12.0" left="20.0" top="12.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Button mnemonicParsing="false" onAction="#buttonTest" text="..." />
+                           </children></HBox>
+                        <TextField id="search1" minHeight="36.0" prefHeight="79.0" prefWidth="400.0" promptText="🔎 Search Chats and Contact" VBox.vgrow="NEVER">
                            <VBox.margin>
                               <Insets bottom="10.0" left="15.0" right="15.0" top="15.0" />
                            </VBox.margin>
                         </TextField>
                      </children>
                   </VBox>
-                  <ScrollPane id="alpha" focusTraversable="false" pannable="true" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                  <ScrollPane id="alpha" fx:id="chatsScrollPane" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="400.0" style="-fx-background-color: #8d8d8d;" VBox.vgrow="ALWAYS">
                      <content>
-                        <VBox id="alpha" prefHeight="664.0" prefWidth="398.0" style="-fx-background-color: #8d8d8d;">
-                           <padding>
-                              <Insets right="15.0" />
-                           </padding></VBox>
+                        <VBox id="alpha" fx:id="chatList" prefWidth="400.0" style="-fx-background-color: #8d8d8d;">
+                           <children>
+                              <ImageView fx:id="list1LoadingImg" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@resources/loading_v1.gif" />
+                                 </image>
+                                 <VBox.margin>
+                                    <Insets left="125.0" />
+                                 </VBox.margin>
+                              </ImageView>
+                           </children></VBox>
                      </content>
                   </ScrollPane>
                </children>
@@ -44,9 +83,81 @@
                   <HBox id="topBar" minHeight="76.0" prefHeight="76.0" prefWidth="800.0" VBox.vgrow="NEVER">
                      <effect>
                         <DropShadow blurType="TWO_PASS_BOX" height="49.0" offsetX="1.5" radius="17.0" />
-                     </effect></HBox>
-                  <VBox prefHeight="646.0" prefWidth="800.0" VBox.vgrow="ALWAYS" />
-                  <HBox prefHeight="68.0" prefWidth="800.0" VBox.vgrow="NEVER" />
+                     </effect>
+                     <children>
+                        <ImageView fx:id="chatPImg" fitHeight="100.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@resources/user.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                           </HBox.margin>
+                        </ImageView>
+                        <VBox prefHeight="76.0" prefWidth="448.0">
+                           <children>
+                              <Label fx:id="chatPName" text="Contacts name">
+                                 <font>
+                                    <Font name="Alcubierre" size="26.0" />
+                                 </font>
+                                 <padding>
+                                    <Insets top="8.0" />
+                                 </padding>
+                              </Label>
+                              <Label fx:id="chatPInfo" text="StatusInfo">
+                                 <font>
+                                    <Font name="Alcubierre" size="19.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="13.0" />
+                           </HBox.margin>
+                        </VBox>
+                     </children></HBox>
+                  <VBox fx:id="chatView" prefHeight="646.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+                     <padding>
+                        <Insets bottom="20.0" left="70.0" right="70.0" top="20.0" />
+                     </padding>
+                     <children>
+                        <ScrollPane id="alpha" prefHeight="200.0" prefWidth="200.0">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0" />
+                          </content>
+                        </ScrollPane>
+                     </children></VBox>
+                  <HBox prefHeight="68.0" prefWidth="800.0" VBox.vgrow="NEVER">
+                     <children>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@resources/arrow_triangle.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets left="15.0" top="13.0" />
+                           </HBox.margin>
+                           <effect>
+                              <DropShadow />
+                           </effect>
+                        </ImageView>
+                        <TextField disable="true" prefHeight="46.0" prefWidth="656.0" promptText="Enter message" style="-fx-background-color: #565656; -fx-prompt-text-fill: white;">
+                           <HBox.margin>
+                              <Insets left="15.0" top="10.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font name="Alcubierre" size="20.0" />
+                           </font>
+                        </TextField>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@resources/file_upload.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets left="15.0" top="13.0" />
+                           </HBox.margin>
+                           <effect>
+                              <DropShadow />
+                           </effect>
+                        </ImageView>
+                     </children></HBox>
                </children>
             </VBox>
          </children>

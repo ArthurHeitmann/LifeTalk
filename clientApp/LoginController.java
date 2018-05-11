@@ -5,14 +5,13 @@ import java.net.UnknownHostException;
 
 import javax.security.auth.login.LoginException;
 
-import JsonRW.ClientStartupOperations;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TabPane;
@@ -22,6 +21,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import jsonRW.ClientStartupOperations;
 
 /**
  * Class to handle events from the GUI application, like connecting to the server, logging
@@ -161,12 +161,12 @@ public class LoginController extends Thread {
 				if (loggedinCheckBox.isSelected()) {
 					ClientStartupOperations.setAutoLogin(true, uName, ClientStartupOperations.getloginID());
 				}
-				new CliServComm(connection.getSocket()).start();
-				if (autoLogin)
-					((Scene) event.getSource()).setRoot(FXMLLoader.load(this.getClass().getResource("ChatsScreen.fxml")));
-				else
-					((Node) event.getSource()).getScene().setRoot(FXMLLoader.load(this.getClass().getResource("ChatsScreen.fxml")));
-
+				try {
+					switchScene((Scene) event.getSource());
+				} catch (IOException e) {
+					infoText.setText("Couldn't switch to chats window");
+					e.printStackTrace();
+				}
 			} else {
 				if (autoLogin)
 					autoLogin = false;
@@ -216,20 +216,34 @@ public class LoginController extends Thread {
 			//try to register to the server and if successful switch to chats window
 			if (connection.loginToServer(uNameInpReg.getText(), pwInpReg.getText(), "REGISTER", false)) {
 				setInfoText("");
-				Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-				stage.setScene(FXMLLoader.load(this.getClass().getResource("ChatsScreen.fxml")));
-				((Node) event.getSource()).getScene().setRoot(FXMLLoader.load(this.getClass().getResource("ChatsScreen.fxml")));
+				try {
+					switchScene((Scene) event.getSource());
+				} catch (IOException e) {
+					infoText.setText("Couldn't switch to chats window");
+					e.printStackTrace();
+				}
 			} else {
 				setInfoText("Couldn't register, please try again");
 			}
 		} catch (LoginException e) {
 			//Exception can not happen in this method only when logging in
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
 	public void setInfoText(String text) {
 		infoText.setText(text);
+	}
+
+	private void switchScene(Scene scene) throws IOException {
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatsScreen.fxml"));
+		scene.setRoot(fxmlLoader.load());
+		Platform.runLater(() -> {
+			try {
+				new CliServComm(connection.getSocket(), fxmlLoader.getController(), connection.getOut(), connection.getIn());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+
 	}
 }

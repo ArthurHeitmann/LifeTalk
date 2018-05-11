@@ -9,9 +9,9 @@ import java.net.UnknownHostException;
 
 import javax.security.auth.login.LoginException;
 
-import JsonRW.ClientStartupOperations;
 import javafx.event.ActionEvent;
 import javafx.stage.Stage;
+import jsonRW.ClientStartupOperations;
 
 /**
  * This class takes care of all the communication with the server. Most important Methods:
@@ -163,6 +163,14 @@ public class ClientStartConnection {
 	 */
 	public String getLoginID() {
 		return loginID;
+	}
+
+	public PrintWriter getOut() {
+		return out;
+	}
+
+	public BufferedReader getIn() {
+		return in;
 	}
 
 	public Socket getSocket() {
