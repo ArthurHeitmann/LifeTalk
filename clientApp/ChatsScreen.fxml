@@ -22,7 +22,7 @@
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#8d8d8d" height="800.0" stroke="BLACK" strokeType="INSIDE" width="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <HBox layoutX="17.0" layoutY="9.0" prefHeight="100.0" prefWidth="200.0" stylesheets="@chats.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox id="alpha" prefHeight="200.0" prefWidth="400.0">
+            <VBox id="alpha" prefHeight="200.0" prefWidth="400.0" HBox.hgrow="NEVER">
                <children>
                   <VBox prefHeight="137.0" prefWidth="400.0" VBox.vgrow="NEVER">
                      <children>
@@ -63,17 +63,7 @@
                   </VBox>
                   <ScrollPane id="alpha" fx:id="chatsScrollPane" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="400.0" style="-fx-background-color: #8d8d8d;" VBox.vgrow="ALWAYS">
                      <content>
-                        <VBox id="alpha" fx:id="chatList" prefWidth="400.0" style="-fx-background-color: #8d8d8d;">
-                           <children>
-                              <ImageView fx:id="list1LoadingImg" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@resources/loading_v1.gif" />
-                                 </image>
-                                 <VBox.margin>
-                                    <Insets left="125.0" />
-                                 </VBox.margin>
-                              </ImageView>
-                           </children></VBox>
+                        <VBox id="alpha" fx:id="chatList" prefWidth="400.0" style="-fx-background-color: #8d8d8d;" />
                      </content>
                   </ScrollPane>
                </children>
@@ -114,15 +104,15 @@
                            </HBox.margin>
                         </VBox>
                      </children></HBox>
-                  <VBox fx:id="chatView" prefHeight="646.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+                  <VBox prefHeight="646.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
                      <padding>
                         <Insets bottom="20.0" left="70.0" right="70.0" top="20.0" />
                      </padding>
                      <children>
-                        <ScrollPane id="alpha" prefHeight="200.0" prefWidth="200.0">
-                          <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0" />
-                          </content>
+                        <ScrollPane id="alpha" hbarPolicy="NEVER" prefHeight="611.0" VBox.vgrow="ALWAYS">
+                           <content>
+                              <VBox fx:id="chatView" prefWidth="656.0" />
+                           </content>
                         </ScrollPane>
                      </children></VBox>
                   <HBox prefHeight="68.0" prefWidth="800.0" VBox.vgrow="NEVER">
@@ -132,15 +122,15 @@
                               <Image url="@resources/arrow_triangle.png" />
                            </image>
                            <HBox.margin>
-                              <Insets left="15.0" top="13.0" />
+                              <Insets bottom="12.0" left="15.0" top="13.0" />
                            </HBox.margin>
                            <effect>
                               <DropShadow />
                            </effect>
                         </ImageView>
-                        <TextField disable="true" prefHeight="46.0" prefWidth="656.0" promptText="Enter message" style="-fx-background-color: #565656; -fx-prompt-text-fill: white;">
+                        <TextField editable="false" prefHeight="46.0" prefWidth="656.0" promptText="Enter message" style="-fx-background-color: #565656; -fx-prompt-text-fill: white;" HBox.hgrow="ALWAYS">
                            <HBox.margin>
-                              <Insets left="15.0" top="10.0" />
+                              <Insets bottom="12.0" left="15.0" top="10.0" />
                            </HBox.margin>
                            <font>
                               <Font name="Alcubierre" size="20.0" />
@@ -151,7 +141,7 @@
                               <Image url="@resources/file_upload.png" />
                            </image>
                            <HBox.margin>
-                              <Insets left="15.0" top="13.0" />
+                              <Insets bottom="12.0" left="15.0" right="15.0" top="13.0" />
                            </HBox.margin>
                            <effect>
                               <DropShadow />

@@ -7,12 +7,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.sql.Time;
+import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import clientApp.fxPresets.MessageFx;
 import javafx.scene.image.Image;
 import jsonRW.ClientOperations;
 
@@ -44,7 +47,9 @@ public class CliServComm {
 		userData = getUserData();
 		controller.setNameTitle(userData.get("name").getAsString());
 		makeChatContactList();
-
+		MessageFx[] a = new MessageFx[] { new MessageFx("Hello", true, new Date(0), new Time(0), controller.chatView.widthProperty()),
+				new MessageFx("Hi", false, new Date(0), new Time(0), controller.chatView.widthProperty()) };
+		controller.addMessages(a);
 	}
 
 	private void makeChatContactList() {
@@ -71,7 +76,6 @@ public class CliServComm {
 			}
 			controller.addChatContact(listElement.get("title").getAsString(), listElement.get("lastLine").getAsString(), listElement.get("firstLineMe").getAsBoolean(),
 					listElement.get("statusInfo").getAsString(), tmpImg);
-			controller.hideLoadingImg1();
 		}
 	}
 
