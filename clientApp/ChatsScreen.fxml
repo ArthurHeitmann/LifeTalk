@@ -22,7 +22,7 @@
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#8d8d8d" height="800.0" stroke="BLACK" strokeType="INSIDE" width="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <HBox layoutX="17.0" layoutY="9.0" prefHeight="100.0" prefWidth="200.0" stylesheets="@chats.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox id="alpha" prefHeight="200.0" prefWidth="400.0" HBox.hgrow="NEVER">
+            <VBox id="alpha" maxWidth="400.0" prefHeight="200.0" prefWidth="400.0" HBox.hgrow="NEVER">
                <children>
                   <VBox prefHeight="137.0" prefWidth="400.0" VBox.vgrow="NEVER">
                      <children>
@@ -109,9 +109,9 @@
                         <Insets bottom="20.0" left="70.0" right="70.0" top="20.0" />
                      </padding>
                      <children>
-                        <ScrollPane id="alpha" hbarPolicy="NEVER" prefHeight="611.0" VBox.vgrow="ALWAYS">
+                        <ScrollPane id="alpha" fx:id="chatViewScrollPane" fitToWidth="true" hbarPolicy="NEVER" pannable="true" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
                            <content>
-                              <VBox fx:id="chatView" prefWidth="656.0" />
+                              <VBox fx:id="chatView" fillWidth="false" />
                            </content>
                         </ScrollPane>
                      </children></VBox>

@@ -47,8 +47,8 @@ public class CliServComm {
 		userData = getUserData();
 		controller.setNameTitle(userData.get("name").getAsString());
 		makeChatContactList();
-		MessageFx[] a = new MessageFx[] { new MessageFx("Hello", true, new Date(0), new Time(0), controller.chatView.widthProperty()),
-				new MessageFx("Hi", false, new Date(0), new Time(0), controller.chatView.widthProperty()) };
+		MessageFx[] a = new MessageFx[] { new MessageFx("Hello", true, new Date(0), new Time(0), controller.chatView.getWidth()),
+				new MessageFx("Hi", false, new Date(0), new Time(0), controller.chatView.getWidth()) };
 		controller.addMessages(a);
 	}
 

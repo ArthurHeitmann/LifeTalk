@@ -39,17 +39,20 @@
 }
 
 .thumb {
-    -fx-background-color:derive(black,90%);
+    -fx-background-color: #969696;
+    -fx-opacity: 0.5;
 	-fx-background-insets: 0, 0, 0;
 	-fx-background-radius: 0em;
  }
  
  .thumb:hover {
-    -fx-background-color:derive(black,93%);
+    -fx-background-color: #999999;
+    -fx-opacity: 0.75;
  }
  
  .thumb:pressed { 
-    -fx-background-color:derive(black,97%);
+    -fx-background-color: #aaaaaa;
+    -fx-opacity: 0.75;
     }
  
  .increment-arrow, .decrement-arrow,  .increment-button, .decrement-button {
