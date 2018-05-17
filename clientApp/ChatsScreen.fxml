@@ -106,12 +106,15 @@
                      </children></HBox>
                   <VBox prefHeight="646.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
                      <padding>
-                        <Insets bottom="20.0" left="70.0" right="70.0" top="20.0" />
+                        <Insets bottom="20.0" left="70.0" right="45.0" top="20.0" />
                      </padding>
                      <children>
                         <ScrollPane id="alpha" fx:id="chatViewScrollPane" fitToWidth="true" hbarPolicy="NEVER" pannable="true" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
                            <content>
-                              <VBox fx:id="chatView" fillWidth="false" />
+                              <VBox fx:id="chatView" fillWidth="false" minWidth="150.0" spacing="13.0">
+                                 <padding>
+                                    <Insets right="25.0" />
+                                 </padding></VBox>
                            </content>
                         </ScrollPane>
                      </children></VBox>

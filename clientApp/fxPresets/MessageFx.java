@@ -4,75 +4,85 @@ import java.sql.Time;
 import java.util.Date;
 
 import javafx.beans.value.ChangeListener;
-import javafx.geometry.Pos;
+import javafx.geometry.Insets;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
 public class MessageFx {
-	private Text content;
-	private Text time;
 	//private Date date;
-	private StackPane primaryLayout;
+	private HBox primaryLayout;
 	private ChangeListener<Number> listener;
+	private final double DISTANCE1 = 13;
 
 	public MessageFx(String contentText, boolean msgByMe, Date dateD, Time timeT, double currentWidth) {
-		primaryLayout = new StackPane();
-		content = new Text(contentText);
-		time = new Text(timeT.toString());
-
-		content.setText(contentText);
-		time.setText(timeT.toString());
+		//create all necessary nodes
+		primaryLayout = new HBox();
+		StackPane msgContainer = new StackPane();
+		VBox textContainer = new VBox(7);
+		Pane placeholder = new Pane();
+		HBox timePositioner = new HBox();
+		Pane timerPositionerPlaceholder = new Pane();
+		//Rectangle box = new Rectangle();
+		Text content = new Text(contentText.replace("\\", "\\\\"));
+		Text time = new Text(timeT.toString().substring(0, 5));
 		//date = date;
 
+		timePositioner.getChildren().addAll(timerPositionerPlaceholder, time);
+		textContainer.getChildren().addAll(content, timePositioner);
+
+		//setup basic visuals
+		HBox.setHgrow(placeholder, Priority.ALWAYS);
+		HBox.setHgrow(timerPositionerPlaceholder, Priority.ALWAYS);
+		textContainer.setPadding(new Insets(DISTANCE1));
 		content.setFill(Paint.valueOf("#f4f4f4"));
 		time.setFill(Paint.valueOf("#f4f4f4"));
+		placeholder.setMinWidth(50);
+		/*box.setArcHeight(DISTANCE1*2);
+		box.setArcWidth(DISTANCE1*2);*/
+		//setup type specific visuals
+		if (msgByMe) {
+			primaryLayout.getChildren().addAll(placeholder, textContainer);
+			textContainer.setStyle("-fx-background-color: #727272; -fx-background-radius: 26px;");
+		} else {
+			primaryLayout.getChildren().addAll(textContainer, placeholder);
+			textContainer.setStyle("-fx-background-color: #20ad25; -fx-background-radius: 26px;");
+		}
 
-		primaryLayout.setMaxWidth(currentWidth);
-		if (content.getBoundsInLocal().getWidth() + 26 > currentWidth)
-			content.setWrappingWidth(currentWidth - 26);
-
-		Rectangle box = new Rectangle();
-		box.setArcHeight(25);
-		box.setArcWidth(25);
-		box.setWidth(content.getBoundsInLocal().getWidth() + 26);
-
+		//listener for the ScrollPane width property
 		listener = (obsV, oldV, newV) -> {
-			if (content.getWrappingWidth() != 0 && box.getWidth() < newV.doubleValue())
+			if (newV.doubleValue() < 350) {
+				content.setWrappingWidth(170);
+				return;
+			}
+			primaryLayout.setPrefWidth(newV.doubleValue());
+			if (new Text(content.getText()).getBoundsInLocal().getWidth() + 50 + DISTANCE1 * 2 < newV.doubleValue())
 				content.setWrappingWidth(0);
-
-			if (content.getBoundsInLocal().getWidth() + 26 > newV.doubleValue())
-				content.setWrappingWidth(newV.doubleValue() - 26);
-			primaryLayout.maxWidth(newV.doubleValue());
+			else if (textContainer.getWidth() + 50 > newV.doubleValue())
+				content.setWrappingWidth(textContainer.getWidth() - 50 - DISTANCE1 * 2);
+			else if (oldV != null && newV.doubleValue() > oldV.doubleValue())
+				content.setWrappingWidth(newV.doubleValue() - 50 - DISTANCE1 * 2);
+			else if (oldV == null)
+				content.setWrappingWidth(newV.doubleValue() - 50 - DISTANCE1 * 2);
 		};
 
-		content.boundsInLocalProperty().addListener((obsV, oldV, newV) -> {
-			box.setWidth(newV.getWidth() + 26);
+		listener.changed(null, null, currentWidth);
 
-		});
-		time.translateXProperty().bind(primaryLayout.widthProperty().subtract(box.widthProperty()).subtract(13).multiply(-1));
-		box.setHeight(content.getBoundsInLocal().getHeight() + 52 + 16 + 10);
-		StackPane.setAlignment(time, Pos.BOTTOM_RIGHT);
-		time.setTranslateY(-13);
-		content.setTranslateY(25);
-		if (msgByMe) {
-			primaryLayout.setAlignment(Pos.TOP_RIGHT);
-			content.setTranslateX(-13);
-			box.setFill(Paint.valueOf("#727272"));
-		} else {
-			primaryLayout.setAlignment(Pos.TOP_LEFT);
-			content.setTranslateX(13);
-			box.setFill(Paint.valueOf("#20ad25"));
-		}
-		primaryLayout.getChildren().addAll(box, content, time);
+	}
+
+	public void fire(double v) {
+		listener.changed(null, null, v);
 	}
 
 	public ChangeListener<Number> getListener() {
 		return listener;
 	}
 
-	public StackPane getPrimaryLayout() {
+	public HBox getPrimaryLayout() {
 		return primaryLayout;
 	}
 
