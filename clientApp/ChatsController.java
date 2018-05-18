@@ -1,22 +1,20 @@
 package clientApp;
 
-import java.net.URL;
 import java.sql.Date;
-import java.sql.Time;
-import java.util.ResourceBundle;
 
 import clientApp.fxPresets.ChatcontactFx;
 import clientApp.fxPresets.MessageFx;
+import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
-public class ChatsController implements Initializable {
+public class ChatsController {
 	@FXML
 	private VBox chatList;
 	@FXML
@@ -32,17 +30,7 @@ public class ChatsController implements Initializable {
 	@FXML
 	public ScrollPane chatViewScrollPane;
 	private MessageFx msg;
-
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-		/*chatView.prefWidthProperty().bind(chatViewScrollPane.widthProperty());
-		chatViewScrollPane.widthProperty().addListener((obsV, oldV, newV) -> {
-			//System.out.println(chatView.getMaxWidth());
-			System.out.println(chatView.getWidth());
-			System.out.println(newV.doubleValue());
-			System.out.println("-------------------------------------");
-		});*/
-	}
+	private CliServComm serverCommunication;
 
 	public void setNameTitle(String name) {
 
@@ -53,7 +41,9 @@ public class ChatsController implements Initializable {
 		VBox chatElement = new ChatcontactFx(title, firstLine, firstLineMe, statusInfo, img).getLayout();
 		chatList.getChildren().add(0, chatElement);
 		chatElement.setOnMouseClicked(e -> {
-			//TODO
+			//TODO check whether already selected
+			chatView.getChildren().clear();
+			addMessages(serverCommunication.getMessages(title, 0));
 		});
 	}
 
@@ -64,22 +54,39 @@ public class ChatsController implements Initializable {
 	}
 
 	public void addMessages(MessageFx[] messages) {
+		double tmpVV = chatViewScrollPane.getVvalue();
 		msg = messages[0];
 		for (MessageFx messageFx : messages) {
-			chatView.getChildren().add(messageFx.getPrimaryLayout());
+			chatView.getChildren().add(0, messageFx.getPrimaryLayout());
 			chatViewScrollPane.widthProperty().addListener(messageFx.getListener());
 		}
+		PauseTransition wait = new PauseTransition(Duration.millis(10));
+		wait.setOnFinished(EventHandler -> chatViewScrollPane.setVvalue(1));
+		wait.play();
+		//chatViewScrollPane.setVvalue(tmpVV);
+
+	}
+
+	public void test1(ActionEvent event) {
 
 	}
 
 	public void buttonTest(ActionEvent event) {
 		MessageFx[] a = new MessageFx[] { new MessageFx(
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, \nsed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-				true, new Date(0), new Time(0), chatView.getWidth()),
+				true, new Date(0), chatView.getWidth()),
 				new MessageFx("loremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitamet",
-						false, new Date(0), new Time(0), chatView.getWidth()) };
+						false, new Date(0), chatView.getWidth()) };
 		addMessages(a);
 
+	}
+
+	public void setComm(CliServComm cliServComm) {
+		serverCommunication = cliServComm;
+	}
+
+	public double getScrollPaneWidth() {
+		return chatViewScrollPane.getWidth();
 	}
 
 }
