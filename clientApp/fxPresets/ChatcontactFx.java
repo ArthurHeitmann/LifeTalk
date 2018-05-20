@@ -1,6 +1,6 @@
 package clientApp.fxPresets;
 
-import clientApp.CliServComm;
+import clientApp.ClientSideToServer;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
@@ -11,26 +11,56 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+/**
+ * A class to manage the visual representation of a contacts quick overview. Contains the
+ * contacts image, the accounts name, its status info, what the last message was between
+ * that person and the current client. The last message is grayed out if it was sent by
+ * the current user.
+ * 
+ * @author Arthur H. TODO save the time of the last message to sort all ChatcontactFxs.
+ */
 public class ChatcontactFx {
+	/** Parent node that holds all the child nodes. */
 	private HBox primaryLayout;
+	/** Parent node of all text related nodes, which are displayed vertically */
 	private VBox secondaryLayout;
+	/** Image of the other persons profile picture */
 	private ImageView contactImage;
+	/** Holds the name of the other persons username */
 	private Label nameLabel;
+	/** The last message that was sent in that chat */
 	private Label lastLine;
+	/** Status info of the other person */
 	private Label statusInfo;
+	/** Whether the last message sent was by the current user or not */
 	private boolean lastMsgByMe;
+	/**
+	 * Horizontal line, at the beginning, which separates the main content from a previous
+	 * "ChatcontactFX.primaryLayout"
+	 */
 	private Separator divLine;
 
+	/**
+	 * Creates and sets up all the necessary objects and nodes for this object
+	 * 
+	 * @param title Name of the other person
+	 * @param firstLine The last message which was sent in that chat
+	 * @param firstLineMe Whether the last message sent was by the current user or not
+	 * @param statusInfo The status info of the other user
+	 * @param img The profile picture of the other user
+	 */
 	public ChatcontactFx(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img) {
+		//Create the nodes for the GUI
 		primaryLayout = new HBox(10);
 		secondaryLayout = new VBox(7);
 		nameLabel = new Label(title);
 		lastLine = new Label(firstLine);
 		this.statusInfo = new Label("„" + statusInfo + "“");
-		contactImage = new ImageView(CliServComm.class.getResource("resources/user.png").toExternalForm());
+		contactImage = new ImageView(ClientSideToServer.class.getResource("resources/user.png").toExternalForm());
 		lastMsgByMe = firstLineMe;
 		divLine = new Separator(Orientation.HORIZONTAL);
 
+		//set the dimensions and text clipping style
 		nameLabel.setMaxWidth(300);
 		lastLine.setMaxWidth(300);
 		this.statusInfo.setMaxWidth(300);
@@ -38,49 +68,63 @@ public class ChatcontactFx {
 		lastLine.setTextOverrun(OverrunStyle.ELLIPSIS);
 		this.statusInfo.setTextOverrun(OverrunStyle.ELLIPSIS);
 
-		nameLabel.setStyle("-fx-font-size: 20px");
-		lastLine.setStyle("-fx-font-size: 15px");
-		this.statusInfo.setStyle("-fx-font-size: 15px; -fx-font-style: italic;");
-		secondaryLayout.getChildren().addAll(nameLabel, lastLine, this.statusInfo);
-		primaryLayout.getChildren().addAll(contactImage, secondaryLayout);
-
-		style();
-	}
-
-	public void style() {
+		//setup the image size and position
 		contactImage.setFitWidth(67);
 		contactImage.setPreserveRatio(true);
 		contactImage.setSmooth(true);
 		contactImage.setTranslateY((primaryLayout.getBoundsInLocal().getHeight() - contactImage.getFitWidth() / 2) / 2);
-		System.out.println(primaryLayout.getBoundsInLocal().getHeight());
 		primaryLayout.setPadding(new Insets(8));
+
+		//CSS: font-size, font-style
+		nameLabel.setStyle("-fx-font-size: 20px");
+		lastLine.setStyle("-fx-font-size: 15px");
+		this.statusInfo.setStyle("-fx-font-size: 15px; -fx-font-style: italic;");
+
+		//add the children to the parent layouts
+		secondaryLayout.getChildren().addAll(nameLabel, lastLine, this.statusInfo);
+		primaryLayout.getChildren().addAll(contactImage, secondaryLayout);
+
+		styleLastLine();
+	}
+
+	/**
+	 * Gray out the last line if it was sent by the current user, otherwise make it look
+	 * normal
+	 */
+	public void styleLastLine() {
 		if (lastMsgByMe)
 			lastLine.setDisable(true);
 		else
 			lastLine.setDisable(false);
 	}
 
+	/**
+	 * Update the text and image in case something changed
+	 * 
+	 * @param firstLine Text of the last message sent in the chat
+	 * @param firstLineMe Whether the last message was sent by the current user
+	 * @param statusInfo Status info of the other user
+	 * @param img Profile picture of the other user
+	 */
 	public void update(String firstLine, boolean firstLineMe, String statusInfo, Image img) {
-		boolean changesDone = false;
+		//check whether the last message changed
 		if (!lastLine.getText().equals(firstLine) && lastMsgByMe != firstLineMe) {
 			lastLine.setText(firstLine);
 			lastMsgByMe = firstLineMe;
-			changesDone = true;
+			styleLastLine();
 		}
-		if (!this.statusInfo.getText().equals(statusInfo)) {
+		//Whether the status info changed
+		if (!this.statusInfo.getText().equals(statusInfo))
 			this.statusInfo.setText(statusInfo);
-			changesDone = true;
-		}
 
-		if (!contactImage.getImage().equals(img)) {
+		//whether the image changed
+		if (!contactImage.getImage().equals(img))
 			contactImage.setImage(img);
-			changesDone = true;
-		}
-
-		if (changesDone)
-			style();
 	}
 
+	/**
+	 * @return The parent node with a separator which holds all the child nodes.
+	 */
 	public VBox getLayout() {
 		return new VBox(divLine, primaryLayout);
 	}

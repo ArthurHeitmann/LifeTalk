@@ -130,7 +130,6 @@ public class Server {
 							} else {
 								name = usrName;
 								write("SUCCESS");
-								break;
 							}
 							userAllowed = true;
 							break;
@@ -192,7 +191,7 @@ public class Server {
 				System.out.println("Connection closed");
 			}
 			if (userAllowed) {
-				Thread t = new Thread(new ClientChat(socket, name, in, out));
+				Thread t = new Thread(new ServerSideToClient(socket, name, in, out));
 				t.start();
 			}
 		}

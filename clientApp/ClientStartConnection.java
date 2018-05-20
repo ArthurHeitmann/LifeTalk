@@ -165,14 +165,23 @@ public class ClientStartConnection {
 		return loginID;
 	}
 
+	/**
+	 * @return PrintWriter: The output device.
+	 */
 	public PrintWriter getOut() {
 		return out;
 	}
 
+	/**
+	 * @return BufferedReader: The input device.
+	 */
 	public BufferedReader getIn() {
 		return in;
 	}
 
+	/**
+	 * @return Socket: allows connecting to the server
+	 */
 	public Socket getSocket() {
 		return socket;
 	}

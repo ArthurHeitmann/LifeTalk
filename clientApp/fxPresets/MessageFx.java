@@ -15,7 +15,7 @@ import javafx.scene.text.Text;
 
 /**
  * This class represents one message which can be displayed. It contains the messages
- * content, the date and time. It can either be green or grey depending who is the
+ * content, the date and time. It can either be green or gray depending who is the
  * receiver/sender.
  * 
  * @author Arthur H.
@@ -37,7 +37,7 @@ public class MessageFx {
 	 * 
 	 * @param contentText The main content of the message
 	 * @param msgByMe Whether message for send by the current client or not. TRUE:
-	 * alignment to the right, grey color; FALSE: alignment: left, green color
+	 * alignment to the right, gray color; FALSE: alignment: left, green color
 	 * @param dateD Date when the message was sent
 	 * @param timeT Time when the message was sent (will be displayed below for the user)
 	 * @param currentWidth The current width of the parent Panel/ScrolPane
@@ -51,7 +51,7 @@ public class MessageFx {
 		HBox timePositioner = new HBox();
 		Pane timerPositionerPlaceholder = new Pane();
 		Text content = new Text(contentText);
-		Text time = new Text(new Time(dateTime.getTime()).toString());
+		Text time = new Text(new Time(dateTime.getTime()).toString().substring(0, 5));
 		//date = new Date(date.getTime());
 
 		//add the nodes to the parent nodes
@@ -76,6 +76,7 @@ public class MessageFx {
 
 		//listener for the ScrollPane width property
 		listener = (obsV, oldV, newV) -> {
+			boolean resetTranslateX = true;
 			//If the parent pane is less then 350px wide then stop word wrapping at 170px
 			if (newV.doubleValue() < 350) {
 				content.setWrappingWidth(170);
@@ -86,14 +87,22 @@ public class MessageFx {
 			if (new Text(content.getText()).getBoundsInLocal().getWidth() + 50 + 26 < newV.doubleValue())
 				content.setWrappingWidth(0);
 			//If the message box is bigger than the ScrollPane
-			else if (textContainer.getWidth() + 50 > newV.doubleValue())
+			else if (textContainer.getWidth() + 50 > newV.doubleValue()) {
 				content.setWrappingWidth(textContainer.getWidth() - 50 - 26);
+				textContainer.setTranslateX(-25);
+				resetTranslateX = false;
+			}
 			//if the ScrollPane width gets bigger
-			else if (oldV != null && newV.doubleValue() > oldV.doubleValue())
+			else if (oldV != null && newV.doubleValue() > oldV.doubleValue()) {
 				content.setWrappingWidth(newV.doubleValue() - 50 - 26);
+				textContainer.setTranslateX(-25);
+				resetTranslateX = false;
+			}
 			//initial setup after first creation
 			else if (oldV == null)
 				content.setWrappingWidth(newV.doubleValue() - 50 - 26);
+			if (resetTranslateX)
+				textContainer.setTranslateX(0);
 		};
 
 		listener.changed(null, null, currentWidth);

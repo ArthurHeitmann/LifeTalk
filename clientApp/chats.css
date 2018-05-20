@@ -13,17 +13,17 @@
 	-fx-background-color: transparent;
 }
 
-/* ===  === */
+/* === Miscellaneous  === */
 
 #search1 {
 	-fx-background-radius: 3px;
 }
 
+/* === Scroll Bar  === */
+
 .scroll-pane#alpha > .viewport {
 	-fx-background-color: transparent;
 }
-
-/* === Scroll Bar  === */
 
 .scroll-bar {
 	-fx-background-color: transparent;

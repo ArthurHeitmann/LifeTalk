@@ -2,6 +2,7 @@ package clientApp;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.regex.Pattern;
 
 import javax.security.auth.login.LoginException;
 
@@ -12,6 +13,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TabPane;
@@ -162,7 +164,10 @@ public class LoginController extends Thread {
 					ClientStartupOperations.setAutoLogin(true, uName, ClientStartupOperations.getloginID());
 				}
 				try {
-					switchScene((Scene) event.getSource());
+					if (event.getSource().getClass().getName().equals("javafx.scene.control.Button"))
+						switchScene(((Node) event.getSource()).getScene());
+					else
+						switchScene((Scene) event.getSource());
 				} catch (IOException e) {
 					infoText.setText("Couldn't switch to chats window");
 					e.printStackTrace();
@@ -207,9 +212,31 @@ public class LoginController extends Thread {
 			setInfoText("Inputs must be not empty!");
 			return;
 		}
+
+		Pattern uNamePattern = Pattern.compile("[^a-zA-Z0-9._!§$%&/()=?+#-*/:;{}<>°´`²³öäüß^]");
+		boolean uNameAllowed = uNamePattern.matcher(uName).find();
+		Pattern pwPattern = Pattern.compile("[^1-9a-z-A-Z_.:#+-öäüß*/!$%&/()=?°<>|]");
+		boolean pwAllowed = pwPattern.matcher(pw).find();
+
+		if (!uNameAllowed) {
+			infoText.setText("Username contains illeagal characters");
+			return;
+		}
+		if (!pwAllowed) {
+			infoText.setText("Password contains illeagal characters");
+			return;
+		}
+		if (uName.length() > 26 || uName.length() < 1) {
+			infoText.setText("Username must contain 1 - 26 characters");
+			return;
+		}
+		if (pw.length() > 41 || pw.length() < 1) {
+			infoText.setText("Password must contain 1 - 40 characters");
+		}
+
 		//check whether the confirmation password equals the first password
 		else if (!pw.equals(pwConf)) {
-			setInfoText("Password must be the same");
+			setInfoText("Passwords must be the same");
 			return;
 		}
 		try {
@@ -223,7 +250,7 @@ public class LoginController extends Thread {
 					e.printStackTrace();
 				}
 			} else {
-				setInfoText("Couldn't register, please try again");
+				setInfoText("Couldn't register, please try again (Maybe the username is not available)");
 			}
 		} catch (LoginException e) {
 			//Exception can not happen in this method only when logging in
@@ -239,7 +266,7 @@ public class LoginController extends Thread {
 		scene.setRoot(fxmlLoader.load());
 		Platform.runLater(() -> {
 			try {
-				new CliServComm(connection.getSocket(), fxmlLoader.getController(), connection.getOut(), connection.getIn());
+				new ClientSideToServer(connection.getSocket(), fxmlLoader.getController(), connection.getOut(), connection.getIn());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

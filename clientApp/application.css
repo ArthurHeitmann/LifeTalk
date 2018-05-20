@@ -1,16 +1,23 @@
+/* Adds custom font */
 @font-face {
 	font-family: Alcubierre;
 	src: url("resources/Alcubierre.otf");
 }
 
+/* Set default font */
+
 .text {
 	-fx-font-family: "Alcubierre";
 }
+
+/* Button styling */
 
 .button {
 	-fx-font-size: 15px;
 	-fx-padding: 3px;
 }
+
+/* Text styling */
 
 #h1 {
 	-fx-font-size: 63px;
@@ -31,6 +38,8 @@
 	-fx-font-size: 15px;
 	-fx-font-family: "Alcubierre";	
 }
+
+/* TextField */
 
 #inpField {
 	-fx-border-radius: 0;

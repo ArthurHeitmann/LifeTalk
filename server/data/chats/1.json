@@ -1,0 +1,16 @@
+{
+	"index": {
+		"count": 1,
+		"lastuser":"arthurTest",
+		"contact1": "arthurTest",
+		"contact2": "user1"
+	},
+
+	"1": {
+		"user":"arthurTest",
+		"textContent":"Happy B-Day J.",
+		"date":"19.05.2018",
+		"time":"10:32"
+	}
+	
+}

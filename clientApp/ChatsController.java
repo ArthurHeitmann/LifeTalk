@@ -14,32 +14,71 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+/**
+ * The controller class of the chat screen. Holds nodes from the fxml file, so that they
+ * can be accessed and changed.
+ * 
+ * 
+ * @author Arthur H.
+ *
+ */
 public class ChatsController {
+	/**
+	 * Holds a list of the contacts and chats the user has (element ->
+	 * fxPresets.ChatcontactFx)
+	 */
 	@FXML
 	private VBox chatList;
+	/** Displays the username of the current user */
 	@FXML
 	private Label nameTitle;
+	/**
+	 * Profile pic of the user the current user just selected from the list (VBox
+	 * chatList)
+	 */
 	@FXML
 	private ImageView chatPImg;
+	/** Name of the user the current user just selected from the list (VBox chatList) */
 	@FXML
 	private Label chatPName;
+	/**
+	 * Status info of the user the current user just selected from the list (VBox
+	 * chatList)
+	 */
 	@FXML
 	private Label chatPInfo;
+	/** Holds all message from the current chat (messages -> fxPresets.MessageFx) */
 	@FXML
-	public VBox chatView;
+	private VBox chatView;
+	/** ScrollPane of the current chat which holds chatView */
 	@FXML
-	public ScrollPane chatViewScrollPane;
-	private MessageFx msg;
-	private CliServComm serverCommunication;
+	private ScrollPane chatViewScrollPane;
+	/** The class that communicates with the server */
+	private ClientSideToServer serverCommunication;
 
+	/**
+	 * Display the name of the current user
+	 * 
+	 * @param name The name of the current user
+	 */
 	public void setNameTitle(String name) {
 
 		nameTitle.setText(name);
 	}
 
+	/**
+	 * Adds a contact/chat link, to the left side list, with which the user is associated
+	 * 
+	 * @param title Name of the other user
+	 * @param firstLine The last message from that chat
+	 * @param firstLineMe Whether the last message sent is from the current user
+	 * @param statusInfo The status info of the other user
+	 * @param img The profile pic of the other user
+	 */
 	public void addChatContact(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img) {
 		VBox chatElement = new ChatcontactFx(title, firstLine, firstLineMe, statusInfo, img).getLayout();
 		chatList.getChildren().add(0, chatElement);
+		//load the chat with the other user when clicked
 		chatElement.setOnMouseClicked(e -> {
 			//TODO check whether already selected
 			chatView.getChildren().clear();
@@ -47,21 +86,33 @@ public class ChatsController {
 		});
 	}
 
+	/**
+	 * Setup the header of the current chat
+	 * 
+	 * @param name Name of the other user
+	 * @param info status info of the other user
+	 * @param contactImg profile pic of the other user
+	 */
 	public void setActiveChatPerson(String name, String info, Image contactImg) {
 		chatPImg = new ImageView(contactImg);
 		chatPInfo.setText(info);
 		chatPName.setText(name);
 	}
 
+	/**
+	 * Adds messages from an array to the current chat
+	 * 
+	 * @param messages
+	 */
 	public void addMessages(MessageFx[] messages) {
 		double tmpVV = chatViewScrollPane.getVvalue();
-		msg = messages[0];
 		for (MessageFx messageFx : messages) {
 			chatView.getChildren().add(0, messageFx.getPrimaryLayout());
 			chatViewScrollPane.widthProperty().addListener(messageFx.getListener());
 		}
-		PauseTransition wait = new PauseTransition(Duration.millis(10));
-		wait.setOnFinished(EventHandler -> chatViewScrollPane.setVvalue(1));
+		//wait a moment for the view to update than scroll to last message
+		PauseTransition wait = new PauseTransition(Duration.millis(5));
+		wait.setOnFinished(e -> chatViewScrollPane.setVvalue(1));
 		wait.play();
 		//chatViewScrollPane.setVvalue(tmpVV);
 
@@ -81,12 +132,31 @@ public class ChatsController {
 
 	}
 
-	public void setComm(CliServComm cliServComm) {
+	/**
+	 * @param cliServComm The class that handles the server communication
+	 */
+	public void setComm(ClientSideToServer cliServComm) {
 		serverCommunication = cliServComm;
 	}
 
+	/**
+	 * @return The width of the current scroll pane
+	 */
 	public double getScrollPaneWidth() {
 		return chatViewScrollPane.getWidth();
 	}
 
+	/**
+	 * @return VBox that holds all the messages of the current chat
+	 */
+	public VBox getChatView() {
+		return chatView;
+	}
+
+	/**
+	 * @return ScrollPane that holds all messages from the current chat
+	 */
+	public ScrollPane getChatViewScrollPane() {
+		return chatViewScrollPane;
+	}
 }
