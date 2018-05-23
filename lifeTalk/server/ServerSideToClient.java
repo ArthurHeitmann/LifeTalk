@@ -1,15 +1,15 @@
-package server;
+package lifeTalk.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
-import jsonRW.ServerOperations;
+import lifeTalk.jsonRW.server.ServerOperations;
 
 /**
  * This class communicates with one client to send and receive text info. In most of the
@@ -22,9 +22,9 @@ public class ServerSideToClient implements Runnable {
 	/** Allows connecting to a client */
 	private Socket socket;
 	/** Input device for client serve communication */
-	private BufferedReader in;
+	private ObjectInputStream in;
 	/** Output device for client serve communication */
-	private PrintWriter out;
+	private ObjectOutputStream out;
 	/** username of the current client */
 	private String username;
 
@@ -34,12 +34,12 @@ public class ServerSideToClient implements Runnable {
 	 * @param userSocket Socket with the client connection
 	 * @param uName The users account name
 	 * @param reader Input device
-	 * @param writer Output device
+	 * @param outStream Output device
 	 */
-	public ServerSideToClient(Socket userSocket, String uName, BufferedReader reader, PrintWriter writer) {
+	public ServerSideToClient(Socket userSocket, String uName, ObjectInputStream reader, ObjectOutputStream outStream) {
 		socket = userSocket;
 		in = reader;
-		out = writer;
+		out = outStream;
 		username = uName;
 	}
 
@@ -54,7 +54,7 @@ public class ServerSideToClient implements Runnable {
 		while (true) {
 			try {
 				//client text prompt
-				String line = in.readLine();
+				String line = (String) in.readObject();
 				if (line == null) {
 					closeAllConnections();
 				} else if (line.equals("GetUserInfo")) {
@@ -62,8 +62,8 @@ public class ServerSideToClient implements Runnable {
 				} else if (line.equals("GetChatContacts")) {
 					sendContactList();
 				} else if (line.equals("getMSG")) {
-					String uName = in.readLine();
-					int startNum = Integer.parseInt(in.readLine());
+					String uName = (String) in.readObject();
+					int startNum = Integer.parseInt((String) in.readObject());
 					JsonArray tmpJA = ServerOperations.getChat(uName, username, startNum);
 					if (tmpJA == null)
 						write("ERROR");
@@ -77,6 +77,8 @@ public class ServerSideToClient implements Runnable {
 			} catch (IOException e) {
 				closeAllConnections();
 				return;
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -122,9 +124,13 @@ public class ServerSideToClient implements Runnable {
 	/**
 	 * @param msg The text message to be sent to the client.
 	 */
-	private void write(String msg) {
-		out.println(msg);
-		out.flush();
+	private void write(Object obj) {
+		try {
+			out.writeObject(obj);
+			out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

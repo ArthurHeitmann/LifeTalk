@@ -1,10 +1,12 @@
-package jsonRW;
+package lifeTalk.jsonRW.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import lifeTalk.jsonRW.FileRW;
 
 /**
  * A class that contains static methods to take care of the login and registration process

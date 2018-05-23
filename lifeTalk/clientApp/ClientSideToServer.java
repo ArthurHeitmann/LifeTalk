@@ -1,11 +1,11 @@
 /**
  * 
  */
-package clientApp;
+package lifeTalk.clientApp;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,9 +16,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
-import clientApp.fxPresets.MessageFx;
+import javafx.application.Platform;
 import javafx.scene.image.Image;
-import jsonRW.ClientOperations;
+import lifeTalk.clientApp.fxPresets.MessageFx;
+import lifeTalk.jsonRW.client.ClientOperations;
 
 /**
  * This class communicates with the server to get/send messages and receive other
@@ -33,9 +34,9 @@ public class ClientSideToServer {
 	/** The controller that allows the manipulation of the GUI */
 	private ChatsController controller;
 	/** Receives data from the server */
-	private BufferedReader in;
+	private ObjectInputStream in;
 	/** Sends data to the server */
-	private PrintWriter out;
+	private ObjectOutputStream out;
 	/**
 	 * Holds basic information of the current user like name, status, profile pic, etc.
 	 */
@@ -46,16 +47,15 @@ public class ClientSideToServer {
 	 * 
 	 * @param socket The socket user - server
 	 * @param controller The controller that is connected to the fxml file
-	 * @param writer PrintWriter: output device
-	 * @param reader BufferedReader: input device
+	 * @param outStream ObjectOutputStream: output device
+	 * @param reader ObjectInputStream: input device
 	 * @throws IOException
 	 */
-	public ClientSideToServer(Socket socket, ChatsController controller, PrintWriter writer, BufferedReader reader) throws IOException {
+	public ClientSideToServer(Socket socket, ChatsController controller, ObjectOutputStream outStream, ObjectInputStream reader) throws IOException {
 		this.socket = socket;
 		this.controller = controller;
 		in = reader;
-		out = writer;
-		start();
+		out = outStream;
 
 	}
 
@@ -63,13 +63,15 @@ public class ClientSideToServer {
 	 * Main method that communicates with the server.
 	 */
 	public void start() {
-		//get basic user info and display the name
-		userData = getUserData();
-		controller.setNameTitle(userData.get("name").getAsString());
-		//get all chats and contacts from the server and add them to the GUI
-		makeChatContactList();
-		//give the controller this class
-		controller.setComm(this);
+		Platform.runLater(() -> {
+			//get basic user info and display the name
+			userData = getUserData();
+			controller.setNameTitle(userData.get("name").getAsString());
+			//get all chats and contacts from the server and add them to the GUI
+			makeChatContactList();
+			//give the controller this class
+			controller.setComm(this);
+		});
 	}
 
 	/**
@@ -89,7 +91,7 @@ public class ClientSideToServer {
 		write(Integer.toString(msgStartNum));
 		try {
 			//all messages are received in one JSON string
-			String line = in.readLine();
+			String line = (String) in.readObject();
 			if (line.equals("ERROR") || line == null)
 				return null;
 			messages = new JsonParser().parse(line).getAsJsonArray();
@@ -105,7 +107,7 @@ public class ClientSideToServer {
 						paneWidth));
 			}
 			return messageFxs.toArray(new MessageFx[messageFxs.size()]);
-		} catch (JsonSyntaxException | IOException | ParseException e) {
+		} catch (JsonSyntaxException | IOException | ParseException | ClassNotFoundException e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -123,8 +125,8 @@ public class ClientSideToServer {
 			//One Json string of a chat/contact
 			String line = null;
 			try {
-				line = in.readLine();
-			} catch (IOException e) {
+				line = (String) in.readObject();
+			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 			//check whether finished, an error occurred or and invalid string has been received
@@ -157,8 +159,8 @@ public class ClientSideToServer {
 		write("GetUserInfo");
 		try {
 			System.out.println(socket.isClosed());
-			return new JsonParser().parse(in.readLine()).getAsJsonObject();
-		} catch (IOException e) {
+			return new JsonParser().parse((String) in.readObject()).getAsJsonObject();
+		} catch (IOException | JsonSyntaxException | ClassNotFoundException e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -169,10 +171,13 @@ public class ClientSideToServer {
 	 * 
 	 * @param msg The text message for the server
 	 */
-	private void write(String msg) {
-		out.println(msg);
-
-		out.flush();
+	private void write(Object obj) {
+		try {
+			out.writeObject(obj);
+			out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -1,9 +1,8 @@
-package clientApp;
+package lifeTalk.clientApp;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -11,7 +10,7 @@ import javax.security.auth.login.LoginException;
 
 import javafx.event.ActionEvent;
 import javafx.stage.Stage;
-import jsonRW.ClientStartupOperations;
+import lifeTalk.jsonRW.client.ClientStartupOperations;
 
 /**
  * This class takes care of all the communication with the server. Most important Methods:
@@ -29,11 +28,11 @@ public class ClientStartConnection {
 	/**
 	 * Get information that the server send to the client (in.readLine())
 	 */
-	private BufferedReader in;
+	private ObjectInputStream in;
 	/**
 	 * sends messages to the server (out.println(MESSAGE); out.flush())
 	 */
-	private PrintWriter out;
+	private ObjectOutputStream out;
 	/**
 	 * stores the loginID of the user if he chose the option to stay logged in for future
 	 * uses
@@ -54,8 +53,8 @@ public class ClientStartConnection {
 		try {
 			//setup the communication tools
 			socket = new Socket(srvAdress, port);
-			out = new PrintWriter(socket.getOutputStream());
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			out = new ObjectOutputStream(socket.getOutputStream());
+			in = new ObjectInputStream(socket.getInputStream());
 			return true;
 		} catch (IOException e) {
 			//e.printStackTrace();
@@ -106,8 +105,8 @@ public class ClientStartConnection {
 		String line;
 		try {
 			//read result from the server
-			line = in.readLine();
-		} catch (IOException e) {
+			line = (String) in.readObject();
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -125,8 +124,8 @@ public class ClientStartConnection {
 		else if (line.equals("SUCCESS LOGIN")) {
 			try {
 				//read loginID
-				line = in.readLine();
-			} catch (IOException e) {
+				line = (String) in.readObject();
+			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 			//if connection get's interrupted
@@ -147,13 +146,17 @@ public class ClientStartConnection {
 	/**
 	 * Send a message to the server,
 	 * 
-	 * @param msg The message for the server
+	 * @param obj The message for the server
 	 */
-	private void write(String msg) {
-		//print message to the OutputStream
-		out.println(msg);
-		//send the message
-		out.flush();
+	private void write(Object obj) {
+		try {
+			//print message to the OutputStream
+			out.writeObject(obj);
+			//send the message
+			out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -166,16 +169,16 @@ public class ClientStartConnection {
 	}
 
 	/**
-	 * @return PrintWriter: The output device.
+	 * @return ObjectOutputStream: The output device.
 	 */
-	public PrintWriter getOut() {
+	public ObjectOutputStream getOut() {
 		return out;
 	}
 
 	/**
-	 * @return BufferedReader: The input device.
+	 * @return ObjectInputStream: The input device.
 	 */
-	public BufferedReader getIn() {
+	public ObjectInputStream getIn() {
 		return in;
 	}
 

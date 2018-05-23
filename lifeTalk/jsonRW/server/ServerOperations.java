@@ -1,4 +1,4 @@
-package jsonRW;
+package lifeTalk.jsonRW.server;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -17,8 +17,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import server.Server;
-import server.ServerSideToClient;
+import lifeTalk.jsonRW.FileRW;
+import lifeTalk.jsonRW.ImageSerializable;
+import lifeTalk.server.Server;
+import lifeTalk.server.ServerSideToClient;
 
 /**
  * This class has static methods for getting user info from Json files

@@ -1,11 +1,12 @@
-package jsonRW;
+package lifeTalk.jsonRW.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import clientApp.ClientStartConnection;
+import lifeTalk.clientApp.ClientStartConnection;
+import lifeTalk.jsonRW.FileRW;
 
 /**
  * This class contains static methods to get and set informations the client application

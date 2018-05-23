@@ -1,4 +1,4 @@
-package jsonRW;
+package lifeTalk.jsonRW.client;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -7,6 +7,7 @@ import java.util.Base64;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import lifeTalk.jsonRW.ImageSerializable;
 
 public class ClientOperations {
 

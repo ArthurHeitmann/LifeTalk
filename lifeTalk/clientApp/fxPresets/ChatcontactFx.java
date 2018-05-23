@@ -1,15 +1,15 @@
-package clientApp.fxPresets;
+package lifeTalk.clientApp.fxPresets;
 
-import clientApp.ClientSideToServer;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
-import javafx.scene.control.Separator;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import lifeTalk.clientApp.ClientSideToServer;
 
 /**
  * A class to manage the visual representation of a contacts quick overview. Contains the
@@ -34,11 +34,6 @@ public class ChatcontactFx {
 	private Label statusInfo;
 	/** Whether the last message sent was by the current user or not */
 	private boolean lastMsgByMe;
-	/**
-	 * Horizontal line, at the beginning, which separates the main content from a previous
-	 * "ChatcontactFX.primaryLayout"
-	 */
-	private Separator divLine;
 
 	/**
 	 * Creates and sets up all the necessary objects and nodes for this object
@@ -58,7 +53,6 @@ public class ChatcontactFx {
 		this.statusInfo = new Label("„" + statusInfo + "“");
 		contactImage = new ImageView(ClientSideToServer.class.getResource("resources/user.png").toExternalForm());
 		lastMsgByMe = firstLineMe;
-		divLine = new Separator(Orientation.HORIZONTAL);
 
 		//set the dimensions and text clipping style
 		nameLabel.setMaxWidth(300);
@@ -72,19 +66,28 @@ public class ChatcontactFx {
 		contactImage.setFitWidth(67);
 		contactImage.setPreserveRatio(true);
 		contactImage.setSmooth(true);
-		contactImage.setTranslateY((primaryLayout.getBoundsInLocal().getHeight() - contactImage.getFitWidth() / 2) / 2);
 		primaryLayout.setPadding(new Insets(8));
 
 		//CSS: font-size, font-style
-		nameLabel.setStyle("-fx-font-size: 20px");
-		lastLine.setStyle("-fx-font-size: 15px");
-		this.statusInfo.setStyle("-fx-font-size: 15px; -fx-font-style: italic;");
+
+		nameLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: #f9f9f9");
+		lastLine.setStyle("-fx-font-size: 15px; -fx-text-fill: #f9f9f9");
+		this.statusInfo.setStyle("-fx-font-size: 15px; -fx-font-style: italic; -fx-text-fill: #f9f9f9");
 
 		//add the children to the parent layouts
 		secondaryLayout.getChildren().addAll(nameLabel, lastLine, this.statusInfo);
 		primaryLayout.getChildren().addAll(contactImage, secondaryLayout);
 
+		contactImage.setTranslateY((primaryLayout.getBoundsInLocal().getHeight() - contactImage.getFitWidth()) / 2 + 8);
+
 		styleLastLine();
+	}
+
+	public void setSelected(boolean state) {
+		if (state)
+			secondaryLayout.setEffect(new DropShadow(5, 0, 0, Color.BLACK));
+		else
+			secondaryLayout.setEffect(null);
 	}
 
 	/**
@@ -125,7 +128,7 @@ public class ChatcontactFx {
 	/**
 	 * @return The parent node with a separator which holds all the child nodes.
 	 */
-	public VBox getLayout() {
-		return new VBox(divLine, primaryLayout);
+	public HBox getLayout() {
+		return primaryLayout;
 	}
 }
