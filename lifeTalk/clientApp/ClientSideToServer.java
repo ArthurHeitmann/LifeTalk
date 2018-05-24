@@ -3,6 +3,8 @@
  */
 package lifeTalk.clientApp;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,15 +13,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import javafx.application.Platform;
-import javafx.scene.image.Image;
+import javafx.embed.swing.SwingFXUtils;
 import lifeTalk.clientApp.fxPresets.MessageFx;
-import lifeTalk.jsonRW.client.ClientOperations;
 
 /**
  * This class communicates with the server to get/send messages and receive other
@@ -60,18 +63,27 @@ public class ClientSideToServer {
 	}
 
 	/**
-	 * Main method that communicates with the server.
+	 * Receive information about the user (name, about, chats, etc.)
 	 */
-	public void start() {
+	public void retrieveUserInfo() {
 		Platform.runLater(() -> {
 			//get basic user info and display the name
 			userData = getUserData();
+			controller.setProfilePic(SwingFXUtils.toFXImage(getImageFromBytes(), null));
 			controller.setNameTitle(userData.get("name").getAsString());
 			//get all chats and contacts from the server and add them to the GUI
 			makeChatContactList();
 			//give the controller this class
 			controller.setComm(this);
 		});
+	}
+
+	/**
+	 * 
+	 */
+	public void update() {
+		System.out.print("updated");
+		//TODO check server for new info
 	}
 
 	/**
@@ -134,19 +146,12 @@ public class ClientSideToServer {
 				System.out.println("chat list creation ended");
 				return;
 			}
+			//Parse one contact/chat into a json object
 			JsonObject listElement = new JsonParser().parse(line).getAsJsonObject();
-			Image tmpImg = null;
-			//deserialize image
-			try {
-				tmpImg = ClientOperations.stringToImg(listElement.get("imgSerialized").getAsString());
-				System.out.println("Image received");
-			} catch (IOException | ClassNotFoundException e) {
-				tmpImg = new Image(ClientSideToServer.class.getResource("resources/user.png").toExternalForm());
-				e.printStackTrace();
-			}
+
 			//add one chat/contact to the GUI
 			controller.addChatContact(listElement.get("title").getAsString(), listElement.get("lastLine").getAsString(), listElement.get("firstLineMe").getAsBoolean(),
-					listElement.get("statusInfo").getAsString(), tmpImg);
+					listElement.get("statusInfo").getAsString(), SwingFXUtils.toFXImage(getImageFromBytes(), null));
 		}
 	}
 
@@ -167,7 +172,7 @@ public class ClientSideToServer {
 	}
 
 	/**
-	 * Send a string to the server
+	 * Send an object, that can be serialized, to the server
 	 * 
 	 * @param msg The text message for the server
 	 */
@@ -178,6 +183,25 @@ public class ClientSideToServer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * This method receives and deserializes an image received from the server.
+	 * 
+	 * @return A deserialized (normal) (Buffered-)Image
+	 */
+	private BufferedImage getImageFromBytes() {
+		BufferedImage buffImg = null;
+		try {
+			int size = (int) in.readObject();
+			byte[] imgBytes = new byte[size];
+			imgBytes = (byte[]) in.readObject();
+			ByteArrayInputStream bStream = new ByteArrayInputStream(imgBytes);
+			buffImg = ImageIO.read(bStream);
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return buffImg;
 	}
 
 }

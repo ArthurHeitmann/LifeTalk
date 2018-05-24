@@ -11,15 +11,12 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.LinearGradient?>
-<?import javafx.scene.paint.Stop?>
-<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lifeTalk.clientApp.ChatsController">
    <children>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#8d8d8d" height="800.0" stroke="TRANSPARENT" strokeType="INSIDE" width="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#616161" height="800.0" stroke="TRANSPARENT" strokeType="INSIDE" width="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <HBox layoutX="17.0" layoutY="9.0" prefHeight="100.0" prefWidth="200.0" stylesheets="@chats.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <VBox id="alpha" maxWidth="400.0" prefHeight="200.0" prefWidth="400.0" HBox.hgrow="NEVER">
@@ -27,24 +24,13 @@
                   <VBox prefHeight="137.0" prefWidth="400.0" VBox.vgrow="NEVER">
                      <children>
                         <HBox id="topBar" minHeight="76.0" prefHeight="113.0" prefWidth="400.0" VBox.vgrow="NEVER">
-                           <effect>
-                              <DropShadow blurType="TWO_PASS_BOX" height="49.0" radius="17.0" />
-                           </effect>
                            <children>
-                              <Circle radius="32.0" stroke="TRANSPARENT" strokeType="INSIDE">
+                              <ImageView fx:id="userProfilePic" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                                  <HBox.margin>
-                                    <Insets left="6.0" top="6.0" />
+                                    <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                  </HBox.margin>
-                                 <fill>
-                                    <LinearGradient endX="1.0" endY="1.0">
-                                       <stops>
-                                          <Stop color="#aeaeae" />
-                                          <Stop color="#eaeaea00" offset="1.0" />
-                                       </stops>
-                                    </LinearGradient>
-                                 </fill>
-                              </Circle>
-                              <Label fx:id="nameTitle" prefHeight="52.0" prefWidth="220.0" text="Name" textFill="#20ad25">
+                              </ImageView>
+                              <Label fx:id="nameTitle" prefHeight="52.0" prefWidth="220.0" textFill="#20ad25">
                                  <font>
                                     <Font name="Alcubierre" size="38.0" />
                                  </font>
@@ -52,11 +38,6 @@
                                     <Insets bottom="12.0" left="20.0" top="12.0" />
                                  </HBox.margin>
                               </Label>
-                              <ImageView fx:id="loadingImg" fitHeight="76.0" fitWidth="116.0" pickOnBounds="true" preserveRatio="true" visible="false">
-                                 <image>
-                                    <Image url="@resources/loading_v1.gif" />
-                                 </image>
-                              </ImageView>
                            </children></HBox>
                         <TextField id="search1" minHeight="36.0" prefHeight="79.0" prefWidth="400.0" promptText="🔎 Search Chats and Contact" VBox.vgrow="NEVER">
                            <VBox.margin>
@@ -65,9 +46,9 @@
                         </TextField>
                      </children>
                   </VBox>
-                  <ScrollPane id="alpha" fx:id="chatsScrollPane" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="400.0" style="-fx-background-color: #8d8d8d;" VBox.vgrow="ALWAYS">
+                  <ScrollPane id="alpha" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="400.0" style="-fx-background-color: #616161;" VBox.vgrow="ALWAYS">
                      <content>
-                        <VBox id="alpha" fx:id="chatList" prefWidth="400.0" style="-fx-background-color: #8d8d8d;" />
+                        <VBox id="alpha" fx:id="chatList" prefWidth="400.0" style="-fx-background-color: transparent;" />
                      </content>
                   </ScrollPane>
                </children>
@@ -75,21 +56,15 @@
             <VBox id="bg" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                <children>
                   <HBox id="topBar" fx:id="chatHeader" minHeight="76.0" prefHeight="76.0" prefWidth="800.0" VBox.vgrow="NEVER">
-                     <effect>
-                        <DropShadow blurType="TWO_PASS_BOX" height="49.0" offsetX="1.5" radius="17.0" />
-                     </effect>
                      <children>
                         <ImageView fx:id="chatPImg" fitHeight="100.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@resources/user.png" />
-                           </image>
                            <HBox.margin>
                               <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                            </HBox.margin>
                         </ImageView>
                         <VBox prefHeight="76.0" prefWidth="448.0">
                            <children>
-                              <Label fx:id="chatPName" text="Contacts name">
+                              <Label fx:id="chatPName">
                                  <font>
                                     <Font name="Alcubierre" size="26.0" />
                                  </font>
@@ -97,7 +72,7 @@
                                     <Insets top="8.0" />
                                  </padding>
                               </Label>
-                              <Label fx:id="chatPInfo" text="StatusInfo">
+                              <Label fx:id="chatPInfo">
                                  <font>
                                     <Font name="Alcubierre" size="19.0" />
                                  </font>
@@ -141,7 +116,7 @@
                               <DropShadow />
                            </effect>
                         </ImageView>
-                        <TextField editable="false" prefHeight="46.0" prefWidth="656.0" promptText="Enter message" style="-fx-background-color: #565656; -fx-prompt-text-fill: white;" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="msgInp" editable="false" prefHeight="46.0" prefWidth="656.0" promptText="Enter message" style="-fx-background-color: #565656; -fx-prompt-text-fill: white; -fx-text-inner-color: white;" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets bottom="12.0" left="15.0" top="10.0" />
                            </HBox.margin>
@@ -149,6 +124,17 @@
                               <Font name="Alcubierre" size="20.0" />
                            </font>
                         </TextField>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@resources/sendMsg_button.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets bottom="12.0" left="15.0" right="15.0" top="13.0" />
+                           </HBox.margin>
+                           <effect>
+                              <DropShadow />
+                           </effect>
+                        </ImageView>
                         <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@resources/file_upload.png" />
@@ -162,6 +148,9 @@
                         </ImageView>
                      </children></HBox>
                </children>
+               <effect>
+                  <DropShadow color="#000000d0" />
+               </effect>
             </VBox>
          </children>
       </HBox>

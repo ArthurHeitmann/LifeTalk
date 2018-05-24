@@ -9,7 +9,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import lifeTalk.clientApp.ClientSideToServer;
 
 /**
  * A class to manage the visual representation of a contacts quick overview. Contains the
@@ -51,7 +50,7 @@ public class ChatcontactFx {
 		nameLabel = new Label(title);
 		lastLine = new Label(firstLine);
 		this.statusInfo = new Label("„" + statusInfo + "“");
-		contactImage = new ImageView(ClientSideToServer.class.getResource("resources/user.png").toExternalForm());
+		contactImage = new ImageView(img);
 		lastMsgByMe = firstLineMe;
 
 		//set the dimensions and text clipping style

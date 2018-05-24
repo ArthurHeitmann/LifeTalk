@@ -269,7 +269,7 @@ public class LoginController extends Thread {
 	private void switchScene(Scene scene) throws IOException {
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatsScreen.fxml"));
 		scene.setRoot(fxmlLoader.load());
-		new ClientSideToServer(connection.getSocket(), fxmlLoader.getController(), connection.getOut(), connection.getIn()).start();
+		new ClientSideToServer(connection.getSocket(), fxmlLoader.getController(), connection.getOut(), connection.getIn()).retrieveUserInfo();
 
 	}
 }

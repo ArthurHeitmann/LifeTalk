@@ -1,16 +1,15 @@
 package lifeTalk.clientApp;
 
-import java.sql.Date;
-
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -59,14 +58,30 @@ public class ChatsController {
 	/** ScrollPane of the current chat which holds chatView */
 	@FXML
 	private ScrollPane chatViewScrollPane;
+	/** Profile picture of the current user */
 	@FXML
-	private ImageView loadingImg;
+	private ImageView userProfilePic;
+	/** Text field where the user can enter text and send it to the chat */
 	@FXML
-	private HBox chatHeader;
+	private TextField msgInp;
 	/** The class that communicates with the server */
 	private ClientSideToServer serverCommunication;
+	/** Name of the person the user chats with */
 	private String selectedChat;
+	/** Object of the currently selected chat */
 	private ChatcontactFx selectedContact;
+	/** TRUE: if the user just clicked on a chat and an animation is still playing */
+	private boolean switchingBlocked = false;
+
+	/**
+	 * Call every 0.5 seconds the server communication class and let it check whether
+	 * there are any update (like new messages or updated profile infos).
+	 */
+	public void setUpdateCycle() {
+		PauseTransition updateCycle = new PauseTransition(Duration.millis(500));
+		updateCycle.setCycleCount(Animation.INDEFINITE);
+		updateCycle.setOnFinished((e) -> serverCommunication.update());
+	}
 
 	/**
 	 * Display the name of the current user
@@ -93,49 +108,63 @@ public class ChatsController {
 		chatList.getChildren().add(0, chatElement);
 		//load the chat with the other user when clicked
 		chatElement.setOnMouseClicked(e -> {
-			//check whether the element is already selected or not
-			if (selectedChat != null && selectedChat.equals(title))
+			//check whether the element is already selected or not OR 
+			//currently another clicking animation (duration = 250 ms) is currently in progress
+			if (switchingBlocked || (selectedChat != null && selectedChat.equals(title)))
 				return;
+			switchingBlocked = true;
+			msgInp.setText("");
 			//highlight the selection
 			if (selectedContact != null)
 				selectedContact.setSelected(false);
 			contactFx.setSelected(true);
 			selectedContact = contactFx;
 			selectedChat = title;
+			//setup visuals and play switching animations
 			chatPName.setText(title);
 			chatPInfo.setText(statusInfo);
 			chatPImg.setImage(img);
-			swipeChat(Pos.TOP_CENTER, title);
+			swipeChat(title);
+			msgInp.setEditable(true);
 		});
 	}
 
-	private void swipeChat(Pos pos, String uName) {
-		if (pos == Pos.TOP_CENTER) {
-			Scale scaleCurrent = new Scale(1, 1, 0, 50);
-			Timeline yScaleAnim = new Timeline();
-			yScaleAnim.setCycleCount(1);
-			yScaleAnim.getKeyFrames().addAll(new KeyFrame(Duration.millis(200), //
-					new KeyValue(scaleCurrent.xProperty(), 2), //
-					new KeyValue(scaleCurrent.yProperty(), 2), new KeyValue(selectedContact.getLayout().opacityProperty(), 0))//
-					, new KeyFrame(Duration.millis(100), //
-							new KeyValue(chatViewScrollPane.translateYProperty(), -15), //
-							new KeyValue(chatViewScrollPane.opacityProperty(), 0)));
-			yScaleAnim.setOnFinished(e -> {
-				chatView.getChildren().clear();
-				scaleCurrent.setX(1);
-				scaleCurrent.setY(1);
-				selectedContact.getLayout().setOpacity(1);
-				Timeline showMsgs = new Timeline(new KeyFrame(Duration.millis(100), //
-						new KeyValue(chatViewScrollPane.translateYProperty(), 0),//
-						new KeyValue(chatViewScrollPane.opacityProperty(), 1)));
-				addMessages(serverCommunication.getMessages(uName, 0));
-				chatViewScrollPane.setTranslateY(15);
-				showMsgs.play();
-			});
-			selectedContact.getLayout().getTransforms().add(scaleCurrent);
-			yScaleAnim.play();
-		}
-
+	/**
+	 * Animates the chat from the list and the previous chat. <br>
+	 * chat from the list: enlarge and fade <br>
+	 * current chat: swipe up, load new messages, show new messages
+	 * 
+	 * @param uName
+	 */
+	private void swipeChat(String uName) {
+		Scale scaleCurrent = new Scale(1, 1, 0, 50);
+		Timeline scaleAnim = new Timeline();
+		//animate chat from list (x and y scale and opacity) and current chat (translateY and opacity)
+		scaleAnim.getKeyFrames().addAll(new KeyFrame(Duration.millis(250), //
+				new KeyValue(scaleCurrent.xProperty(), 1.5), //
+				new KeyValue(scaleCurrent.yProperty(), 1.5), new KeyValue(selectedContact.getLayout().opacityProperty(), 0))//
+				, new KeyFrame(Duration.millis(70), //
+						new KeyValue(chatViewScrollPane.translateYProperty(), -15), //
+						new KeyValue(chatViewScrollPane.opacityProperty(), 0)));
+		//once main/hiding animation is finished reset list element to normal and show new messages with animation
+		scaleAnim.setOnFinished(e -> {
+			chatView.getChildren().clear();
+			scaleCurrent.setX(1);
+			scaleCurrent.setY(1);
+			selectedContact.getLayout().setOpacity(1);
+			Timeline showMsgs = new Timeline(new KeyFrame(Duration.millis(70), //
+					new KeyValue(chatViewScrollPane.translateYProperty(), 0),//
+					new KeyValue(chatViewScrollPane.opacityProperty(), 1)));
+			addMessages(serverCommunication.getMessages(uName, 0));
+			chatViewScrollPane.setTranslateY(15);
+			showMsgs.play();
+			//allow clicking on new chat elements again
+			switchingBlocked = false;
+		});
+		//apply scale transform to chat panel
+		selectedContact.getLayout().getTransforms().add(scaleCurrent);
+		//play all the animations
+		scaleAnim.play();
 	}
 
 	/**
@@ -170,17 +199,21 @@ public class ChatsController {
 
 	}
 
-	public void test1(ActionEvent event) {
+	/**
+	 * 
+	 * 
+	 * @param event
+	 */
+	public void sendMessage(ActionEvent event) {
 
 	}
 
+	public void test1(ActionEvent event) {
+		System.out.println(2);
+	}
+
 	public void buttonTest(ActionEvent event) {
-		MessageFx[] a = new MessageFx[] { new MessageFx(
-				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, \nsed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-				true, new Date(0), chatView.getWidth()),
-				new MessageFx("loremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitametloremipsumdollorsitamet",
-						false, new Date(0), chatView.getWidth()) };
-		addMessages(a);
+		System.out.println("1");
 
 	}
 
@@ -210,6 +243,15 @@ public class ChatsController {
 	 */
 	public ScrollPane getChatViewScrollPane() {
 		return chatViewScrollPane;
+	}
+
+	/**
+	 * Display to profile image of the current user
+	 * 
+	 * @param img
+	 */
+	public void setProfilePic(Image img) {
+		userProfilePic.setImage(img);
 	}
 
 }

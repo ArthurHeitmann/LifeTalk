@@ -1,13 +1,9 @@
 package lifeTalk.jsonRW.server;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
@@ -18,7 +14,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import lifeTalk.jsonRW.FileRW;
-import lifeTalk.jsonRW.ImageSerializable;
 import lifeTalk.server.Server;
 import lifeTalk.server.ServerSideToClient;
 
@@ -85,23 +80,7 @@ public class ServerOperations {
 		contactElement.addProperty("firstLineMe", chatCont.get(Integer.toString(lastLineNum)).getAsJsonObject().get("user").getAsString().equals(curUsr));
 		contactElement.addProperty("statusInfo", status);
 
-		//serialize image to string
-		BufferedImage tmpImg = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
-		//Graphics2D drawer = tmpImg.createGraphics();
-		//drawer.drawImage(new Image, 0, 0, null);
-
-		contactElement.addProperty("imgSerialized", serialize(new ImageSerializable(ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + curUsr + ".png").toExternalForm())))));
-
 		return new Gson().toJson(contactElement);
-	}
-
-	/** Write the object to a Base64 string. */
-	private static String serialize(Serializable o) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(baos);
-		oos.writeObject(o);
-		oos.close();
-		return Base64.getEncoder().encodeToString(baos.toByteArray());
 	}
 
 	/**
@@ -223,5 +202,22 @@ public class ServerOperations {
 			chat20msgs.add(userChat.get(Integer.toString(count - i)));
 		}
 		return chat20msgs;
+	}
+
+	public static BufferedImage[] getImagesFromId(int[] ids, String uName) {
+		BufferedImage[] images = new BufferedImage[ids.length];
+		int i = 0;
+		for (int id : ids) {
+			String p1 = chatPartners.get(id).getAsJsonArray().get(0).getAsString();
+			String p2 = chatPartners.get(id).getAsJsonArray().get(1).getAsString();
+			try {
+				images[i] = ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + (p1.equals(uName) ? p2 : p1 + ".png")).toExternalForm()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			i++;
+		}
+
+		return images;
 	}
 }

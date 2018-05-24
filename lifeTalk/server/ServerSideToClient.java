@@ -1,10 +1,15 @@
 package lifeTalk.server;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -59,6 +64,7 @@ public class ServerSideToClient implements Runnable {
 					closeAllConnections();
 				} else if (line.equals("GetUserInfo")) {
 					write(gson.toJson(ServerOperations.getUserInfo(this.getClass().getResource("data/userInfo/").toExternalForm(), username)));
+					serializeImg(ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + username + ".png").toExternalForm())));
 				} else if (line.equals("GetChatContacts")) {
 					sendContactList();
 				} else if (line.equals("getMSG")) {
@@ -80,6 +86,19 @@ public class ServerSideToClient implements Runnable {
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	private void serializeImg(BufferedImage img) {
+		try {
+			ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+			ImageIO.write(img, "png", bStream);
+			byte[] imgBytes = bStream.toByteArray();
+			bStream.close();
+			write(imgBytes.length);
+			write(imgBytes);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -110,9 +129,13 @@ public class ServerSideToClient implements Runnable {
 				write("No Chats");
 				return;
 			}
+			BufferedImage[] imgs = ServerOperations.getImagesFromId(ids, username);
 			//send all chats quick summary separately to the client
+			int i = 0;
 			for (int id : ids) {
 				write(ServerOperations.getContactQuickInfo(Integer.toString(id), username));
+				serializeImg(imgs[i]);
+				i++;
 			}
 			write("FINISHED");
 		} catch (IOException e) {
