@@ -54,7 +54,7 @@ public class ClientSideToServer {
 	 * @param reader ObjectInputStream: input device
 	 * @throws IOException
 	 */
-	public ClientSideToServer(Socket socket, ChatsController controller, ObjectOutputStream outStream, ObjectInputStream reader) throws IOException {
+	public ClientSideToServer(Socket socket, ChatsController controller, ObjectOutputStream outStream, ObjectInputStream reader) {
 		this.socket = socket;
 		this.controller = controller;
 		in = reader;
@@ -68,13 +68,24 @@ public class ClientSideToServer {
 	public void retrieveUserInfo() {
 		Platform.runLater(() -> {
 			//get basic user info and display the name
-			userData = getUserData();
+			try {
+				userData = getUserData();
+			} catch (IOException e) {
+				controller.showInfoDialogue("A problem occured while starting: " + e.getMessage());
+				e.printStackTrace();
+			}
 			controller.setProfilePic(SwingFXUtils.toFXImage(getImageFromBytes(), null));
 			controller.setNameTitle(userData.get("name").getAsString());
 			//get all chats and contacts from the server and add them to the GUI
-			makeChatContactList();
+			try {
+				makeChatContactList();
+			} catch (ClassNotFoundException | IOException | ParseException e) {
+				controller.showInfoDialogue("A Problem occured while creating the chat list: " + e.getMessage());
+				e.printStackTrace();
+			}
 			//give the controller this class
 			controller.setComm(this);
+			controller.setUpdateCycle();
 		});
 	}
 
@@ -82,8 +93,9 @@ public class ClientSideToServer {
 	 * 
 	 */
 	public void update() {
-		System.out.print("updated");
-		//TODO check server for new info
+		Platform.runLater(() -> {
+			//TODO check server for new info
+		});
 	}
 
 	/**
@@ -93,8 +105,9 @@ public class ClientSideToServer {
 	 * @param uName The name of the other chat partner
 	 * @param msgStartNum At which number to start (0 -> start with latest message)
 	 * @return Array of the last messages containing person, content, date/time
+	 * @throws IOException
 	 */
-	public MessageFx[] getMessages(String uName, int msgStartNum) {
+	public MessageFx[] getMessages(String uName, int msgStartNum) throws IOException {
 		JsonArray messages;
 		ArrayList<MessageFx> messageFxs = new ArrayList<>();
 		//prompt server to get messages
@@ -128,19 +141,19 @@ public class ClientSideToServer {
 	/**
 	 * Receive all contacts and chats associated with the current user and display them in
 	 * the GUI
+	 * 
+	 * @throws IOException When an error occurs while reading from the server
+	 * @throws ClassNotFoundException When the line from the server is not a string
+	 * @throws ParseException When an error occurs while parsing a date/time string
 	 */
-	private void makeChatContactList() {
+	private void makeChatContactList() throws ClassNotFoundException, IOException, ParseException {
 		//contact server
 		write("GetChatContacts");
 		//receive chats/contacts until the server is finished or an error occurs
 		while (true) {
 			//One Json string of a chat/contact
 			String line = null;
-			try {
-				line = (String) in.readObject();
-			} catch (IOException | ClassNotFoundException e) {
-				e.printStackTrace();
-			}
+			line = (String) in.readObject();
 			//check whether finished, an error occurred or and invalid string has been received
 			if (line == null || line.equals("FINISHED") || line.equals("ERROR") || line.charAt(0) != '{') {
 				System.out.println("chat list creation ended");
@@ -150,8 +163,11 @@ public class ClientSideToServer {
 			JsonObject listElement = new JsonParser().parse(line).getAsJsonObject();
 
 			//add one chat/contact to the GUI
-			controller.addChatContact(listElement.get("title").getAsString(), listElement.get("lastLine").getAsString(), listElement.get("firstLineMe").getAsBoolean(),
-					listElement.get("statusInfo").getAsString(), SwingFXUtils.toFXImage(getImageFromBytes(), null));
+			controller.addChatContact(listElement.get("title").getAsString(), //
+					listElement.get("lastLine").getAsString(), //
+					listElement.get("firstLineMe").getAsBoolean(), listElement.get("statusInfo").getAsString(), //
+					SwingFXUtils.toFXImage(getImageFromBytes(), null), //
+					new SimpleDateFormat("d.M.y - H:m").parse(listElement.get("dateTime").getAsString()));
 		}
 	}
 
@@ -159,8 +175,9 @@ public class ClientSideToServer {
 	 * Get the basic user info from the server
 	 * 
 	 * @return Basic user info in a json string
+	 * @throws IOException When an error occurs while sending a message to the server
 	 */
-	private JsonObject getUserData() {
+	private JsonObject getUserData() throws IOException {
 		write("GetUserInfo");
 		try {
 			System.out.println(socket.isClosed());
@@ -175,14 +192,11 @@ public class ClientSideToServer {
 	 * Send an object, that can be serialized, to the server
 	 * 
 	 * @param msg The text message for the server
+	 * @throws IOException
 	 */
-	private void write(Object obj) {
-		try {
-			out.writeObject(obj);
-			out.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private void write(Object obj) throws IOException {
+		out.writeObject(obj);
+		out.flush();
 	}
 
 	/**

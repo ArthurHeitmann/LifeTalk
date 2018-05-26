@@ -1,5 +1,7 @@
 package lifeTalk.clientApp.fxPresets;
 
+import java.util.Date;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
@@ -16,7 +18,7 @@ import javafx.scene.paint.Color;
  * that person and the current client. The last message is grayed out if it was sent by
  * the current user.
  * 
- * @author Arthur H. TODO save the time of the last message to sort all ChatcontactFxs.
+ * @author Arthur H.
  */
 public class ChatcontactFx {
 	/** Parent node that holds all the child nodes. */
@@ -33,6 +35,8 @@ public class ChatcontactFx {
 	private Label statusInfo;
 	/** Whether the last message sent was by the current user or not */
 	private boolean lastMsgByMe;
+	/** The time and date when the last message was sent */
+	private Date lastMsgTime;
 
 	/**
 	 * Creates and sets up all the necessary objects and nodes for this object
@@ -43,7 +47,7 @@ public class ChatcontactFx {
 	 * @param statusInfo The status info of the other user
 	 * @param img The profile picture of the other user
 	 */
-	public ChatcontactFx(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img) {
+	public ChatcontactFx(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img, Date lastMsgTime) {
 		//Create the nodes for the GUI
 		primaryLayout = new HBox(10);
 		secondaryLayout = new VBox(7);
@@ -52,6 +56,7 @@ public class ChatcontactFx {
 		this.statusInfo = new Label("„" + statusInfo + "“");
 		contactImage = new ImageView(img);
 		lastMsgByMe = firstLineMe;
+		this.lastMsgTime = lastMsgTime;
 
 		//set the dimensions and text clipping style
 		nameLabel.setMaxWidth(300);
@@ -122,6 +127,13 @@ public class ChatcontactFx {
 		//whether the image changed
 		if (!contactImage.getImage().equals(img))
 			contactImage.setImage(img);
+	}
+
+	/**
+	 * @return The time when the last message was sent
+	 */
+	public Date getDate() {
+		return lastMsgTime;
 	}
 
 	/**

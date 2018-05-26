@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -34,11 +35,12 @@ public class Server {
 	/**
 	 * Java representation of the JSON file with the user data
 	 */
-	private static JsonObject loginJson = new JsonParser().parse(FileRW.readFromFile(JSONLOCATION)).getAsJsonObject();
+	private static JsonObject loginJson;
 
 	public static void main(String[] args) throws IOException {
 		//Create a server at port 2111
 		ServerSocket server = new ServerSocket(2111);
+		loginJson = new JsonParser().parse(FileRW.readFromFile(JSONLOCATION)).getAsJsonObject();
 		loginsData = loginJson.get("users").getAsJsonArray();
 		boolean connected = false;
 		System.out.println("Server running");
@@ -48,8 +50,9 @@ public class Server {
 				//new thread to manage the client and than keep waiting for new connections
 				new CLientHandler(server.accept()).start();
 				connected = true;
-			} catch (Exception e) {
-				System.err.println(e);
+			} catch (IOException e) {
+				e.printStackTrace();
+				;
 			} finally {
 				if (!connected) {
 					server.close();
@@ -172,8 +175,13 @@ public class Server {
 				}
 			}
 			//when something goes wrong while communicating with the client
-			catch (IOException | ClassNotFoundException e) {
+			catch (IOException | ClassNotFoundException | URISyntaxException e) {
 				e.printStackTrace();
+				try {
+					write("ERROR");
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 			//close the connection once all actions have ended
 			finally {
@@ -199,14 +207,11 @@ public class Server {
 		 * Send a message to the client
 		 * 
 		 * @param msg Message
+		 * @throws IOException
 		 */
-		private void write(Object obj) {
-			try {
-				out.writeObject(obj);
-				out.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		private void write(Object obj) throws IOException {
+			out.writeObject(obj);
+			out.flush();
 		}
 
 		/**
@@ -230,6 +235,7 @@ public class Server {
 				return sb.toString();
 
 			} catch (NoSuchAlgorithmException e) {
+				//shouldn't occur
 				e.printStackTrace();
 				return stringToHash;
 			}

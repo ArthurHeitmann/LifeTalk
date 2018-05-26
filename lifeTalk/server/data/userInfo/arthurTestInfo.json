@@ -1,6 +1,5 @@
 {
 	"name": "arthurTest",
 	"status": "Atya",
-	"rights": "default",
-	"contacts": ["user1", "admin"]
+	"rights": "default"
 }

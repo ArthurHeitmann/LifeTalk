@@ -1,7 +1,6 @@
 package lifeTalk.clientApp;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
 import javax.security.auth.login.LoginException;
@@ -129,9 +128,6 @@ public class LoginController extends Thread {
 		} catch (IllegalArgumentException e) {
 			setInfoText("Invalid port number");
 			e.printStackTrace();
-		} catch (UnknownHostException e) {
-			setInfoText("Invalid Server adress");
-			e.printStackTrace();
 		} catch (Exception e) {
 			setInfoText("An Error occured");
 			e.printStackTrace();
@@ -182,7 +178,7 @@ public class LoginController extends Thread {
 		catch (LoginException e) {
 			setInfoText("Server closed the connection");
 			try {
-				Thread.sleep(1500);
+				Thread.sleep(3000);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
@@ -212,16 +208,17 @@ public class LoginController extends Thread {
 			return;
 		}
 
-		Pattern uNamePattern = Pattern.compile("[^a-zA-Z0-9._!§$%&/()=?+#-*/:;{}<>°´`²³öäüß^]");
+		//verify validity of the username and password
+		Pattern uNamePattern = Pattern.compile("[^a-zA-Z0-9._!§$%&\\/()=?+#-*:;{}<>°´`²³öäüß\\[\\]]");
 		boolean uNameAllowed = uNamePattern.matcher(uName).find();
-		Pattern pwPattern = Pattern.compile("[^1-9a-z-A-Z_.:#+-öäüß*/!$%&/()=?°<>|]");
+		Pattern pwPattern = Pattern.compile("[^1-9a-z-A-Z_.:#+-öäüß*/!$%&/()=?°<>|\\[\\]]");
 		boolean pwAllowed = pwPattern.matcher(pw).find();
 
-		if (!uNameAllowed) {
+		if (uNameAllowed) {
 			infoText.setText("Username contains illeagal characters");
 			return;
 		}
-		if (!pwAllowed) {
+		if (pwAllowed) {
 			infoText.setText("Password contains illeagal characters");
 			return;
 		}
@@ -243,13 +240,13 @@ public class LoginController extends Thread {
 			if (connection.loginToServer(uNameInpReg.getText(), pwInpReg.getText(), "REGISTER", false)) {
 				setInfoText("");
 				try {
-					switchScene((Scene) event.getSource());
+					switchScene(((Node) event.getSource()).getScene());
 				} catch (IOException e) {
 					infoText.setText("Couldn't switch to chats window");
 					e.printStackTrace();
 				}
 			} else {
-				setInfoText("Couldn't register, please try again (Maybe the username is not available)");
+				setInfoText("Couldn't register, please try again\n (Maybe the username is not available)");
 			}
 		} catch (LoginException e) {
 			//Exception can not happen in this method only when logging in

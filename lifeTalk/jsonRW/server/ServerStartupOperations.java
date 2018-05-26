@@ -1,12 +1,17 @@
 package lifeTalk.jsonRW.server;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import lifeTalk.jsonRW.FileRW;
+import lifeTalk.server.Server;
 
 /**
  * A class that contains static methods to take care of the login and registration process
@@ -27,8 +32,10 @@ public class ServerStartupOperations {
 	 * Initialization | set the file location and the JSON objects
 	 * 
 	 * @param fileLocation location of the JSON file with the details of the users
+	 * @throws IOException
+	 * @throws JsonSyntaxException
 	 */
-	public static void setFileLocation(String fileLocation) {
+	public static void setFileLocation(String fileLocation) throws JsonSyntaxException, IOException {
 		ServerStartupOperations.fileLocation = fileLocation;
 		loginsJson = new JsonParser().parse(FileRW.readFromFile(fileLocation)).getAsJsonObject();
 		loginsData = loginsJson.get("users").getAsJsonArray();
@@ -66,8 +73,10 @@ public class ServerStartupOperations {
 	 * @param pw Password
 	 * @param JsonLocation
 	 * @return whether the username already exists or not
+	 * @throws URISyntaxException
+	 * @throws IOException
 	 */
-	public static boolean registerUser(String usrName, String pw, String JsonLocation) {
+	public static boolean registerUser(String usrName, String pw, String JsonLocation) throws IOException, URISyntaxException {
 		System.out.println("Registering " + usrName);
 		for (int i = 0; i < loginsData.size(); i++) {
 			if (((JsonObject) loginsData.get(i)).get("name").getAsString().equals(usrName)) {
@@ -76,17 +85,29 @@ public class ServerStartupOperations {
 		}
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		loginsData.add(new JsonParser().parse(gson.toJson(new User(usrName, pw))));
-		loginsJson.remove("users");
+		System.out.println(gson.toJson(loginsData));
 		loginsJson.add("users", loginsData);
 		FileRW.writeToFile(JsonLocation, gson.toJson(loginsJson));
+		JsonObject userInfo = new JsonObject();
+		userInfo.addProperty("name", usrName);
+		userInfo.addProperty("status", "");
+		userInfo.addProperty("rights", "default");
+		FileRW.writeToFile(Server.class.getResource("data/userInfo/").toExternalForm() + usrName + "Info.json", gson.toJson(userInfo));
+		try {
+			FileRW.copyFile(Server.class.getResource("data/userInfo/^template.png").toExternalForm(), Server.class.getResource("data/userInfo/").toExternalForm() + usrName + ".png");
+		} catch (IOException | URISyntaxException e) {
+			e.printStackTrace();
+			return false;
+		}
 		return true;
-
 	}
 
 	//template for the de-serialization of the one user
 	static class User {
 		String name;
 		String pw;
+		boolean autoLogin = false;
+		String loginID = "";
 
 		public User(String name, String pw) {
 			this.name = name;
@@ -118,8 +139,10 @@ public class ServerStartupOperations {
 	 * 
 	 * @param uName Username
 	 * @param id loginID
+	 * @throws URISyntaxException
+	 * @throws IOException
 	 */
-	public static void createLoginID(String uName, String id) {
+	public static void createLoginID(String uName, String id) throws IOException, URISyntaxException {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		for (int i = 0; i < loginsData.size(); i++) {
 			if (((JsonObject) loginsData.get(i)).get("name").getAsString().equals(uName)) {

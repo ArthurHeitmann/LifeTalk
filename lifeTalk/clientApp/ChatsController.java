@@ -1,12 +1,19 @@
 package lifeTalk.clientApp;
 
-import javafx.animation.Animation;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -14,7 +21,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import lifeTalk.clientApp.fxPresets.ChatcontactFx;
 import lifeTalk.clientApp.fxPresets.MessageFx;
@@ -64,6 +73,9 @@ public class ChatsController {
 	/** Text field where the user can enter text and send it to the chat */
 	@FXML
 	private TextField msgInp;
+	/** */
+	@FXML
+	private VBox infoDialogue;
 	/** The class that communicates with the server */
 	private ClientSideToServer serverCommunication;
 	/** Name of the person the user chats with */
@@ -72,15 +84,29 @@ public class ChatsController {
 	private ChatcontactFx selectedContact;
 	/** TRUE: if the user just clicked on a chat and an animation is still playing */
 	private boolean switchingBlocked = false;
+	/** */
+	private LinkedList<ChatcontactFx> contacts = new LinkedList<>();
+	/** */
+	private Stage window;
 
 	/**
 	 * Call every 0.5 seconds the server communication class and let it check whether
 	 * there are any update (like new messages or updated profile infos).
 	 */
 	public void setUpdateCycle() {
-		PauseTransition updateCycle = new PauseTransition(Duration.millis(500));
-		updateCycle.setCycleCount(Animation.INDEFINITE);
-		updateCycle.setOnFinished((e) -> serverCommunication.update());
+		window = (Stage) chatView.getScene().getWindow();
+		Task<Void> updater = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				while (true) {
+					serverCommunication.update();
+					Thread.sleep(500);
+				}
+			}
+		};
+		Thread thread = new Thread(updater);
+		thread.start();
+		window.setOnCloseRequest(e -> updater.cancel());
 	}
 
 	/**
@@ -102,10 +128,29 @@ public class ChatsController {
 	 * @param statusInfo The status info of the other user
 	 * @param img The profile pic of the other user
 	 */
-	public void addChatContact(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img) {
-		ChatcontactFx contactFx = new ChatcontactFx(title, firstLine, firstLineMe, statusInfo, img);
+	public void addChatContact(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img, Date dateTime) {
+		ChatcontactFx contactFx = new ChatcontactFx(title, firstLine, firstLineMe, statusInfo, img, dateTime);
 		HBox chatElement = contactFx.getLayout();
-		chatList.getChildren().add(0, chatElement);
+		if (contacts.size() == 0) {
+			chatList.getChildren().add(chatElement);
+			contacts.add(contactFx);
+		} else {
+			boolean added = false;
+			//create temporary list to avoid a ConcurrentModificationException
+			ArrayList<ChatcontactFx> tmpList = new ArrayList<>(contacts);
+			for (ChatcontactFx contact : tmpList) {
+				if (!added && contactFx.getDate().after(contact.getDate())) {
+					chatList.getChildren().add(contacts.indexOf(contact), chatElement);
+					contacts.add(chatList.getChildren().indexOf(chatElement), contactFx);
+					added = true;
+				}
+			}
+			if (!added) {
+				chatList.getChildren().add(chatElement);
+				contacts.addFirst(contactFx);
+			}
+		}
+
 		//load the chat with the other user when clicked
 		chatElement.setOnMouseClicked(e -> {
 			//check whether the element is already selected or not OR 
@@ -155,7 +200,12 @@ public class ChatsController {
 			Timeline showMsgs = new Timeline(new KeyFrame(Duration.millis(70), //
 					new KeyValue(chatViewScrollPane.translateYProperty(), 0),//
 					new KeyValue(chatViewScrollPane.opacityProperty(), 1)));
-			addMessages(serverCommunication.getMessages(uName, 0));
+			try {
+				addMessages(serverCommunication.getMessages(uName, 0));
+			} catch (IOException e1) {
+				showInfoDialogue("Error occured while loading messages");
+				e1.printStackTrace();
+			}
 			chatViewScrollPane.setTranslateY(15);
 			showMsgs.play();
 			//allow clicking on new chat elements again
@@ -206,6 +256,20 @@ public class ChatsController {
 	 */
 	public void sendMessage(ActionEvent event) {
 
+	}
+
+	public void closeInfoDialogue(ActionEvent event) {
+		TranslateTransition hide = new TranslateTransition(Duration.millis(200), ((Node) event.getSource()).getParent());
+		hide.setFromY(0);
+		hide.setToY(130);
+		hide.play();
+	}
+
+	public void showInfoDialogue(String msg) {
+		((Text) infoDialogue.getChildren().get(0)).setText(msg);
+		TranslateTransition show = new TranslateTransition(Duration.millis(200), infoDialogue);
+		show.setFromY(130);
+		show.setToY(0);
 	}
 
 	public void test1(ActionEvent event) {

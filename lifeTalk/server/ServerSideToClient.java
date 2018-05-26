@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -83,7 +84,7 @@ public class ServerSideToClient implements Runnable {
 			} catch (IOException e) {
 				closeAllConnections();
 				return;
-			} catch (ClassNotFoundException e) {
+			} catch (ClassNotFoundException | URISyntaxException e) {
 				e.printStackTrace();
 			}
 		}
@@ -99,6 +100,7 @@ public class ServerSideToClient implements Runnable {
 			write(imgBytes);
 		} catch (IOException e) {
 			e.printStackTrace();
+			closeAllConnections();
 		}
 	}
 
@@ -139,21 +141,23 @@ public class ServerSideToClient implements Runnable {
 			}
 			write("FINISHED");
 		} catch (IOException e) {
-			write("ERROR");
+			try {
+				write("ERROR");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				closeAllConnections();
+			}
 			e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @param msg The text message to be sent to the client.
+	 * @throws IOException
 	 */
-	private void write(Object obj) {
-		try {
-			out.writeObject(obj);
-			out.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private void write(Object obj) throws IOException {
+		out.writeObject(obj);
+		out.flush();
 	}
 
 }

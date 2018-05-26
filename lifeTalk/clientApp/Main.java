@@ -24,16 +24,11 @@ public class Main extends Application {
 			//If user previously enabled auto connecting to the server than try to connect to the server automatically
 			Platform.runLater(() -> {
 				if (ClientStartupOperations.isAutoConnectActive()) {
-					try {
-						String srvAdr = ClientStartupOperations.getServerAddr();
-						int port = ClientStartupOperations.getServerPort();
-						loginController.setInfoText("Auto connecting to server");
-						loginController.mainStage = primaryStage;
-						loginController.autoConnect(srvAdr, port);
-					} catch (Exception e) {
-						loginController.infoText.setText("Couldn't automatically connect to server");
-						ClientStartupOperations.setAutoConnect(false);
-					}
+					String srvAdr = ClientStartupOperations.getServerAddr();
+					int port = ClientStartupOperations.getServerPort();
+					loginController.setInfoText("Auto connecting to server");
+					loginController.mainStage = primaryStage;
+					loginController.autoConnect(srvAdr, port);
 				}
 			});
 		} catch (Exception e) {

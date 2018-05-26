@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import javax.security.auth.login.LoginException;
 
@@ -47,9 +46,8 @@ public class ClientStartConnection {
 	 * www.server.com or localhost
 	 * @param port Port at the Server
 	 * @return whether the connection attempt was successful or not
-	 * @throws UnknownHostException Invalid server address
 	 */
-	public boolean connectToServer(String srvAdress, int port) throws UnknownHostException {
+	public boolean connectToServer(String srvAdress, int port) {
 		try {
 			//setup the communication tools
 			socket = new Socket(srvAdress, port);
@@ -57,7 +55,7 @@ public class ClientStartConnection {
 			in = new ObjectInputStream(socket.getInputStream());
 			return true;
 		} catch (IOException e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return false;
 		}
 
@@ -98,10 +96,15 @@ public class ClientStartConnection {
 	 */
 	public boolean loginToServer(String uName, String pw, String action, boolean stayLoggedin) throws LoginException {
 		//send parameter to the server
-		write(action);
-		write(Boolean.toString(stayLoggedin));
-		write(uName);
-		write(pw);
+		try {
+			write(action);
+			write(Boolean.toString(stayLoggedin));
+			write(uName);
+			write(pw);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 		String line;
 		try {
 			//read result from the server
@@ -127,6 +130,7 @@ public class ClientStartConnection {
 				line = (String) in.readObject();
 			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
+				return false;
 			}
 			//if connection get's interrupted
 			if (line == null) {
@@ -147,16 +151,13 @@ public class ClientStartConnection {
 	 * Send a message to the server,
 	 * 
 	 * @param obj The message for the server
+	 * @throws IOException
 	 */
-	private void write(Object obj) {
-		try {
-			//print message to the OutputStream
-			out.writeObject(obj);
-			//send the message
-			out.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private void write(Object obj) throws IOException {
+		//print message to the OutputStream
+		out.writeObject(obj);
+		//send the message
+		out.flush();
 	}
 
 	/**

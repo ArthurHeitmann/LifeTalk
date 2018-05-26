@@ -2,6 +2,7 @@ package lifeTalk.jsonRW.server;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import lifeTalk.jsonRW.FileRW;
 import lifeTalk.server.Server;
@@ -40,8 +42,10 @@ public class ServerOperations {
 	 * @param location Location of the file
 	 * @param name Username
 	 * @return The basic infos in a json object
+	 * @throws IOException
+	 * @throws JsonSyntaxException
 	 */
-	public static JsonObject getUserInfo(String location, String name) {
+	public static JsonObject getUserInfo(String location, String name) throws JsonSyntaxException, IOException {
 		return new JsonParser().parse(FileRW.readFromFile(location + name + "Info.json")).getAsJsonObject();
 	}
 
@@ -66,6 +70,7 @@ public class ServerOperations {
 		String c2 = chatCont.get("index").getAsJsonObject().get("contact2").getAsString();
 		//get the number of messages in that chat
 		int lastLineNum = chatCont.get("index").getAsJsonObject().get("count").getAsInt();
+		JsonObject lastMsg = chatCont.get(Integer.toString(lastLineNum)).getAsJsonObject();
 		//get the other contacts status
 		String status = getUserInfo(ServerSideToClient.class.getResource("data/userInfo/").toExternalForm(), //
 				c1.equals(curUsr) ? c2 : c1)//
@@ -73,12 +78,12 @@ public class ServerOperations {
 
 		//add all the info to the return json object
 		contactElement.addProperty("title", c1.equals(curUsr) ? c2 : c1);
-		contactElement.addProperty("lastLine", chatCont.get(Integer.toString(lastLineNum))//
-				.getAsJsonObject()//
+		contactElement.addProperty("lastLine", lastMsg//
 				.get("textContent")//
 				.getAsString());
-		contactElement.addProperty("firstLineMe", chatCont.get(Integer.toString(lastLineNum)).getAsJsonObject().get("user").getAsString().equals(curUsr));
+		contactElement.addProperty("firstLineMe", lastMsg.get("user").getAsString().equals(curUsr));
 		contactElement.addProperty("statusInfo", status);
+		contactElement.addProperty("dateTime", lastMsg.get("date").getAsString() + " - " + lastMsg.get("time").getAsString());
 
 		return new Gson().toJson(contactElement);
 	}
@@ -88,8 +93,10 @@ public class ServerOperations {
 	 * 
 	 * @param uName The username
 	 * @return all associated IDs
+	 * @throws IOException
+	 * @throws JsonSyntaxException
 	 */
-	public static int[] getChatId(String uName) {
+	public static int[] getChatId(String uName) throws JsonSyntaxException, IOException {
 		ArrayList<Integer> chatIds = new ArrayList<>();
 		//check whether the cache has been initialized or is outdated, if so update it
 		if (chatListUpdated || chatPartners == null)
@@ -122,8 +129,10 @@ public class ServerOperations {
 	 * @param uName1 Person 1
 	 * @param uName2 Person 2
 	 * @return Theri specific id
+	 * @throws IOException
+	 * @throws JsonSyntaxException
 	 */
-	public static int getChatId(String uName1, String uName2) {
+	public static int getChatId(String uName1, String uName2) throws JsonSyntaxException, IOException {
 		//make sure that the names are alphabetically sorted
 		int i = 0;
 		while (true) {
@@ -185,18 +194,20 @@ public class ServerOperations {
 	 * @param uName2 User 2
 	 * @param start the beginning index of the first message
 	 * @return
+	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws JsonSyntaxException
 	 */
-	public static JsonArray getChat(String uName1, String uName2, int start) {
+	public static JsonArray getChat(String uName1, String uName2, int start) throws JsonSyntaxException, IOException, URISyntaxException {
 		JsonArray chat20msgs = new JsonArray();
 		//parse user chat from file
 		JsonObject userChat = new JsonParser().parse(//
 				FileRW.readFromFile(ServerSideToClient.class.getResource("data/chats/" + getChatId(uName1, uName2) + ".json").toExternalForm()))//
 				.getAsJsonObject();
 		//get number of messages
-		int count = userChat.get("index").getAsJsonObject().get("count").getAsInt();
+		int count = userChat.get("index").getAsJsonObject().get("count").getAsInt() - start;
 		if (count < 20 && start > 20)
 			return null;
-		//TODO beginning index
 		//add messages to the return json array
 		for (int i = 0; i < count; i++) {
 			chat20msgs.add(userChat.get(Integer.toString(count - i)));
@@ -214,6 +225,7 @@ public class ServerOperations {
 				images[i] = ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + (p1.equals(uName) ? p2 : p1 + ".png")).toExternalForm()));
 			} catch (IOException e) {
 				e.printStackTrace();
+				return null;
 			}
 			i++;
 		}

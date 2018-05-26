@@ -1,0 +1,16 @@
+{
+	"index": {
+		"count": 1,
+		"lastuser":"user1",
+		"contact1": "3rdUser_",
+		"contact2": "user1"
+	},
+
+	"1": {
+		"user":"user1",
+		"textContent":"More dumme chats please",
+		"date":"25.05.2018",
+		"time":"06:28"
+	}
+	
+}

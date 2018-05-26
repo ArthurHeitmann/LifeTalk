@@ -19,6 +19,18 @@
 	-fx-background-radius: 3px;
 }
 
+#infoBtn {
+	-fx-background-color: #1c1c1c;
+}
+
+#infoBtn:hover {
+	-fx-background-color: #111111;
+}
+
+#infoBtn:pressed {
+	-fx-background-color: #282828;
+}
+
 /* === Scroll Bar  === */
 
 .scroll-pane#alpha > .viewport {

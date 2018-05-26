@@ -1,9 +1,13 @@
 package lifeTalk.jsonRW.client;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import lifeTalk.clientApp.ClientStartConnection;
 import lifeTalk.jsonRW.FileRW;
@@ -23,7 +27,7 @@ public class ClientStartupOperations {
 	/**
 	 * This object reads the JSON file and allows to read/write specific properties
 	 */
-	private static JsonObject startInfo = new JsonParser().parse(FileRW.readFromFile(FILELOCATION)).getAsJsonObject();
+	private static JsonObject startInfo;
 	/**
 	 * Can be used to convert a JSON String into a String that follows the formating rules
 	 * for better reading.
@@ -35,6 +39,12 @@ public class ClientStartupOperations {
 	 * startup. That information has been stored in the JSON file
 	 */
 	public static boolean isAutoConnectActive() {
+		try {
+			startInfo = new JsonParser().parse(FileRW.readFromFile(FILELOCATION)).getAsJsonObject();
+		} catch (JsonSyntaxException | IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 		return startInfo.get("autoConnect").getAsBoolean();
 	}
 
@@ -57,8 +67,10 @@ public class ClientStartupOperations {
 	 * 
 	 * @param address The server address
 	 * @param port The server port
+	 * @throws URISyntaxException
+	 * @throws IOException
 	 */
-	public static void setServerInfo(String address, int port) {
+	public static void setServerInfo(String address, int port) throws IOException, URISyntaxException {
 		startInfo.addProperty("serverAddr", address);
 		startInfo.addProperty("serverPort", port);
 		startInfo.addProperty("autoConnect", true);
@@ -69,8 +81,10 @@ public class ClientStartupOperations {
 	 * Writes whether the user wants to automatically connect at startup to the file
 	 * 
 	 * @param state TRUE: auto connecting enabled | FALSE: auto connecting disabled
+	 * @throws URISyntaxException
+	 * @throws IOException
 	 */
-	public static void setAutoConnect(boolean state) {
+	public static void setAutoConnect(boolean state) throws IOException, URISyntaxException {
 		startInfo.addProperty("autoConnect", state);
 		FileRW.writeToFile(FILELOCATION, gson.toJson(startInfo));
 	}
@@ -102,8 +116,10 @@ public class ClientStartupOperations {
 	 * @param state Whether auto login is enabled or not
 	 * @param name The user name of the user with autologin
 	 * @param id The users loginID
+	 * @throws URISyntaxException
+	 * @throws IOException
 	 */
-	public static void setAutoLogin(boolean state, String name, String id) {
+	public static void setAutoLogin(boolean state, String name, String id) throws IOException, URISyntaxException {
 		startInfo.addProperty("autoLogin", state);
 		startInfo.addProperty("loginName", name);
 		startInfo.addProperty("loginID", id);
