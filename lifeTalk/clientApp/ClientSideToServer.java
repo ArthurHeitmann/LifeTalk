@@ -90,7 +90,7 @@ public class ClientSideToServer {
 			}
 			//give the controller this class
 			controller.setComm(this);
-			controller.setUpdateCycle();
+			controller.basicSetup();
 		});
 	}
 

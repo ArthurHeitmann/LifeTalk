@@ -13,7 +13,6 @@ import javafx.animation.TranslateTransition;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -93,7 +92,8 @@ public class ChatsController {
 	 * Call every 0.5 seconds the server communication class and let it check whether
 	 * there are any update (like new messages or updated profile infos).
 	 */
-	public void setUpdateCycle() {
+	public void basicSetup() {
+		//updating
 		window = (Stage) chatView.getScene().getWindow();
 		Task<Void> updater = new Task<Void>() {
 			@Override
@@ -107,6 +107,8 @@ public class ChatsController {
 		Thread thread = new Thread(updater);
 		thread.start();
 		window.setOnCloseRequest(e -> updater.cancel());
+
+		((Text) infoDialogue.getChildren().get(0)).wrappingWidthProperty().bind(infoDialogue.widthProperty().subtract(50));
 	}
 
 	/**
@@ -182,7 +184,6 @@ public class ChatsController {
 	 * @param uName
 	 */
 	private void swipeChat(String uName) {
-		showInfoDialogue("It worked");
 		Scale scaleCurrent = new Scale(1, 1, 0, 50);
 		Timeline scaleAnim = new Timeline();
 		//animate chat from list (x and y scale and opacity) and current chat (translateY and opacity)
@@ -260,17 +261,18 @@ public class ChatsController {
 	}
 
 	public void closeInfoDialogue(ActionEvent event) {
-		TranslateTransition hide = new TranslateTransition(Duration.millis(200), ((Node) event.getSource()).getParent());
+		TranslateTransition hide = new TranslateTransition(Duration.millis(200), infoDialogue);
 		hide.setFromY(0);
-		hide.setToY(130);
+		hide.setToY(infoDialogue.getHeight());
 		hide.play();
 	}
 
 	public void showInfoDialogue(String msg) {
 		((Text) infoDialogue.getChildren().get(0)).setText(msg);
 		TranslateTransition show = new TranslateTransition(Duration.millis(200), infoDialogue);
-		show.setFromY(130);
+		show.setFromY(infoDialogue.getHeight());
 		show.setToY(0);
+		show.play();
 	}
 
 	public void test1(ActionEvent event) {

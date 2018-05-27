@@ -175,7 +175,7 @@
             </VBox>
          </children>
       </HBox>
-      <VBox fx:id="infoDialogue" prefHeight="125.0" prefWidth="100.0" spacing="10.0" style="-fx-background-color: #262626;" translateY="130.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+      <VBox fx:id="infoDialogue" prefHeight="125.0" prefWidth="100.0" spacing="10.0" style="-fx-background-color: #262626;" translateY="125.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
          <children>
             <Text fill="#28d62e" strokeType="OUTSIDE" strokeWidth="0.0" VBox.vgrow="ALWAYS">
                <font>
