@@ -85,7 +85,8 @@ public class ServerSideToClient implements Runnable {
 				closeAllConnections();
 				return;
 			} catch (ClassNotFoundException | URISyntaxException e) {
-				e.printStackTrace();
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
 			}
 		}
 	}
@@ -99,7 +100,8 @@ public class ServerSideToClient implements Runnable {
 			write(imgBytes.length);
 			write(imgBytes);
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 			closeAllConnections();
 		}
 	}
@@ -115,7 +117,8 @@ public class ServerSideToClient implements Runnable {
 			out.close();
 			socket.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		}
 
 	}
@@ -132,6 +135,8 @@ public class ServerSideToClient implements Runnable {
 				return;
 			}
 			BufferedImage[] imgs = ServerOperations.getImagesFromId(ids, username);
+			if (imgs == null)
+				throw new IOException();
 			//send all chats quick summary separately to the client
 			int i = 0;
 			for (int id : ids) {
@@ -147,7 +152,8 @@ public class ServerSideToClient implements Runnable {
 				e1.printStackTrace();
 				closeAllConnections();
 			}
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		}
 	}
 

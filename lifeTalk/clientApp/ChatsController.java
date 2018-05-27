@@ -182,6 +182,7 @@ public class ChatsController {
 	 * @param uName
 	 */
 	private void swipeChat(String uName) {
+		showInfoDialogue("It worked");
 		Scale scaleCurrent = new Scale(1, 1, 0, 50);
 		Timeline scaleAnim = new Timeline();
 		//animate chat from list (x and y scale and opacity) and current chat (translateY and opacity)
@@ -202,8 +203,8 @@ public class ChatsController {
 					new KeyValue(chatViewScrollPane.opacityProperty(), 1)));
 			try {
 				addMessages(serverCommunication.getMessages(uName, 0));
-			} catch (IOException e1) {
-				showInfoDialogue("Error occured while loading messages");
+			} catch (IOException | NullPointerException e1) {
+				showInfoDialogue("Error occured while loading messages: " + e1.getMessage());
 				e1.printStackTrace();
 			}
 			chatViewScrollPane.setTranslateY(15);

@@ -10,6 +10,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import lifeTalk.clientApp.ClientStartConnection;
+import lifeTalk.clientApp.Info;
 import lifeTalk.jsonRW.FileRW;
 
 /**
@@ -42,7 +43,8 @@ public class ClientStartupOperations {
 		try {
 			startInfo = new JsonParser().parse(FileRW.readFromFile(FILELOCATION)).getAsJsonObject();
 		} catch (JsonSyntaxException | IOException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 			return false;
 		}
 		return startInfo.get("autoConnect").getAsBoolean();

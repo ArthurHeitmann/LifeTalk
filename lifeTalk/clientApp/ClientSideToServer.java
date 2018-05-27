@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -70,9 +71,12 @@ public class ClientSideToServer {
 			//get basic user info and display the name
 			try {
 				userData = getUserData();
+				if (userData == null)
+					throw new IOException();
 			} catch (IOException e) {
 				controller.showInfoDialogue("A problem occured while starting: " + e.getMessage());
-				e.printStackTrace();
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
 			}
 			controller.setProfilePic(SwingFXUtils.toFXImage(getImageFromBytes(), null));
 			controller.setNameTitle(userData.get("name").getAsString());
@@ -81,7 +85,8 @@ public class ClientSideToServer {
 				makeChatContactList();
 			} catch (ClassNotFoundException | IOException | ParseException e) {
 				controller.showInfoDialogue("A Problem occured while creating the chat list: " + e.getMessage());
-				e.printStackTrace();
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
 			}
 			//give the controller this class
 			controller.setComm(this);
@@ -133,7 +138,8 @@ public class ClientSideToServer {
 			}
 			return messageFxs.toArray(new MessageFx[messageFxs.size()]);
 		} catch (JsonSyntaxException | IOException | ParseException | ClassNotFoundException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 			return null;
 		}
 	}
@@ -163,11 +169,21 @@ public class ClientSideToServer {
 			JsonObject listElement = new JsonParser().parse(line).getAsJsonObject();
 
 			//add one chat/contact to the GUI
-			controller.addChatContact(listElement.get("title").getAsString(), //
-					listElement.get("lastLine").getAsString(), //
-					listElement.get("firstLineMe").getAsBoolean(), listElement.get("statusInfo").getAsString(), //
-					SwingFXUtils.toFXImage(getImageFromBytes(), null), //
-					new SimpleDateFormat("d.M.y - H:m").parse(listElement.get("dateTime").getAsString()));
+			if (listElement.has("lastLine")) {
+				controller.addChatContact(listElement.get("title").getAsString(), //
+						listElement.get("lastLine").getAsString(), //
+						listElement.get("firstLineMe").getAsBoolean(), //
+						listElement.get("statusInfo").getAsString(), //
+						SwingFXUtils.toFXImage(getImageFromBytes(), null), //
+						new SimpleDateFormat("d.M.y - H:m").parse(listElement.get("dateTime").getAsString()));
+			} else {
+				controller.addChatContact(listElement.get("title").getAsString(), //
+						"", //
+						false, //
+						listElement.get("statusInfo").getAsString(), //
+						SwingFXUtils.toFXImage(getImageFromBytes(), null), //
+						new Date(0));
+			}
 		}
 	}
 
@@ -183,7 +199,8 @@ public class ClientSideToServer {
 			System.out.println(socket.isClosed());
 			return new JsonParser().parse((String) in.readObject()).getAsJsonObject();
 		} catch (IOException | JsonSyntaxException | ClassNotFoundException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 			return null;
 		}
 	}
@@ -213,7 +230,8 @@ public class ClientSideToServer {
 			ByteArrayInputStream bStream = new ByteArrayInputStream(imgBytes);
 			buffImg = ImageIO.read(bStream);
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		}
 		return buffImg;
 	}

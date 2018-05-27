@@ -19,7 +19,7 @@ public class Main extends Application {
 			primaryStage.setWidth(1200);
 			primaryStage.setHeight(800);
 			primaryStage.setScene(scene);
-			primaryStage.setTitle("NatTalk");
+			primaryStage.setTitle(Info.appName + " - " + Info.version);
 			primaryStage.show();
 			//If user previously enabled auto connecting to the server than try to connect to the server automatically
 			Platform.runLater(() -> {
@@ -32,11 +32,13 @@ public class Main extends Application {
 				}
 			});
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		}
 	}
 
 	public static void main(String[] args) {
+		Info.setArgs(args);
 		launch(args);
 	}
 }

@@ -37,7 +37,7 @@ public class FileRW {
 		try {
 			br = new BufferedReader(new FileReader(new File(new URI(location))));
 		} catch (URISyntaxException e) {
-			// TODO pray that it will not occur
+			//pray that it will not occur
 			e.printStackTrace();
 		}
 		sb = new StringBuilder();

@@ -11,6 +11,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import lifeTalk.jsonRW.FileRW;
+import lifeTalk.server.Info;
 import lifeTalk.server.Server;
 
 /**
@@ -85,8 +86,6 @@ public class ServerStartupOperations {
 		}
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		loginsData.add(new JsonParser().parse(gson.toJson(new User(usrName, pw))));
-		System.out.println(gson.toJson(loginsData));
-		loginsJson.add("users", loginsData);
 		FileRW.writeToFile(JsonLocation, gson.toJson(loginsJson));
 		JsonObject userInfo = new JsonObject();
 		userInfo.addProperty("name", usrName);
@@ -96,7 +95,8 @@ public class ServerStartupOperations {
 		try {
 			FileRW.copyFile(Server.class.getResource("data/userInfo/^template.png").toExternalForm(), Server.class.getResource("data/userInfo/").toExternalForm() + usrName + ".png");
 		} catch (IOException | URISyntaxException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 			return false;
 		}
 		return true;

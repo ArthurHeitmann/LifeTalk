@@ -38,6 +38,7 @@ public class Server {
 	private static JsonObject loginJson;
 
 	public static void main(String[] args) throws IOException {
+		Info.setArgs(args);
 		//Create a server at port 2111
 		ServerSocket server = new ServerSocket(2111);
 		loginJson = new JsonParser().parse(FileRW.readFromFile(JSONLOCATION)).getAsJsonObject();
@@ -51,8 +52,8 @@ public class Server {
 				new CLientHandler(server.accept()).start();
 				connected = true;
 			} catch (IOException e) {
-				e.printStackTrace();
-				;
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
 			} finally {
 				if (!connected) {
 					server.close();
@@ -176,7 +177,8 @@ public class Server {
 			}
 			//when something goes wrong while communicating with the client
 			catch (IOException | ClassNotFoundException | URISyntaxException e) {
-				e.printStackTrace();
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
 				try {
 					write("ERROR");
 				} catch (IOException e1) {

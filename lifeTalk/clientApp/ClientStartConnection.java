@@ -53,9 +53,11 @@ public class ClientStartConnection {
 			socket = new Socket(srvAdress, port);
 			out = new ObjectOutputStream(socket.getOutputStream());
 			in = new ObjectInputStream(socket.getInputStream());
+
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 			return false;
 		}
 
@@ -102,7 +104,8 @@ public class ClientStartConnection {
 			write(uName);
 			write(pw);
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 			return false;
 		}
 		String line;
@@ -110,7 +113,8 @@ public class ClientStartConnection {
 			//read result from the server
 			line = (String) in.readObject();
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 			return false;
 		}
 		//connection to server get'S interrupted
@@ -129,7 +133,8 @@ public class ClientStartConnection {
 				//read loginID
 				line = (String) in.readObject();
 			} catch (IOException | ClassNotFoundException e) {
-				e.printStackTrace();
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
 				return false;
 			}
 			//if connection get's interrupted

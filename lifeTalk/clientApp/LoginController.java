@@ -127,10 +127,12 @@ public class LoginController extends Thread {
 			}
 		} catch (IllegalArgumentException e) {
 			setInfoText("Invalid port number");
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		} catch (Exception e) {
 			setInfoText("An Error occured");
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		} finally {
 			loadingGIF1.setVisible(false);
 		}
@@ -165,7 +167,8 @@ public class LoginController extends Thread {
 						switchScene((Scene) event.getSource());
 				} catch (IOException e) {
 					infoText.setText("Couldn't switch to chats window");
-					e.printStackTrace();
+					if (Boolean.parseBoolean(Info.getArgs()[0]))
+						e.printStackTrace();
 				}
 			} else {
 				if (autoLogin)
@@ -184,7 +187,8 @@ public class LoginController extends Thread {
 			}
 			System.exit(0);
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 			setInfoText("An error occured");
 		} finally {
 			loadingGIF1.setVisible(false);
@@ -243,7 +247,8 @@ public class LoginController extends Thread {
 					switchScene(((Node) event.getSource()).getScene());
 				} catch (IOException e) {
 					infoText.setText("Couldn't switch to chats window");
-					e.printStackTrace();
+					if (Boolean.parseBoolean(Info.getArgs()[0]))
+						e.printStackTrace();
 				}
 			} else {
 				setInfoText("Couldn't register, please try again\n (Maybe the username is not available)");

@@ -16,6 +16,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import lifeTalk.jsonRW.FileRW;
+import lifeTalk.server.Info;
 import lifeTalk.server.Server;
 import lifeTalk.server.ServerSideToClient;
 
@@ -68,22 +69,25 @@ public class ServerOperations {
 		//The two accounts in that chat
 		String c1 = chatCont.get("index").getAsJsonObject().get("contact1").getAsString();
 		String c2 = chatCont.get("index").getAsJsonObject().get("contact2").getAsString();
-		//get the number of messages in that chat
-		int lastLineNum = chatCont.get("index").getAsJsonObject().get("count").getAsInt();
-		JsonObject lastMsg = chatCont.get(Integer.toString(lastLineNum)).getAsJsonObject();
 		//get the other contacts status
 		String status = getUserInfo(ServerSideToClient.class.getResource("data/userInfo/").toExternalForm(), //
 				c1.equals(curUsr) ? c2 : c1)//
 						.get("status").getAsString();
+		//get the number of messages in that chat
+		int lastLineNum = chatCont.get("index").getAsJsonObject().get("count").getAsInt();
+		JsonObject lastMsg;
+		if (chatCont.has(Integer.toString(lastLineNum))) {
+			lastMsg = chatCont.get(Integer.toString(lastLineNum)).getAsJsonObject();
+			contactElement.addProperty("lastLine", lastMsg//
+					.get("textContent")//
+					.getAsString());
+			contactElement.addProperty("firstLineMe", lastMsg.get("user").getAsString().equals(curUsr));
+			contactElement.addProperty("dateTime", lastMsg.get("date").getAsString() + " - " + lastMsg.get("time").getAsString());
+		}
 
 		//add all the info to the return json object
 		contactElement.addProperty("title", c1.equals(curUsr) ? c2 : c1);
-		contactElement.addProperty("lastLine", lastMsg//
-				.get("textContent")//
-				.getAsString());
-		contactElement.addProperty("firstLineMe", lastMsg.get("user").getAsString().equals(curUsr));
 		contactElement.addProperty("statusInfo", status);
-		contactElement.addProperty("dateTime", lastMsg.get("date").getAsString() + " - " + lastMsg.get("time").getAsString());
 
 		return new Gson().toJson(contactElement);
 	}
@@ -224,7 +228,8 @@ public class ServerOperations {
 			try {
 				images[i] = ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + (p1.equals(uName) ? p2 : p1 + ".png")).toExternalForm()));
 			} catch (IOException e) {
-				e.printStackTrace();
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
 				return null;
 			}
 			i++;
