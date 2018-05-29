@@ -132,7 +132,7 @@ public class ClientSideToServer {
 				messageFxs.add(new MessageFx(//
 						tmpJO.get("textContent").getAsString(), //
 						tmpJO.get("user").getAsString().equals(uName), //
-						new SimpleDateFormat("d.M.yH:m").parse(tmpJO.get("date").getAsString() + //
+						new SimpleDateFormat("d.M.y - H:m").parse(tmpJO.get("date").getAsString() + " - " + //
 								tmpJO.get("time").getAsString()),//
 						paneWidth));
 			}

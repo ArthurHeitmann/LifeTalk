@@ -2,6 +2,7 @@ package lifeTalk.clientApp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 
@@ -24,6 +25,7 @@ import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import lifeTalk.clientApp.fxPresets.ChatDateInoFx;
 import lifeTalk.clientApp.fxPresets.ChatcontactFx;
 import lifeTalk.clientApp.fxPresets.MessageFx;
 
@@ -72,7 +74,7 @@ public class ChatsController {
 	/** Text field where the user can enter text and send it to the chat */
 	@FXML
 	private TextField msgInp;
-	/** */
+	/** An info dialogue that appears i. e. when an error occurs to notify the user */
 	@FXML
 	private VBox infoDialogue;
 	/** The class that communicates with the server */
@@ -83,9 +85,9 @@ public class ChatsController {
 	private ChatcontactFx selectedContact;
 	/** TRUE: if the user just clicked on a chat and an animation is still playing */
 	private boolean switchingBlocked = false;
-	/** */
+	/** List of all contacts/chats */
 	private LinkedList<ChatcontactFx> contacts = new LinkedList<>();
-	/** */
+	/** the current window */
 	private Stage window;
 
 	/**
@@ -233,22 +235,52 @@ public class ChatsController {
 	}
 
 	/**
-	 * Adds messages from an array to the current chat
+	 * Adds messages from an array to the current chat </br>
+	 * Adds new messages at the top. So to add messages the newest has to be the first and
+	 * the oldest the last.
 	 * 
 	 * @param messages
 	 */
 	public void addMessages(MessageFx[] messages) {
-		double tmpVV = chatViewScrollPane.getVvalue();
+		//message that was previously added in the following loop (previous is newer)
+		MessageFx prevMsg = null;
 		for (MessageFx messageFx : messages) {
+			//if the the new message was sent at least 1 day before that last one than add date info
+			if (prevMsg != null && (olderThan1Day(prevMsg, messageFx)))
+				chatView.getChildren().add(0, new ChatDateInoFx(messageFx.getDate()).getLayout());
+			//add message to screen and add lister for responsive design
 			chatView.getChildren().add(0, messageFx.getPrimaryLayout());
 			chatViewScrollPane.widthProperty().addListener(messageFx.getListener());
+			prevMsg = messageFx;
 		}
+		//if at least one message was added add date info to the top
+		if (prevMsg != null)
+			chatView.getChildren().add(0, new ChatDateInoFx(prevMsg.getDate()).getLayout());
 		//wait a moment for the view to update than scroll to last message
 		PauseTransition wait = new PauseTransition(Duration.millis(5));
 		wait.setOnFinished(e -> chatViewScrollPane.setVvalue(1));
 		wait.play();
 		//chatViewScrollPane.setVvalue(tmpVV);
 
+	}
+
+	private boolean olderThan1Day(MessageFx prevMsg, MessageFx newMsg) {
+		Calendar prevMsgCal = Calendar.getInstance();
+		Calendar newMsgCal = Calendar.getInstance();
+		prevMsgCal.setTime(prevMsg.getDate());
+		newMsgCal.setTime(newMsg.getDate());
+		prevMsgCal.get(Calendar.YEAR);
+		newMsgCal.get(Calendar.YEAR);
+		prevMsgCal.get(Calendar.DAY_OF_YEAR); //139
+		newMsgCal.get(Calendar.DAY_OF_YEAR);	//139
+		if (prevMsg.getDate().toString().substring(0, 10).equals(newMsg.getDate().toString().substring(0, 10)))
+			return false;
+		else if (prevMsgCal.get(Calendar.YEAR) > newMsgCal.get(Calendar.YEAR))
+			return true;
+		else if (prevMsgCal.get(Calendar.DAY_OF_YEAR) > newMsgCal.get(Calendar.DAY_OF_YEAR))
+			return true;
+
+		return false;
 	}
 
 	/**

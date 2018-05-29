@@ -23,7 +23,7 @@ import javafx.scene.text.Text;
  */
 public class MessageFx {
 	/** The date when the message was send */
-	//private Date date;
+	private Date date;
 	/** contains all the nodes of the visual message */
 	private HBox primaryLayout;
 	/**
@@ -52,7 +52,7 @@ public class MessageFx {
 		Pane timerPositionerPlaceholder = new Pane();
 		Text content = new Text(contentText);
 		Text time = new Text(new Time(dateTime.getTime()).toString().substring(0, 5));
-		//date = new Date(date.getTime());
+		this.date = new Date(dateTime.getTime());
 
 		//add the nodes to the parent nodes
 		timePositioner.getChildren().addAll(timerPositionerPlaceholder, time);
@@ -68,10 +68,10 @@ public class MessageFx {
 		//setup type specific visuals
 		if (msgByMe) {
 			primaryLayout.getChildren().addAll(placeholder, textContainer);
-			textContainer.setStyle("-fx-background-color: #727272; -fx-background-radius: 26px;");
+			textContainer.setStyle("-fx-background-color: #727272; -fx-background-radius: 22px;");
 		} else {
 			primaryLayout.getChildren().addAll(textContainer, placeholder);
-			textContainer.setStyle("-fx-background-color: #20ad25; -fx-background-radius: 26px;");
+			textContainer.setStyle("-fx-background-color: #20ad25; -fx-background-radius: 22px;");
 		}
 
 		//listener for the ScrollPane width property
@@ -115,6 +115,10 @@ public class MessageFx {
 	 */
 	public ChangeListener<Number> getListener() {
 		return listener;
+	}
+
+	public Date getDate() {
+		return date;
 	}
 
 	/**

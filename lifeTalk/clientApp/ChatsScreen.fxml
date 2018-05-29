@@ -108,7 +108,7 @@
                         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="200.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="200.0" />
                         <ScrollPane id="alpha" fx:id="chatViewScrollPane" fitToWidth="true" hbarPolicy="NEVER" pannable="true" vbarPolicy="NEVER">
                            <content>
-                              <VBox fx:id="chatView" fillWidth="false" minWidth="150.0" spacing="13.0">
+                              <VBox fx:id="chatView" alignment="TOP_CENTER" fillWidth="false" minWidth="150.0" spacing="13.0">
                                  <padding>
                                     <Insets right="25.0" />
                                  </padding>
