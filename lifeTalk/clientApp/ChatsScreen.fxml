@@ -144,7 +144,7 @@
                               <Font name="Alcubierre" size="20.0" />
                            </font>
                         </TextField>
-                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fitHeight="40.0" fitWidth="40.0" onMouseClicked="#sendMessage" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@resources/sendMsg_button.png" />
                            </image>

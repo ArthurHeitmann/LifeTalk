@@ -16,6 +16,7 @@ import java.util.Date;
 
 import javax.imageio.ImageIO;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -24,6 +25,7 @@ import com.google.gson.JsonSyntaxException;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import lifeTalk.clientApp.fxPresets.MessageFx;
+import lifeTalk.jsonRW.Message;
 
 /**
  * This class communicates with the server to get/send messages and receive other
@@ -98,9 +100,19 @@ public class ClientSideToServer {
 	 * 
 	 */
 	public void update() {
-		Platform.runLater(() -> {
-			//TODO check server for new info
-		});
+		try {
+			write("GETUPDATES");
+			String line = (String) in.readObject();
+			if (!line.equals("finished") && line != null)
+				System.out.println(line);
+			else if (line.equals("newMsg")) {
+				Message message = new Gson().fromJson((String) in.readObject(), Message.class);
+				System.out.println(message.toString());
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -116,7 +128,7 @@ public class ClientSideToServer {
 		JsonArray messages;
 		ArrayList<MessageFx> messageFxs = new ArrayList<>();
 		//prompt server to get messages
-		write("getMSG");
+		write("getMsg");
 		write(uName);
 		write(Integer.toString(msgStartNum));
 		try {
@@ -137,7 +149,7 @@ public class ClientSideToServer {
 						paneWidth));
 			}
 			return messageFxs.toArray(new MessageFx[messageFxs.size()]);
-		} catch (JsonSyntaxException | IOException | ParseException | ClassNotFoundException e) {
+		} catch (IOException | ParseException | ClassNotFoundException e) {
 			if (Boolean.parseBoolean(Info.getArgs()[0]))
 				e.printStackTrace();
 			return null;
@@ -211,7 +223,7 @@ public class ClientSideToServer {
 	 * @param msg The text message for the server
 	 * @throws IOException
 	 */
-	private void write(Object obj) throws IOException {
+	public void write(Object obj) throws IOException {
 		out.writeObject(obj);
 		out.flush();
 	}

@@ -47,7 +47,6 @@ public class MessageFx {
 		primaryLayout = new HBox();
 		StackPane msgContainer = new StackPane();
 		VBox textContainer = new VBox(7);
-		Pane placeholder = new Pane();
 		HBox timePositioner = new HBox();
 		Pane timerPositionerPlaceholder = new Pane();
 		Text content = new Text(contentText);
@@ -59,18 +58,19 @@ public class MessageFx {
 		textContainer.getChildren().addAll(content, timePositioner);
 
 		//setup basic visuals
-		HBox.setHgrow(placeholder, Priority.ALWAYS);
 		HBox.setHgrow(timerPositionerPlaceholder, Priority.ALWAYS);
 		textContainer.setPadding(new Insets(13));
 		content.setFill(Paint.valueOf("#f4f4f4"));
 		time.setFill(Paint.valueOf("#f4f4f4"));
-		placeholder.setMinWidth(50);
 		//setup type specific visuals
 		if (msgByMe) {
+			Pane placeholder = new Pane();
+			HBox.setHgrow(placeholder, Priority.ALWAYS);
+			placeholder.setMinWidth(50);
 			primaryLayout.getChildren().addAll(placeholder, textContainer);
 			textContainer.setStyle("-fx-background-color: #727272; -fx-background-radius: 22px;");
 		} else {
-			primaryLayout.getChildren().addAll(textContainer, placeholder);
+			primaryLayout.getChildren().addAll(textContainer);
 			textContainer.setStyle("-fx-background-color: #20ad25; -fx-background-radius: 22px;");
 		}
 

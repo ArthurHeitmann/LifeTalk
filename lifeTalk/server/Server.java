@@ -200,7 +200,9 @@ public class Server {
 				System.out.println("Connection closed");
 			}
 			if (userAllowed) {
-				Thread t = new Thread(new ServerSideToClient(socket, name, in, out));
+				ServerSideToClient tmp = new ServerSideToClient(socket, name, in, out);
+				InterClientCommunication.putClientComm(name, tmp);
+				Thread t = new Thread(tmp);
 				t.start();
 			}
 		}

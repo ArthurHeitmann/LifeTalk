@@ -69,9 +69,9 @@
                                        </rowConstraints>
                                        <children>
                                           <TextField id="inpField" fx:id="uNameInp" GridPane.columnIndex="1" />
-                                          <PasswordField fx:id="pwInp" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <CheckBox fx:id="loggedinCheckBox" mnemonicParsing="false" text="Stay logged in" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                                          <Button ellipsisString="L" mnemonicParsing="false" onAction="#login" prefHeight="35.0" prefWidth="75.0" text="Login" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                                          <PasswordField id="inpField" fx:id="pwInp" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <CheckBox id="defCheckBox" fx:id="loggedinCheckBox" mnemonicParsing="false" text="Stay logged in" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                                          <Button id="defBtn" ellipsisString="L" mnemonicParsing="false" onAction="#login" prefHeight="35.0" prefWidth="75.0" text="Login" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
                                           </Button>
                                           <Label id="inpLabel" text="Username">
                                           </Label>
@@ -99,9 +99,9 @@
                                        </rowConstraints>
                                        <children>
                                           <TextField id="inpField" fx:id="uNameInpReg" GridPane.columnIndex="1" />
-                                          <PasswordField fx:id="pwInpReg" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <PasswordField fx:id="pwInpConf" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                          <Button mnemonicParsing="false" onAction="#register" prefHeight="35.0" prefWidth="75.0" text="Register" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                                          <PasswordField id="inpField" fx:id="pwInpReg" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <PasswordField id="inpField" fx:id="pwInpConf" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Button id="defBtn" mnemonicParsing="false" onAction="#register" prefHeight="35.0" prefWidth="75.0" text="Register" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                                           </Button>
                                           <Label id="inpLabel" text="Username">
                                           </Label>
@@ -145,12 +145,12 @@
                <children>
                   <TextField id="inpField" fx:id="srvAdrInput" GridPane.columnIndex="1" />
                   <TextField id="inpField" fx:id="portInput" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Button mnemonicParsing="false" onAction="#connectToServer" prefHeight="35.0" prefWidth="75.0" text="Connect" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                  <Button id="defBtn" mnemonicParsing="false" onAction="#connectToServer" prefHeight="35.0" prefWidth="75.0" text="Connect" GridPane.halignment="CENTER" GridPane.rowIndex="2">
                   </Button>
                   <Label id="inpLabel" focusTraversable="false" text="Server adress">
                   </Label>
                   <Label id="inpLabel" focusTraversable="false" text="Port" GridPane.rowIndex="1" />
-                  <CheckBox fx:id="connectedCheckBox" mnemonicParsing="false" text="Stay connected" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                  <CheckBox id="defCheckBox" fx:id="connectedCheckBox" mnemonicParsing="false" text="Stay connected" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                </children>
             </GridPane>
          </children>

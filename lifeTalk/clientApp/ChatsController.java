@@ -19,6 +19,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -28,6 +29,7 @@ import javafx.util.Duration;
 import lifeTalk.clientApp.fxPresets.ChatDateInoFx;
 import lifeTalk.clientApp.fxPresets.ChatcontactFx;
 import lifeTalk.clientApp.fxPresets.MessageFx;
+import lifeTalk.jsonRW.Message;
 
 /**
  * The controller class of the chat screen. Holds nodes from the fxml file, so that they
@@ -102,7 +104,7 @@ public class ChatsController {
 			protected Void call() throws Exception {
 				while (true) {
 					serverCommunication.update();
-					Thread.sleep(500);
+					Thread.sleep(2000);
 				}
 			}
 		};
@@ -288,7 +290,15 @@ public class ChatsController {
 	 * 
 	 * @param event
 	 */
-	public void sendMessage(ActionEvent event) {
+	public void sendMessage(MouseEvent event) {
+		String text = msgInp.getText();
+		try {
+			serverCommunication.write("sendMsg");
+			serverCommunication.write(new Message(text, System.currentTimeMillis(), nameTitle.getText(), selectedChat));
+		} catch (IOException e) {
+			showInfoDialogue(e.getMessage());
+			e.printStackTrace();
+		}
 
 	}
 

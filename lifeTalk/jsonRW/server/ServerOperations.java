@@ -226,7 +226,11 @@ public class ServerOperations {
 			String p1 = chatPartners.get(id).getAsJsonArray().get(0).getAsString();
 			String p2 = chatPartners.get(id).getAsJsonArray().get(1).getAsString();
 			try {
-				images[i] = ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + (p1.equals(uName) ? p2 : p1 + ".png")).toExternalForm()));
+				/*String subPath = "data/userInfo/" + (p1.equals(uName) ? p2 : p1) + ".png";
+				String path = Server.class.getResource(".").toExternalForm();
+				//String pathS = path.toExternalForm();
+				URL tmpURL = new URL(path + subPath);*/
+				images[i] = ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + (p1.equals(uName) ? p2 : p1) + ".png").toExternalForm()));
 			} catch (IOException e) {
 				if (Boolean.parseBoolean(Info.getArgs()[0]))
 					e.printStackTrace();

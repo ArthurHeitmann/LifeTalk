@@ -42,5 +42,48 @@
 /* TextField */
 
 #inpField {
-	-fx-border-radius: 0;
+  -fx-border-color: #aaaaaa;
+  -fx-border-width: 0 0 1 0;
+  -fx-background-color: transparent;
 }
+
+#inpField:focused {
+  -fx-border-color: #20ad25;
+  -fx-border-width: 0 0 1.5px 0;
+}
+
+/* Default button */
+
+#defBtn {
+	-fx-background-color: white;
+	-fx-border-color: #8e8e8e;
+}
+
+#defBtn:hover {
+	-fx-background-color: #e8e8e8;
+}
+
+#defBtn:pressed {
+	-fx-background-color: #d3d3d3;
+	-fx-effect: dropshadow(three-pass-box, rgba(32, 173, 37, 0.5), 4, 0, 0, 2);
+}
+
+/** Default Check box */
+
+#defCheckBox .box {	
+  -fx-border-color: #8e8e8e;
+  -fx-background-radius: 15px;
+  -fx-border-radius: 8px;
+  -fx-background-color: transparent;
+}
+
+#defCheckBox:selected .mark {
+	-fx-background-color: #20ad25;
+}
+
+#defCheckBox .box:hover {
+	-fx-background-color: #e8e8e8;
+}
+
+
+

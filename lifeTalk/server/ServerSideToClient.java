@@ -6,15 +6,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import lifeTalk.jsonRW.Message;
 import lifeTalk.jsonRW.server.ServerOperations;
 
 /**
@@ -33,6 +36,8 @@ public class ServerSideToClient implements Runnable {
 	private ObjectOutputStream out;
 	/** username of the current client */
 	private String username;
+	/** TODO */
+	private ArrayList<String> updates = new ArrayList<>();
 
 	/**
 	 * Transfers connection devices from the previous object to this thread.
@@ -57,38 +62,100 @@ public class ServerSideToClient implements Runnable {
 	public void run() {
 		System.out.println("User connected to new server socket");
 		Gson gson = new Gson();
+		//init
 		while (true) {
 			try {
 				//client text prompt
 				String line = (String) in.readObject();
 				if (line == null) {
 					closeAllConnections();
+					return;
 				} else if (line.equals("GetUserInfo")) {
 					write(gson.toJson(ServerOperations.getUserInfo(this.getClass().getResource("data/userInfo/").toExternalForm(), username)));
 					serializeImg(ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + username + ".png").toExternalForm())));
 				} else if (line.equals("GetChatContacts")) {
 					sendContactList();
-				} else if (line.equals("getMSG")) {
-					String uName = (String) in.readObject();
-					int startNum = Integer.parseInt((String) in.readObject());
-					JsonArray tmpJA = ServerOperations.getChat(uName, username, startNum);
-					if (tmpJA == null)
-						write("ERROR");
-					write(tmpJA.toString());
+					break;
 				} else {
 					write(null);
+					closeAllConnections();
+					return;
 				}
-			} catch (SocketException e) {
-				closeAllConnections();
-				return;
-			} catch (IOException e) {
-				closeAllConnections();
-				return;
-			} catch (ClassNotFoundException | URISyntaxException e) {
+			} catch (ClassNotFoundException | IOException e) {
 				if (Boolean.parseBoolean(Info.getArgs()[0]))
 					e.printStackTrace();
+				return;
 			}
 		}
+		System.out.println("init completed");
+		//forever loop
+		while (true) {
+			try {
+				String line = (String) in.readObject();
+				if (line == null)
+					throw new IOException();
+
+				if (line.equals("GETUPDATES"))
+					System.out.print(".");
+				else
+					System.out.print("\n" + line + "\n");
+
+				switch (line) {
+					case "GETUPDATES":
+						handleUpdates();
+						break;
+					case "getMsg":
+						String uName = (String) in.readObject();
+						int startNum = Integer.parseInt((String) in.readObject());
+						JsonArray tmpJA = ServerOperations.getChat(uName, username, startNum);
+						if (tmpJA == null)
+							write("ERROR");
+						write(tmpJA.toString());
+						break;
+					case "sendMsg":
+						Message msg = (Message) in.readObject();
+						InterClientCommunication.sendMsg(new String[] { msg.receiver }, "msgFrom" + gson.toJson(msg));
+						break;
+					default:
+						break;
+				}
+
+			} catch (ClassNotFoundException | IOException | URISyntaxException e) {
+				// TODO Auto-generated catch block
+				if (e.getClass().getName() != "java.net.SocketException")
+					e.printStackTrace();
+				closeAllConnections();
+				break;
+			}
+		}
+	}
+
+	/**
+	 * TODO
+	 * 
+	 * @throws IOException
+	 */
+	private void handleUpdates() throws IOException {
+		for (String task : updates) {
+			System.out.println(task);
+			switch (task.substring(0, 7)) {
+				case "msgFrom":
+					JsonObject msg = new JsonParser().parse(task.substring(7)).getAsJsonObject();
+					System.out.println("msg received at " + username + ": " + new Gson().toJson(msg));
+					try {
+						write("newMsg");
+						write(new Gson().toJson(msg));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+		write("finished");
+		updates.clear();
 	}
 
 	private void serializeImg(BufferedImage img) {
@@ -146,12 +213,7 @@ public class ServerSideToClient implements Runnable {
 			}
 			write("FINISHED");
 		} catch (IOException e) {
-			try {
-				write("ERROR");
-			} catch (IOException e1) {
-				e1.printStackTrace();
-				closeAllConnections();
-			}
+			closeAllConnections();
 			if (Boolean.parseBoolean(Info.getArgs()[0]))
 				e.printStackTrace();
 		}
@@ -164,6 +226,13 @@ public class ServerSideToClient implements Runnable {
 	private void write(Object obj) throws IOException {
 		out.writeObject(obj);
 		out.flush();
+	}
+
+	public void addToUpdateQueue(String task) {
+		updates.add(task);
+		for (String update : updates) {
+			System.out.println(update);
+		}
 	}
 
 }
