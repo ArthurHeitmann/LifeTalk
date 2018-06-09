@@ -11,6 +11,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -82,7 +83,7 @@ public class ChatsController {
 	/** The class that communicates with the server */
 	private ClientSideToServer serverCommunication;
 	/** Name of the person the user chats with */
-	private String selectedChat;
+	private String selectedChatContact;
 	/** Object of the currently selected chat */
 	private ChatcontactFx selectedContact;
 	/** TRUE: if the user just clicked on a chat and an animation is still playing */
@@ -104,7 +105,7 @@ public class ChatsController {
 			protected Void call() throws Exception {
 				while (true) {
 					serverCommunication.update();
-					Thread.sleep(2000);
+					Thread.sleep(Integer.parseInt(Info.getArgs()[1]));
 				}
 			}
 		};
@@ -161,7 +162,7 @@ public class ChatsController {
 		chatElement.setOnMouseClicked(e -> {
 			//check whether the element is already selected or not OR 
 			//currently another clicking animation (duration = 250 ms) is currently in progress
-			if (switchingBlocked || (selectedChat != null && selectedChat.equals(title)))
+			if (switchingBlocked || (selectedChatContact != null && selectedChatContact.equals(title)))
 				return;
 			switchingBlocked = true;
 			msgInp.setText("");
@@ -170,7 +171,7 @@ public class ChatsController {
 				selectedContact.setSelected(false);
 			contactFx.setSelected(true);
 			selectedContact = contactFx;
-			selectedChat = title;
+			selectedChatContact = title;
 			//setup visuals and play switching animations
 			chatPName.setText(title);
 			chatPInfo.setText(statusInfo);
@@ -207,7 +208,7 @@ public class ChatsController {
 					new KeyValue(chatViewScrollPane.translateYProperty(), 0),//
 					new KeyValue(chatViewScrollPane.opacityProperty(), 1)));
 			try {
-				addMessages(serverCommunication.getMessages(uName, 0));
+				addMessagesAtTop(serverCommunication.getMessages(uName, 0));
 			} catch (IOException | NullPointerException e1) {
 				showInfoDialogue("Error occured while loading messages: " + e1.getMessage());
 				e1.printStackTrace();
@@ -243,27 +244,33 @@ public class ChatsController {
 	 * 
 	 * @param messages
 	 */
-	public void addMessages(MessageFx[] messages) {
+	public void addMessagesAtTop(MessageFx[] messages) {
+		addMessages(0, messages);
+	}
+
+	public void addMessageAtBottom(MessageFx message) {
+		addMessages(chatView.getChildren().size(), new MessageFx[] { message });
+	}
+
+	private void addMessages(int pos, MessageFx[] messages) {
 		//message that was previously added in the following loop (previous is newer)
 		MessageFx prevMsg = null;
 		for (MessageFx messageFx : messages) {
 			//if the the new message was sent at least 1 day before that last one than add date info
 			if (prevMsg != null && (olderThan1Day(prevMsg, messageFx)))
-				chatView.getChildren().add(0, new ChatDateInoFx(messageFx.getDate()).getLayout());
+				chatView.getChildren().add(pos, new ChatDateInoFx(messageFx.getDate()).getLayout());
 			//add message to screen and add lister for responsive design
-			chatView.getChildren().add(0, messageFx.getPrimaryLayout());
+			chatView.getChildren().add(pos, messageFx.getPrimaryLayout());
 			chatViewScrollPane.widthProperty().addListener(messageFx.getListener());
 			prevMsg = messageFx;
 		}
 		//if at least one message was added add date info to the top
 		if (prevMsg != null)
-			chatView.getChildren().add(0, new ChatDateInoFx(prevMsg.getDate()).getLayout());
+			chatView.getChildren().add(pos, new ChatDateInoFx(prevMsg.getDate()).getLayout());
 		//wait a moment for the view to update than scroll to last message
 		PauseTransition wait = new PauseTransition(Duration.millis(5));
 		wait.setOnFinished(e -> chatViewScrollPane.setVvalue(1));
 		wait.play();
-		//chatViewScrollPane.setVvalue(tmpVV);
-
 	}
 
 	private boolean olderThan1Day(MessageFx prevMsg, MessageFx newMsg) {
@@ -294,12 +301,25 @@ public class ChatsController {
 		String text = msgInp.getText();
 		try {
 			serverCommunication.write("sendMsg");
-			serverCommunication.write(new Message(text, System.currentTimeMillis(), nameTitle.getText(), selectedChat));
+			serverCommunication.write(new Message(text, System.currentTimeMillis(), nameTitle.getText(), selectedChatContact));
 		} catch (IOException e) {
 			showInfoDialogue(e.getMessage());
 			e.printStackTrace();
 		}
+		msgInp.clear();
+	}
 
+	public void displayMsg(Message msg) {
+		Platform.runLater(() -> {
+			if (msg.sender.equals(selectedChatContact)) {
+				System.out.println("displaying: " + msg);
+				addMessageAtBottom(new MessageFx(//
+						msg.content, //
+						msg.sender.equals(nameTitle.getText()), //
+						new Date(msg.date), //
+						chatViewScrollPane.getWidth()));
+			}
+		});
 	}
 
 	public void closeInfoDialogue(ActionEvent event) {
@@ -321,9 +341,11 @@ public class ChatsController {
 		System.out.println(2);
 	}
 
-	public void buttonTest(ActionEvent event) {
-		System.out.println("1");
-
+	public void buttonTest(MouseEvent event) {
+		System.out.println("Button click START");
+		displayMsg(new Message("Test", 0, "admin", "user1"));
+		System.out.println(new Message("Test", 0, "admin", "user1"));
+		System.out.println("Button click END");
 	}
 
 	/**

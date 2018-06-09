@@ -12,6 +12,7 @@ import com.google.gson.JsonSyntaxException;
 
 import lifeTalk.jsonRW.FileRW;
 import lifeTalk.server.Info;
+import lifeTalk.server.InterClientCommunication;
 import lifeTalk.server.Server;
 
 /**
@@ -57,7 +58,7 @@ public class ServerStartupOperations {
 			if (uName.startsWith(uNameAt_i)) {
 				String passw = ((JsonObject) loginsData.get(i)).get("pw").getAsString();
 				if (pw.startsWith(passw)) {
-					return true;
+					return !InterClientCommunication.userLoggedIn(uName);
 				} else {
 					return false;
 				}
@@ -128,7 +129,7 @@ public class ServerStartupOperations {
 					((JsonObject) loginsData.get(i)).get("autoLogin").getAsBoolean() && 			//
 					((JsonObject) loginsData.get(i)).get("loginID").getAsString().equals(id)  		//
 			) {
-				return true;
+				return !InterClientCommunication.userLoggedIn(uName);
 			}
 		}
 		return false;

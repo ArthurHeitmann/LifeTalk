@@ -95,11 +95,6 @@ public class ServerSideToClient implements Runnable {
 				if (line == null)
 					throw new IOException();
 
-				if (line.equals("GETUPDATES"))
-					System.out.print(".");
-				else
-					System.out.print("\n" + line + "\n");
-
 				switch (line) {
 					case "GETUPDATES":
 						handleUpdates();
@@ -141,7 +136,6 @@ public class ServerSideToClient implements Runnable {
 			switch (task.substring(0, 7)) {
 				case "msgFrom":
 					JsonObject msg = new JsonParser().parse(task.substring(7)).getAsJsonObject();
-					System.out.println("msg received at " + username + ": " + new Gson().toJson(msg));
 					try {
 						write("newMsg");
 						write(new Gson().toJson(msg));
@@ -187,6 +181,7 @@ public class ServerSideToClient implements Runnable {
 			if (Boolean.parseBoolean(Info.getArgs()[0]))
 				e.printStackTrace();
 		}
+		InterClientCommunication.removeClientComm(username);
 
 	}
 

@@ -16,4 +16,13 @@ public class InterClientCommunication {
 	public synchronized static void putClientComm(String uName, ServerSideToClient comm) {
 		commMap.put(uName, comm);
 	}
+
+	public synchronized static void removeClientComm(String uName) {
+		if (commMap.containsKey(uName))
+			commMap.remove(uName);
+	}
+
+	public synchronized static boolean userLoggedIn(String uName) {
+		return commMap.containsKey(uName);
+	}
 }

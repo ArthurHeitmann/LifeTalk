@@ -43,7 +43,7 @@
                                  </HBox.margin>
                               </Label>
                               <Pane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                              <HBox spacing="6.0">
+                              <HBox onMouseClicked="#buttonTest" spacing="6.0">
                                  <HBox.margin>
                                     <Insets bottom="11.0" right="15.0" top="11.0" />
                                  </HBox.margin>

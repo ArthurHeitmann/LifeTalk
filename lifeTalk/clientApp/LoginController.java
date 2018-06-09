@@ -173,6 +173,7 @@ public class LoginController extends Thread {
 			} else {
 				if (autoLogin)
 					autoLogin = false;
+				pwInp.clear();
 				setInfoText("Couldn't log in, please try again");
 			}
 		}
@@ -272,6 +273,7 @@ public class LoginController extends Thread {
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatsScreen.fxml"));
 		scene.setRoot(fxmlLoader.load());
 		new ClientSideToServer(connection.getSocket(), fxmlLoader.getController(), connection.getOut(), connection.getIn()).retrieveUserInfo();
+		System.out.println(uNameInp.getText() + "logged in");
 
 	}
 }

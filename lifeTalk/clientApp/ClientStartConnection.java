@@ -124,7 +124,6 @@ public class ClientStartConnection {
 		}
 		//Login or Register was successful
 		else if (line.equals("SUCCESS")) {
-			System.out.println("logged in");
 			return true;
 		}
 		//Login with the option to stay logged in was successful | now get the loginID

@@ -47,6 +47,8 @@ public class ClientSideToServer {
 	 * Holds basic information of the current user like name, status, profile pic, etc.
 	 */
 	private JsonObject userData;
+	private boolean communicationInProgress = false;
+	private boolean updateRunning = false;
 
 	/**
 	 * Gets the socket and input/output devices from the initial connection.
@@ -100,19 +102,31 @@ public class ClientSideToServer {
 	 * 
 	 */
 	public void update() {
+		if (updateRunning)
+			return;
+		updateRunning = true;
+		waitForComm();
+		communicationInProgress = true;
 		try {
 			write("GETUPDATES");
-			String line = (String) in.readObject();
-			if (!line.equals("finished") && line != null)
-				System.out.println(line);
-			else if (line.equals("newMsg")) {
-				Message message = new Gson().fromJson((String) in.readObject(), Message.class);
-				System.out.println(message.toString());
+			while (true) {
+				String line = (String) in.readObject();
+				if (!line.equals("finished") && line != null)
+					System.out.println(line);
+				if (line != null && line.equals("finished"))
+					break;
+				else if (line.equals("newMsg")) {
+					Message message = new Gson().fromJson((String) in.readObject(), Message.class);
+					System.out.println(message.toString());
+					controller.displayMsg(message);
+				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
+		communicationInProgress = false;
+		updateRunning = false;
 	}
 
 	/**
@@ -125,6 +139,8 @@ public class ClientSideToServer {
 	 * @throws IOException
 	 */
 	public MessageFx[] getMessages(String uName, int msgStartNum) throws IOException {
+		waitForComm();
+		communicationInProgress = true;
 		JsonArray messages;
 		ArrayList<MessageFx> messageFxs = new ArrayList<>();
 		//prompt server to get messages
@@ -148,10 +164,12 @@ public class ClientSideToServer {
 								tmpJO.get("time").getAsString()),//
 						paneWidth));
 			}
+			communicationInProgress = false;
 			return messageFxs.toArray(new MessageFx[messageFxs.size()]);
 		} catch (IOException | ParseException | ClassNotFoundException e) {
 			if (Boolean.parseBoolean(Info.getArgs()[0]))
 				e.printStackTrace();
+			communicationInProgress = false;
 			return null;
 		}
 	}
@@ -165,6 +183,8 @@ public class ClientSideToServer {
 	 * @throws ParseException When an error occurs while parsing a date/time string
 	 */
 	private void makeChatContactList() throws ClassNotFoundException, IOException, ParseException {
+		waitForComm();
+		communicationInProgress = true;
 		//contact server
 		write("GetChatContacts");
 		//receive chats/contacts until the server is finished or an error occurs
@@ -175,6 +195,7 @@ public class ClientSideToServer {
 			//check whether finished, an error occurred or and invalid string has been received
 			if (line == null || line.equals("FINISHED") || line.equals("ERROR") || line.charAt(0) != '{') {
 				System.out.println("chat list creation ended");
+				communicationInProgress = false;
 				return;
 			}
 			//Parse one contact/chat into a json object
@@ -206,14 +227,27 @@ public class ClientSideToServer {
 	 * @throws IOException When an error occurs while sending a message to the server
 	 */
 	private JsonObject getUserData() throws IOException {
+		waitForComm();
+		communicationInProgress = true;
 		write("GetUserInfo");
 		try {
-			System.out.println(socket.isClosed());
+			communicationInProgress = false;
 			return new JsonParser().parse((String) in.readObject()).getAsJsonObject();
 		} catch (IOException | JsonSyntaxException | ClassNotFoundException e) {
 			if (Boolean.parseBoolean(Info.getArgs()[0]))
 				e.printStackTrace();
+			communicationInProgress = false;
 			return null;
+		}
+	}
+
+	/**
+	 * Let the current thread wait until the currently running communication with the
+	 * server is finished.
+	 */
+	private void waitForComm() {
+		while (communicationInProgress) {
+			//wait until current communication is finished
 		}
 	}
 
@@ -223,7 +257,7 @@ public class ClientSideToServer {
 	 * @param msg The text message for the server
 	 * @throws IOException
 	 */
-	public void write(Object obj) throws IOException {
+	public synchronized void write(Object obj) throws IOException {
 		out.writeObject(obj);
 		out.flush();
 	}
