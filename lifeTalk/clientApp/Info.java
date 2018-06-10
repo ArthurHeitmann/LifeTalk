@@ -6,7 +6,7 @@ public class Info {
 	public static final String version = "alpha";
 
 	public static void setArgs(String[] args) {
-		if (args == null)
+		if (args != null)
 			Info.args = args;
 
 	}

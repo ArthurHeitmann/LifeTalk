@@ -117,7 +117,7 @@ public class ClientSideToServer {
 					break;
 				else if (line.equals("newMsg")) {
 					Message message = new Gson().fromJson((String) in.readObject(), Message.class);
-					System.out.println(message.toString());
+					System.out.println(message);
 					controller.displayMsg(message);
 				}
 			}
