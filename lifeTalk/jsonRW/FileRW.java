@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
  *
  */
 public class FileRW {
-
 	/**
 	 * Reads the contents of a given file and return the content in a String
 	 * 

@@ -36,7 +36,7 @@ public class ServerSideToClient implements Runnable {
 	private ObjectOutputStream out;
 	/** username of the current client */
 	private String username;
-	/** TODO */
+	/** list of updates like new messages or similar */
 	private ArrayList<String> updates = new ArrayList<>();
 
 	/**
@@ -110,13 +110,13 @@ public class ServerSideToClient implements Runnable {
 					case "sendMsg":
 						Message msg = (Message) in.readObject();
 						InterClientCommunication.sendMsg(new String[] { msg.receiver }, "msgFrom" + gson.toJson(msg));
+						ServerOperations.addMessageToChat(msg);
 						break;
 					default:
 						break;
 				}
 
 			} catch (ClassNotFoundException | IOException | URISyntaxException e) {
-				// TODO Auto-generated catch block
 				if (e.getClass().getName() != "java.net.SocketException")
 					e.printStackTrace();
 				closeAllConnections();
@@ -126,7 +126,8 @@ public class ServerSideToClient implements Runnable {
 	}
 
 	/**
-	 * TODO
+	 * check whether any new updates (i. e. new message) are available and if so send them
+	 * to the client
 	 * 
 	 * @throws IOException
 	 */

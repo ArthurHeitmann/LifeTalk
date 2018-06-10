@@ -4,18 +4,22 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import lifeTalk.jsonRW.FileRW;
+import lifeTalk.jsonRW.Message;
 import lifeTalk.server.Info;
 import lifeTalk.server.Server;
 import lifeTalk.server.ServerSideToClient;
@@ -29,6 +33,11 @@ import lifeTalk.server.ServerSideToClient;
 public class ServerOperations {
 	/** Cache of chat ids to avoid unnecessary file reading and other processes */
 	private static HashMap<String, Integer> userIdsCache = new HashMap<>();
+	/**
+	 * Cache of all last used chats; keys are the two chat persons of that chat in
+	 * alphabetical order
+	 */
+	private static HashMap<String, JsonObject> chatsCache = new HashMap<>();
 	/**
 	 * Array of all users who are linked together (always two in a pair and alphabetically
 	 * sorted)
@@ -138,6 +147,87 @@ public class ServerOperations {
 	 */
 	public static int getChatId(String uName1, String uName2) throws JsonSyntaxException, IOException {
 		//make sure that the names are alphabetically sorted
+		String[] tmpNames = sortNamesAlphabetically(uName1, uName2);
+		uName1 = tmpNames[0];
+		uName2 = tmpNames[1];
+		//check whether cache already contains id
+		String key = uName1 + ", " + uName2;
+		if (userIdsCache.containsKey(key))
+			return userIdsCache.get(key);
+		//check whether other cache has been updated or is outdated, if so update it
+		if (chatListUpdated || chatPartners == null)
+			chatPartners = new JsonParser().parse(//
+					FileRW.readFromFile(Server.class.getResource("data/chats/index.json").toExternalForm()))//
+					.getAsJsonObject()//
+					.get("chatUsers")//
+					.getAsJsonArray();
+
+		//search array for both usernames
+		for (int j = 0; j < chatPartners.size(); j++) {
+			if (chatPartners.get(j).getAsJsonArray().get(0).getAsString().equals(uName1) && chatPartners.get(j).getAsJsonArray().get(1).getAsString().equals(uName2)) {
+				userIdsCache.put(key, j);
+				return j;
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * Get the chat as a json between to users
+	 * 
+	 * @param uName1 User 1
+	 * @param uName2 User 2
+	 * @param start the beginning index of the first message
+	 * @return
+	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws JsonSyntaxException
+	 */
+	public static JsonArray getChat(String uName1, String uName2, int start) throws JsonSyntaxException, IOException, URISyntaxException {
+		JsonArray chat20msgs = new JsonArray();
+		String[] tmpNames = sortNamesAlphabetically(uName1, uName2);
+		uName1 = tmpNames[0];
+		uName2 = tmpNames[1];
+		String key = uName1 + ", " + uName2;
+		JsonObject userChat;
+		chatsCache.containsKey(key);
+		if (chatsCache.containsKey(key))
+			userChat = chatsCache.get(key);
+		else {
+			//parse user chat from file
+			userChat = new JsonParser().parse(//
+					FileRW.readFromFile(ServerSideToClient.class.getResource("data/chats/" + getChatId(uName1, uName2) + ".json").toExternalForm()))//
+					.getAsJsonObject();
+			chatsCache.put(key, userChat);
+		}
+		//get number of messages
+		int count = userChat.get("index").getAsJsonObject().get("count").getAsInt() - start;
+		if (count < 20 && start > 20)
+			return null;
+		//add messages to the return json array
+		for (int i = 0; i < count; i++) {
+			chat20msgs.add(userChat.get(Integer.toString(count - i)));
+		}
+		return chat20msgs;
+	}
+
+	public static void addMessageToChat(Message msg) {
+		String[] names = sortNamesAlphabetically(msg.sender, msg.receiver);
+		String key = names[0] + ", " + names[1];
+		JsonObject jsonMsg = new JsonObject();
+		jsonMsg.addProperty("user", msg.receiver);
+		jsonMsg.addProperty("textContent", msg.content);
+		jsonMsg.addProperty("date", new SimpleDateFormat("d.M.y").format(new Date(msg.date)));
+		jsonMsg.addProperty("time", new SimpleDateFormat("H:m").format(new Date(msg.date)));
+		int count = chatsCache.get(key).get("index").getAsJsonObject().get("count").getAsInt() + 1;
+		chatsCache.get(key).add(Integer.toString(count), //
+				jsonMsg);
+		chatsCache.get(key).get("index").getAsJsonObject().addProperty("count", count);
+		System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(chatsCache.get(key)));
+	}
+
+	private static String[] sortNamesAlphabetically(String uName1, String uName2) {
 		int i = 0;
 		while (true) {
 			if (uName1.charAt(i) < uName2.charAt(i))
@@ -158,65 +248,7 @@ public class ServerOperations {
 			}
 			i++;
 		}
-
-		//check whether cache already contains id
-		if (userIdsCache.containsKey(uName1 + ", " + uName2))
-			return userIdsCache.get(uName1 + ", " + uName2);
-		//check whether other cache has been updated or is outdated, if so update it
-		if (chatListUpdated || chatPartners == null)
-			chatPartners = new JsonParser().parse(//
-					FileRW.readFromFile(Server.class.getResource("data/chats/index.json").toExternalForm()))//
-					.getAsJsonObject()//
-					.get("chatUsers")//
-					.getAsJsonArray();
-
-		//search array for both usernames
-		for (int j = 0; j < chatPartners.size(); j++) {
-			if (chatPartners.get(j).getAsJsonArray().get(0).getAsString().equals(uName1) && chatPartners.get(j).getAsJsonArray().get(1).getAsString().equals(uName2)) {
-				userIdsCache.put(uName1 + ", " + uName2, j);
-				return j;
-			}
-		}
-
-		return -1;
-	}
-
-	/**
-	 * Clear the cache of a specific user
-	 * 
-	 * @param username
-	 */
-	public static void removeUserCache(String username) {
-		if (userIdsCache.containsKey(", " + username))
-			userIdsCache.remove(", " + username);
-	}
-
-	/**
-	 * Get the chat as a json between to users
-	 * 
-	 * @param uName1 User 1
-	 * @param uName2 User 2
-	 * @param start the beginning index of the first message
-	 * @return
-	 * @throws URISyntaxException
-	 * @throws IOException
-	 * @throws JsonSyntaxException
-	 */
-	public static JsonArray getChat(String uName1, String uName2, int start) throws JsonSyntaxException, IOException, URISyntaxException {
-		JsonArray chat20msgs = new JsonArray();
-		//parse user chat from file
-		JsonObject userChat = new JsonParser().parse(//
-				FileRW.readFromFile(ServerSideToClient.class.getResource("data/chats/" + getChatId(uName1, uName2) + ".json").toExternalForm()))//
-				.getAsJsonObject();
-		//get number of messages
-		int count = userChat.get("index").getAsJsonObject().get("count").getAsInt() - start;
-		if (count < 20 && start > 20)
-			return null;
-		//add messages to the return json array
-		for (int i = 0; i < count; i++) {
-			chat20msgs.add(userChat.get(Integer.toString(count - i)));
-		}
-		return chat20msgs;
+		return new String[] { uName1, uName2 };
 	}
 
 	public static BufferedImage[] getImagesFromId(int[] ids, String uName) {
@@ -240,5 +272,9 @@ public class ServerOperations {
 		}
 
 		return images;
+	}
+
+	public static HashMap<String, JsonObject> getChatCache() {
+		return chatsCache;
 	}
 }

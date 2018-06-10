@@ -122,7 +122,6 @@ public class ClientSideToServer {
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
-
 			e.printStackTrace();
 		}
 		communicationInProgress = false;

@@ -306,6 +306,7 @@ public class ChatsController {
 			showInfoDialogue(e.getMessage());
 			e.printStackTrace();
 		}
+		addMessageAtBottom(new MessageFx(msgInp.getText(), true, new Date(), chatViewScrollPane.getWidth()));
 		msgInp.clear();
 	}
 

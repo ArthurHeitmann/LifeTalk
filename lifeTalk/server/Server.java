@@ -45,6 +45,7 @@ public class Server {
 		loginsData = loginJson.get("users").getAsJsonArray();
 		boolean connected = false;
 		System.out.println("Server running");
+		new Thread(new BackgroundService()).start();
 		while (true) {
 			try {
 				//Wait for a connection with a client and than start a 
