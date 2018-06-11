@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.HashMap;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -89,7 +89,8 @@ public class ChatsController {
 	/** TRUE: if the user just clicked on a chat and an animation is still playing */
 	private boolean switchingBlocked = false;
 	/** List of all contacts/chats */
-	private LinkedList<ChatcontactFx> contacts = new LinkedList<>();
+	private ArrayList<ChatcontactFx> contacts = new ArrayList<>();
+	private HashMap<String, Integer> contactsIndex = new HashMap<>();
 	/** the current window */
 	private Stage window;
 
@@ -154,10 +155,12 @@ public class ChatsController {
 			}
 			if (!added) {
 				chatList.getChildren().add(chatElement);
-				contacts.addFirst(contactFx);
+				contacts.add(0, contactFx);
 			}
 		}
-
+		for (ChatcontactFx chatcontactFx : contacts) {
+			contactsIndex.put(chatcontactFx.getTitle(), contacts.indexOf(chatcontactFx));
+		}
 		//load the chat with the other user when clicked
 		chatElement.setOnMouseClicked(e -> {
 			//check whether the element is already selected or not OR 
@@ -178,6 +181,7 @@ public class ChatsController {
 			chatPImg.setImage(img);
 			swipeChat(title);
 			msgInp.setEditable(true);
+			contactFx.clearNewMsgCounter();
 		});
 	}
 
@@ -312,6 +316,7 @@ public class ChatsController {
 
 	public void displayMsg(Message msg) {
 		Platform.runLater(() -> {
+			Message tmpMsg = msg;
 			if (msg.sender.equals(selectedChatContact)) {
 				System.out.println("displaying: " + msg);
 				addMessageAtBottom(new MessageFx(//
@@ -319,6 +324,8 @@ public class ChatsController {
 						msg.sender.equals(nameTitle.getText()), //
 						new Date(msg.date), //
 						chatViewScrollPane.getWidth()));
+			} else {
+				contacts.get(contactsIndex.get(tmpMsg.sender)).increaseNewMsgCounter();
 			}
 		});
 	}

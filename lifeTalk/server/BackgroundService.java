@@ -17,10 +17,8 @@ public class BackgroundService implements Runnable {
 	public void run() {
 		Gson jsonFormatter = new GsonBuilder().setPrettyPrinting().create();
 		while (true) {
-			System.out.println("Checking");
 			HashMap<String, JsonObject> newMap = ServerOperations.getChatCache();
 			if (newMap == null || newMap.isEmpty()) {
-				System.out.println("completed");
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException e1) {
@@ -30,7 +28,6 @@ public class BackgroundService implements Runnable {
 			}
 
 			for (String key : newMap.keySet()) {
-				System.out.println(key);
 				newMap.put(key, newMap.get(key));
 				try {
 					int chatID = ServerOperations.getChatId(newMap.get(key).get("index").getAsJsonObject().get("contact1").getAsString(), //
@@ -39,10 +36,7 @@ public class BackgroundService implements Runnable {
 				} catch (JsonSyntaxException | IOException | URISyntaxException e) {
 					e.printStackTrace();
 				}
-
-				System.out.println(key + " completed");
 			}
-			System.out.println("completed");
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {

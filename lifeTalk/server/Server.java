@@ -37,6 +37,11 @@ public class Server {
 	 */
 	private static JsonObject loginJson;
 
+	/**
+	 * @param args [0]: display exceptions or not (boolean); [1]: save messages or not
+	 * (boolean)
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
 		Info.setArgs(args);
 		//Create a server at port 2111
@@ -45,7 +50,8 @@ public class Server {
 		loginsData = loginJson.get("users").getAsJsonArray();
 		boolean connected = false;
 		System.out.println("Server running");
-		new Thread(new BackgroundService()).start();
+		if (Boolean.parseBoolean(args[1]))
+			new Thread(new BackgroundService()).start();
 		while (true) {
 			try {
 				//Wait for a connection with a client and than start a 

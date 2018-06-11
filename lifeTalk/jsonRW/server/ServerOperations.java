@@ -12,7 +12,6 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -224,7 +223,6 @@ public class ServerOperations {
 		chatsCache.get(key).add(Integer.toString(count), //
 				jsonMsg);
 		chatsCache.get(key).get("index").getAsJsonObject().addProperty("count", count);
-		System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(chatsCache.get(key)));
 	}
 
 	private static String[] sortNamesAlphabetically(String uName1, String uName2) {

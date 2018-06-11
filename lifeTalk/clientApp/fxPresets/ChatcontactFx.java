@@ -2,15 +2,21 @@ package lifeTalk.clientApp.fxPresets;
 
 import java.util.Date;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 /**
  * A class to manage the visual representation of a contacts quick overview. Contains the
@@ -23,6 +29,8 @@ import javafx.scene.paint.Color;
 public class ChatcontactFx {
 	/** Parent node that holds all the child nodes. */
 	private HBox primaryLayout;
+	/** */
+	private HBox bottomLayout;
 	/** Parent node of all text related nodes, which are displayed vertically */
 	private VBox secondaryLayout;
 	/** Image of the other persons profile picture */
@@ -33,10 +41,14 @@ public class ChatcontactFx {
 	private Label lastLine;
 	/** Status info of the other person */
 	private Label statusInfo;
+	private VBox newMessageIndicator;
+	private Text newMsgCount;
 	/** Whether the last message sent was by the current user or not */
 	private boolean lastMsgByMe;
 	/** The time and date when the last message was sent */
 	private Date lastMsgTime;
+	private Timeline showNotification;
+	private Timeline hideNotification;
 
 	/**
 	 * Creates and sets up all the necessary objects and nodes for this object
@@ -50,6 +62,7 @@ public class ChatcontactFx {
 	public ChatcontactFx(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img, Date lastMsgTime) {
 		//Create the nodes for the GUI
 		primaryLayout = new HBox(10);
+		bottomLayout = new HBox();
 		secondaryLayout = new VBox(7);
 		nameLabel = new Label(title);
 		lastLine = new Label(firstLine);
@@ -57,10 +70,18 @@ public class ChatcontactFx {
 		contactImage = new ImageView(img);
 		lastMsgByMe = firstLineMe;
 		this.lastMsgTime = lastMsgTime;
+		newMsgCount = new Text("0");
+		newMessageIndicator = new VBox(newMsgCount);
+		Pane placeholder = new Pane();
+		showNotification = new Timeline(new KeyFrame(Duration.millis(200), new KeyValue(newMessageIndicator.scaleXProperty(), 1), new KeyValue(newMessageIndicator.scaleYProperty(), 1)));
+		hideNotification = new Timeline(new KeyFrame(Duration.millis(200), new KeyValue(newMessageIndicator.scaleXProperty(), 0), new KeyValue(newMessageIndicator.scaleYProperty(), 0)));
 
 		//set the dimensions and text clipping style
 		nameLabel.setMaxWidth(300);
 		lastLine.setMaxWidth(300);
+		newMessageIndicator.setScaleX(0);
+		newMessageIndicator.setScaleY(0);
+		HBox.setHgrow(placeholder, Priority.ALWAYS);
 		this.statusInfo.setMaxWidth(300);
 		nameLabel.setTextOverrun(OverrunStyle.ELLIPSIS);
 		lastLine.setTextOverrun(OverrunStyle.ELLIPSIS);
@@ -71,15 +92,22 @@ public class ChatcontactFx {
 		contactImage.setPreserveRatio(true);
 		contactImage.setSmooth(true);
 		primaryLayout.setPadding(new Insets(8));
+		newMessageIndicator.setMinHeight(newMsgCount.getBoundsInLocal().getHeight() + 6);
+		newMessageIndicator.setMinWidth(newMsgCount.getBoundsInLocal().getHeight() + 6);
+		newMessageIndicator.setMaxHeight(newMsgCount.getBoundsInLocal().getHeight() + 6);
+		newMessageIndicator.setMaxWidth(newMsgCount.getBoundsInLocal().getHeight() + 6);
+		newMessageIndicator.setPadding(new Insets(3, 7, 3, 7));
 
-		//CSS: font-size, font-style
-
+		//CSS
 		nameLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: #f9f9f9");
 		lastLine.setStyle("-fx-font-size: 15px; -fx-text-fill: #f9f9f9");
 		this.statusInfo.setStyle("-fx-font-size: 15px; -fx-font-style: italic; -fx-text-fill: #f9f9f9");
+		newMessageIndicator.setStyle("-fx-background-color: #28d62e; -fx-background-radius: 50%;");
+		newMsgCount.setFill(Paint.valueOf("#ffffff"));
 
 		//add the children to the parent layouts
-		secondaryLayout.getChildren().addAll(nameLabel, lastLine, this.statusInfo);
+		bottomLayout.getChildren().addAll(this.statusInfo, placeholder, newMessageIndicator);
+		secondaryLayout.getChildren().addAll(nameLabel, lastLine, bottomLayout);
 		primaryLayout.getChildren().addAll(contactImage, secondaryLayout);
 
 		contactImage.setTranslateY((primaryLayout.getBoundsInLocal().getHeight() - contactImage.getFitWidth()) / 2 + 8);
@@ -89,9 +117,11 @@ public class ChatcontactFx {
 
 	public void setSelected(boolean state) {
 		if (state)
-			secondaryLayout.setEffect(new DropShadow(5, 0, 0, Color.BLACK));
+			//secondaryLayout.setEffect(new DropShadow(5, 0, 0, Color.BLACK));
+			primaryLayout.setStyle("-fx-background-color: #404040;");
 		else
-			secondaryLayout.setEffect(null);
+			//secondaryLayout.setEffect(null);
+			primaryLayout.setStyle("-fx-background-color: transparent;");
 	}
 
 	/**
@@ -127,6 +157,20 @@ public class ChatcontactFx {
 		//whether the image changed
 		if (!contactImage.getImage().equals(img))
 			contactImage.setImage(img);
+	}
+
+	public void increaseNewMsgCounter() {
+		showNotification.play();
+		newMsgCount.setText(Integer.toString(Integer.parseInt(newMsgCount.getText()) + 1));
+	}
+
+	public void clearNewMsgCounter() {
+		hideNotification.play();
+		newMsgCount.setText("0");
+	}
+
+	public String getTitle() {
+		return nameLabel.getText();
 	}
 
 	/**
