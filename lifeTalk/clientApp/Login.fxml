@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
@@ -39,19 +40,25 @@
                 <RowConstraints maxHeight="314.0" minHeight="6.0" prefHeight="78.0" vgrow="SOMETIMES" />
                 <RowConstraints maxHeight="464.0" minHeight="7.0" prefHeight="77.0" vgrow="SOMETIMES" />
                 <RowConstraints maxHeight="589.0" minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="589.0" minHeight="10.0" prefHeight="164.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="610.0" minHeight="10.0" prefHeight="151.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="589.0" minHeight="10.0" prefHeight="203.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="610.0" minHeight="10.0" prefHeight="112.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Group />
-                  <Text id="h1" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Welcome to" GridPane.columnIndex="1" GridPane.columnSpan="3">
-                  </Text>
-                  <Text id="h1" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Life_Talk" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1">
-                  </Text>
-                  <Text id="h3" strokeType="OUTSIDE" strokeWidth="0.0" text="Please enter your login details below" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2">
+                  <Text id="h1" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome to" GridPane.columnIndex="1" GridPane.columnSpan="3">
+                     <styleClass>
+                        <String fx:value="text" />
+                        <String fx:value="smooth" />
+                     </styleClass></Text>
+                  <Text id="h1" strokeType="OUTSIDE" strokeWidth="0.0" text="Life_Talk" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1">
+                     <styleClass>
+                        <String fx:value="text" />
+                        <String fx:value="smooth" />
+                     </styleClass></Text>
+                  <Text id="h3" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="smooth" text="Please enter your login details below" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2">
                   </Text>
                   <Region prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                  <TabPane fx:id="loginTabs" prefHeight="171.0" prefWidth="304.0" tabClosingPolicy="UNAVAILABLE" translateX="-335.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3">
+                  <TabPane fx:id="loginTabs" prefHeight="221.0" prefWidth="320.0" tabClosingPolicy="UNAVAILABLE" translateX="-335.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3">
                     <tabs>
                       <Tab closable="false" text="Login">
                         <content>

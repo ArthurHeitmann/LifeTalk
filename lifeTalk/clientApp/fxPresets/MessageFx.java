@@ -129,4 +129,9 @@ public class MessageFx {
 		return primaryLayout;
 	}
 
+	@Override
+	public String toString() {
+		return "Date: " + date;
+	}
+
 }

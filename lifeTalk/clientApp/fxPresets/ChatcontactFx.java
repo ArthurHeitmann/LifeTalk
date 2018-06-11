@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
@@ -41,7 +42,7 @@ public class ChatcontactFx {
 	private Label lastLine;
 	/** Status info of the other person */
 	private Label statusInfo;
-	private VBox newMessageIndicator;
+	private StackPane newMessageIndicator;
 	private Text newMsgCount;
 	/** Whether the last message sent was by the current user or not */
 	private boolean lastMsgByMe;
@@ -71,7 +72,7 @@ public class ChatcontactFx {
 		lastMsgByMe = firstLineMe;
 		this.lastMsgTime = lastMsgTime;
 		newMsgCount = new Text("0");
-		newMessageIndicator = new VBox(newMsgCount);
+		newMessageIndicator = new StackPane(newMsgCount);
 		Pane placeholder = new Pane();
 		showNotification = new Timeline(new KeyFrame(Duration.millis(200), new KeyValue(newMessageIndicator.scaleXProperty(), 1), new KeyValue(newMessageIndicator.scaleYProperty(), 1)));
 		hideNotification = new Timeline(new KeyFrame(Duration.millis(200), new KeyValue(newMessageIndicator.scaleXProperty(), 0), new KeyValue(newMessageIndicator.scaleYProperty(), 0)));
@@ -162,11 +163,17 @@ public class ChatcontactFx {
 	public void increaseNewMsgCounter() {
 		showNotification.play();
 		newMsgCount.setText(Integer.toString(Integer.parseInt(newMsgCount.getText()) + 1));
+		if (newMsgCount.getBoundsInLocal().getWidth() > newMessageIndicator.getWidth() - 6 && newMsgCount.getScaleX() == 1) {
+			newMsgCount.setScaleX(newMsgCount.getScaleX() * 0.6);
+			newMsgCount.setScaleY(newMsgCount.getScaleY() * 0.6);
+		}
 	}
 
 	public void clearNewMsgCounter() {
 		hideNotification.play();
 		newMsgCount.setText("0");
+		newMsgCount.setScaleX(1);
+		newMsgCount.setScaleY(1);
 	}
 
 	public String getTitle() {

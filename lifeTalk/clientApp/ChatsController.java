@@ -90,7 +90,9 @@ public class ChatsController {
 	private boolean switchingBlocked = false;
 	/** List of all contacts/chats */
 	private ArrayList<ChatcontactFx> contacts = new ArrayList<>();
+	/** Tells which index a chat has in the chats list associated with a username */
 	private HashMap<String, Integer> contactsIndex = new HashMap<>();
+	private MessageFx previousMsg;
 	/** the current window */
 	private Stage window;
 
@@ -226,6 +228,7 @@ public class ChatsController {
 		selectedContact.getLayout().getTransforms().add(scaleCurrent);
 		//play all the animations
 		scaleAnim.play();
+		previousMsg = null;
 	}
 
 	/**
@@ -258,7 +261,7 @@ public class ChatsController {
 
 	private void addMessages(int pos, MessageFx[] messages) {
 		//message that was previously added in the following loop (previous is newer)
-		MessageFx prevMsg = null;
+		/*MessageFx prevMsg = null;
 		for (MessageFx messageFx : messages) {
 			//if the the new message was sent at least 1 day before that last one than add date info
 			if (prevMsg != null && (olderThan1Day(prevMsg, messageFx)))
@@ -268,9 +271,24 @@ public class ChatsController {
 			chatViewScrollPane.widthProperty().addListener(messageFx.getListener());
 			prevMsg = messageFx;
 		}
-		//if at least one message was added add date info to the top
+		//if at least one message was added, add date info to the top
 		if (prevMsg != null)
-			chatView.getChildren().add(pos, new ChatDateInoFx(prevMsg.getDate()).getLayout());
+			chatView.getChildren().add(pos, new ChatDateInoFx(prevMsg.getDate()).getLayout());*/
+		for (MessageFx msg : messages) {
+			if (previousMsg == null) {
+				chatView.getChildren().add(pos, msg.getPrimaryLayout());
+				previousMsg = msg;
+				continue;
+			}
+			if (olderThan1Day(previousMsg, msg))
+				chatView.getChildren().add(pos, new ChatDateInoFx(msg.getDate()).getLayout());
+			chatView.getChildren().add(pos, msg.getPrimaryLayout());
+			chatViewScrollPane.widthProperty().addListener(msg.getListener());
+
+			previousMsg = msg;
+		}
+		if (previousMsg != null && chatView.getChildren().size() == 0)
+			chatView.getChildren().add(pos, new ChatDateInoFx(previousMsg.getDate()).getLayout());
 		//wait a moment for the view to update than scroll to last message
 		PauseTransition wait = new PauseTransition(Duration.millis(5));
 		wait.setOnFinished(e -> chatViewScrollPane.setVvalue(1));
@@ -284,8 +302,8 @@ public class ChatsController {
 		newMsgCal.setTime(newMsg.getDate());
 		prevMsgCal.get(Calendar.YEAR);
 		newMsgCal.get(Calendar.YEAR);
-		prevMsgCal.get(Calendar.DAY_OF_YEAR); //139
-		newMsgCal.get(Calendar.DAY_OF_YEAR);	//139
+		prevMsgCal.get(Calendar.DAY_OF_YEAR);
+		newMsgCal.get(Calendar.DAY_OF_YEAR);
 		if (prevMsg.getDate().toString().substring(0, 10).equals(newMsg.getDate().toString().substring(0, 10)))
 			return false;
 		else if (prevMsgCal.get(Calendar.YEAR) > newMsgCal.get(Calendar.YEAR))

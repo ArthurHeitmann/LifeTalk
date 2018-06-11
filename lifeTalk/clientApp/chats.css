@@ -15,6 +15,10 @@
 
 /* === Miscellaneous  === */
 
+.smooth {
+	-fx-font-smoothing-type: GRAY;
+}
+
 #search1 {
 	-fx-background-radius: 3px;
 }

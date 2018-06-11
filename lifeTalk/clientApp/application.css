@@ -10,6 +10,10 @@
 	-fx-font-family: "Alcubierre";
 }
 
+.smooth {
+	-fx-font-smoothing-type: GRAY;
+}
+
 /* Button styling */
 
 .button {
@@ -85,5 +89,26 @@
 	-fx-background-color: #e8e8e8;
 }
 
+.tab-pane .tab-header-area .tab-header-background {
+	-fx-background-color: transparent;
+}
 
+.tab-pane .tab-header-area .tab {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0;
+	-fx-border-color: darkgrey;
+	-fx-border-width: 1px 1px 0 1px;
+}
 
+.tab-pane .tab:selected{
+	-fx-focus-color: transparent;
+	-fx-faint-focus-color: transparent;
+	-fx-background-color: #efefef;
+	-fx-background-radius: 0;
+	-fx-border-color: #20ad25;
+	-fx-border-width: 0;
+}
+
+.tab-pane .tab-header-area {
+	-fx-padding: 8px 8px 8px 8px;
+}
