@@ -6,12 +6,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import com.google.gson.Gson;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -80,6 +83,8 @@ public class ChatsController {
 	/** An info dialogue that appears i. e. when an error occurs to notify the user */
 	@FXML
 	private VBox infoDialogue;
+	@FXML
+	private ImageView onlineStatusImg;
 	/** The class that communicates with the server */
 	private ClientSideToServer serverCommunication;
 	/** Name of the person the user chats with */
@@ -93,8 +98,13 @@ public class ChatsController {
 	/** Tells which index a chat has in the chats list associated with a username */
 	private HashMap<String, Integer> contactsIndex = new HashMap<>();
 	private MessageFx previousMsg;
+	private MessageFx writingMsg;
+	private ChangeListener<String> textInpListener;
 	/** the current window */
 	private Stage window;
+	private Image statusUnknown;
+	private Image online;
+	private Image offline;
 
 	/**
 	 * Call every 0.5 seconds the server communication class and let it check whether
@@ -114,7 +124,34 @@ public class ChatsController {
 		};
 		Thread thread = new Thread(updater);
 		thread.start();
-		window.setOnCloseRequest(e -> updater.cancel());
+		window.setOnCloseRequest(e -> {
+			System.out.println("exiting application");
+			updater.cancel();
+			removeLiveMessage();
+		});
+		textInpListener = (obsV, oldV, newV) -> {
+			try {
+				if (!newV.isEmpty() && !oldV.equals(newV)) {
+					serverCommunication.setBlocking(true);
+					serverCommunication.write("msgPart");
+					serverCommunication.write(new Message(msgInp.getText(), System.currentTimeMillis(), nameTitle.getText(), selectedChatContact, false));
+					serverCommunication.setBlocking(false);
+				} else if (newV.length() == 0 && oldV.length() > 0) {
+					serverCommunication.setBlocking(true);
+					serverCommunication.write("msgPart");
+					serverCommunication.write(selectedChatContact);
+					serverCommunication.setBlocking(false);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				serverCommunication.setBlocking(false);
+			}
+		};
+		msgInp.textProperty().addListener(textInpListener);
+
+		online = new Image(this.getClass().getResource("resources/online.png").toExternalForm());
+		offline = new Image(this.getClass().getResource("resources/offline.png").toExternalForm());
+		statusUnknown = onlineStatusImg.getImage();
 
 		((Text) infoDialogue.getChildren().get(0)).wrappingWidthProperty().bind(infoDialogue.widthProperty().subtract(50));
 	}
@@ -181,6 +218,7 @@ public class ChatsController {
 			chatPName.setText(title);
 			chatPInfo.setText(statusInfo);
 			chatPImg.setImage(img);
+			onlineStatusImg.setImage(statusUnknown);
 			swipeChat(title);
 			msgInp.setEditable(true);
 			contactFx.clearNewMsgCounter();
@@ -260,35 +298,27 @@ public class ChatsController {
 	}
 
 	private void addMessages(int pos, MessageFx[] messages) {
-		//message that was previously added in the following loop (previous is newer)
-		/*MessageFx prevMsg = null;
-		for (MessageFx messageFx : messages) {
-			//if the the new message was sent at least 1 day before that last one than add date info
-			if (prevMsg != null && (olderThan1Day(prevMsg, messageFx)))
-				chatView.getChildren().add(pos, new ChatDateInoFx(messageFx.getDate()).getLayout());
-			//add message to screen and add lister for responsive design
-			chatView.getChildren().add(pos, messageFx.getPrimaryLayout());
-			chatViewScrollPane.widthProperty().addListener(messageFx.getListener());
-			prevMsg = messageFx;
-		}
-		//if at least one message was added, add date info to the top
-		if (prevMsg != null)
-			chatView.getChildren().add(pos, new ChatDateInoFx(prevMsg.getDate()).getLayout());*/
-		for (MessageFx msg : messages) {
-			if (previousMsg == null) {
+		if (messages.length > 0 && !messages[0].isNormal()) {
+			chatView.getChildren().add(messages[0].getPrimaryLayout());
+			chatViewScrollPane.widthProperty().addListener(messages[0].getListener());
+		} else {
+			for (MessageFx msg : messages) {
+				if (previousMsg == null) {
+					chatView.getChildren().add(pos, msg.getPrimaryLayout());
+					previousMsg = msg;
+					continue;
+				}
+				if (olderThan1Day(previousMsg, msg))
+					chatView.getChildren().add(pos, new ChatDateInoFx(msg.getDate()).getLayout());
 				chatView.getChildren().add(pos, msg.getPrimaryLayout());
-				previousMsg = msg;
-				continue;
-			}
-			if (olderThan1Day(previousMsg, msg))
-				chatView.getChildren().add(pos, new ChatDateInoFx(msg.getDate()).getLayout());
-			chatView.getChildren().add(pos, msg.getPrimaryLayout());
-			chatViewScrollPane.widthProperty().addListener(msg.getListener());
+				chatViewScrollPane.widthProperty().addListener(msg.getListener());
 
-			previousMsg = msg;
+				previousMsg = msg;
+			}
+
+			if (previousMsg != null && chatView.getChildren().size() == 0)
+				chatView.getChildren().add(pos, new ChatDateInoFx(previousMsg.getDate()).getLayout());
 		}
-		if (previousMsg != null && chatView.getChildren().size() == 0)
-			chatView.getChildren().add(pos, new ChatDateInoFx(previousMsg.getDate()).getLayout());
 		//wait a moment for the view to update than scroll to last message
 		PauseTransition wait = new PauseTransition(Duration.millis(5));
 		wait.setOnFinished(e -> chatViewScrollPane.setVvalue(1));
@@ -314,6 +344,17 @@ public class ChatsController {
 		return false;
 	}
 
+	public void msgPart(String contentJson) {
+		Message tmpMsgPart = new Gson().fromJson(contentJson, Message.class);
+		if (tmpMsgPart.sender.equals(selectedChatContact)) {
+			if (writingMsg == null) {
+				writingMsg = new MessageFx(chatViewScrollPane.getWidth());
+				Platform.runLater(() -> addMessageAtBottom(writingMsg));
+			}
+			writingMsg.updateWriting(tmpMsgPart.content);
+		}
+	}
+
 	/**
 	 * 
 	 * 
@@ -321,31 +362,55 @@ public class ChatsController {
 	 */
 	public void sendMessage(MouseEvent event) {
 		String text = msgInp.getText();
+		if (text.isEmpty())
+			return;
+		serverCommunication.setBlocking(true);
 		try {
 			serverCommunication.write("sendMsg");
-			serverCommunication.write(new Message(text, System.currentTimeMillis(), nameTitle.getText(), selectedChatContact));
+			serverCommunication.write(new Message(text, System.currentTimeMillis(), nameTitle.getText(), selectedChatContact, true));
 		} catch (IOException e) {
 			showInfoDialogue(e.getMessage());
 			e.printStackTrace();
 		}
 		addMessageAtBottom(new MessageFx(msgInp.getText(), true, new Date(), chatViewScrollPane.getWidth()));
+		if (writingMsg != null) {
+			chatView.getChildren().remove(writingMsg.getPrimaryLayout());
+			chatView.getChildren().add(writingMsg.getPrimaryLayout());
+		}
+		msgInp.textProperty().removeListener(textInpListener);
 		msgInp.clear();
+		msgInp.textProperty().addListener(textInpListener);
+		serverCommunication.setBlocking(false);
 	}
 
 	public void displayMsg(Message msg) {
 		Platform.runLater(() -> {
-			Message tmpMsg = msg;
+			removeLiveMessage();
 			if (msg.sender.equals(selectedChatContact)) {
-				System.out.println("displaying: " + msg);
 				addMessageAtBottom(new MessageFx(//
 						msg.content, //
 						msg.sender.equals(nameTitle.getText()), //
 						new Date(msg.date), //
 						chatViewScrollPane.getWidth()));
 			} else {
-				contacts.get(contactsIndex.get(tmpMsg.sender)).increaseNewMsgCounter();
+				contacts.get(contactsIndex.get(msg.sender)).increaseNewMsgCounter();
 			}
 		});
+	}
+
+	public void setOnlineStatus(String state) {
+		onlineStatusImg.setVisible(true);
+		switch (state) {
+			case "false":
+				onlineStatusImg.setImage(offline);
+				break;
+			case "true":
+				onlineStatusImg.setImage(online);
+				break;
+			default:
+				onlineStatusImg.setImage(statusUnknown);
+				break;
+		}
 	}
 
 	public void closeInfoDialogue(ActionEvent event) {
@@ -368,10 +433,10 @@ public class ChatsController {
 	}
 
 	public void buttonTest(MouseEvent event) {
-		System.out.println("Button click START");
-		displayMsg(new Message("Test", 0, "admin", "user1"));
-		System.out.println(new Message("Test", 0, "admin", "user1"));
-		System.out.println("Button click END");
+		MessageFx mFx = new MessageFx(chatViewScrollPane.getWidth());
+		addMessageAtBottom(mFx);
+		mFx.updateWriting("byee");
+		writingMsg = mFx;
 	}
 
 	/**
@@ -409,6 +474,16 @@ public class ChatsController {
 	 */
 	public void setProfilePic(Image img) {
 		userProfilePic.setImage(img);
+	}
+
+	public void removeLiveMessage() {
+		if (writingMsg != null) {
+			writingMsg.stopAnim();
+			Platform.runLater(() -> {
+				chatView.getChildren().remove(writingMsg.getPrimaryLayout());
+				writingMsg = null;
+			});
+		}
 	}
 
 }

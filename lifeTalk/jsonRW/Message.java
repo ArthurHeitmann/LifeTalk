@@ -9,12 +9,14 @@ public class Message implements Serializable {
 	public long date;
 	public String sender;
 	public String receiver;
+	public boolean messageSent;
 
-	public Message(String cont, long time, String from, String to) {
+	public Message(String cont, long time, String from, String to, boolean sentMessage) {
 		content = cont;
 		date = time;
 		sender = from;
 		receiver = to;
+		messageSent = sentMessage;
 	}
 
 	@Override

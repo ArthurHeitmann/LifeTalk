@@ -184,12 +184,13 @@ public class Server {
 			}
 			//when something goes wrong while communicating with the client
 			catch (IOException | ClassNotFoundException | URISyntaxException e) {
-				if (Boolean.parseBoolean(Info.getArgs()[0]))
+				if (!e.getClass().getName().equals("java.net.SocketException") && Boolean.parseBoolean(Info.getArgs()[0]))
 					e.printStackTrace();
 				try {
 					write("ERROR");
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					if (!e1.getClass().getName().equals("java.net.SocketException") && Boolean.parseBoolean(Info.getArgs()[0]))
+						e1.printStackTrace();
 				}
 			}
 			//close the connection once all actions have ended
@@ -202,7 +203,8 @@ public class Server {
 					}
 
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					if (!e1.getClass().getName().equals("java.net.SocketException") && Boolean.parseBoolean(Info.getArgs()[0]))
+						e1.printStackTrace();
 				}
 				System.out.println("Connection closed");
 			}

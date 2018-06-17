@@ -81,7 +81,7 @@
                               <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                            </HBox.margin>
                         </ImageView>
-                        <VBox prefHeight="76.0" prefWidth="448.0">
+                        <VBox prefHeight="76.0" prefWidth="627.0">
                            <children>
                               <Label fx:id="chatPName" styleClass="smooth">
                                  <font>
@@ -91,11 +91,21 @@
                                     <Insets top="8.0" />
                                  </padding>
                               </Label>
-                              <Label fx:id="chatPInfo" styleClass="smooth">
-                                 <font>
-                                    <Font name="Alcubierre" size="19.0" />
-                                 </font>
-                              </Label>
+                              <HBox>
+                                 <children>
+                                    <Label fx:id="chatPInfo" styleClass="smooth">
+                                       <font>
+                                          <Font name="Alcubierre" size="19.0" />
+                                       </font>
+                                    </Label>
+                                    <Pane HBox.hgrow="ALWAYS" />
+                                    <ImageView fx:id="onlineStatusImg" fitHeight="26.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@resources/onlineOffline_anim.gif" />
+                                       </image>
+                                    </ImageView>
+                                 </children>
+                              </HBox>
                            </children>
                            <HBox.margin>
                               <Insets left="13.0" />
@@ -170,7 +180,7 @@
                   </HBox>
                </children>
                <effect>
-                  <DropShadow color="#000000d0" />
+                  <DropShadow blurType="TWO_PASS_BOX" color="#000000d0" height="0.0" radius="8.4575" width="35.83" />
                </effect>
             </VBox>
          </children>

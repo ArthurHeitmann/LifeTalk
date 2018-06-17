@@ -38,6 +38,7 @@ public class ServerSideToClient implements Runnable {
 	private String username;
 	/** list of updates like new messages or similar */
 	private ArrayList<String> updates = new ArrayList<>();
+	private String selectedContact;
 
 	/**
 	 * Transfers connection devices from the previous object to this thread.
@@ -99,8 +100,16 @@ public class ServerSideToClient implements Runnable {
 					case "GETUPDATES":
 						handleUpdates();
 						break;
+					case "msgPart":
+						Object msgPart = in.readObject();
+						if (msgPart.getClass().getName().equals("java.lang.String"))
+							InterClientCommunication.sendMsg((String) msgPart, "msgPart");
+						else
+							InterClientCommunication.sendMsg(((Message) msgPart).receiver, "msgPart" + gson.toJson(msgPart));
+						break;
 					case "getMsg":
 						String uName = (String) in.readObject();
+						selectedContact = uName;
 						int startNum = Integer.parseInt((String) in.readObject());
 						JsonArray tmpJA = ServerOperations.getChat(uName, username, startNum);
 						if (tmpJA == null)
@@ -109,7 +118,7 @@ public class ServerSideToClient implements Runnable {
 						break;
 					case "sendMsg":
 						Message msg = (Message) in.readObject();
-						InterClientCommunication.sendMsg(new String[] { msg.receiver }, "msgFrom" + gson.toJson(msg));
+						InterClientCommunication.sendMsg(msg.receiver, "msgFrom" + gson.toJson(msg));
 						ServerOperations.addMessageToChat(msg);
 						break;
 					default:
@@ -132,20 +141,24 @@ public class ServerSideToClient implements Runnable {
 	 * @throws IOException
 	 */
 	private void handleUpdates() throws IOException {
+		write(selectedContact == null ? "UNKNOWN" : Boolean.toString(InterClientCommunication.userLoggedIn(selectedContact)));
 		for (String task : updates) {
-			System.out.println(task);
 			switch (task.substring(0, 7)) {
-				case "msgFrom":
-					JsonObject msg = new JsonParser().parse(task.substring(7)).getAsJsonObject();
-					try {
-						write("newMsg");
-						write(new Gson().toJson(msg));
-					} catch (IOException e) {
-						e.printStackTrace();
+				case "msgPart":
+					if (task.length() > 7) {
+						JsonObject msgPart = new JsonParser().parse(task.substring(7)).getAsJsonObject();
+						if (msgPart.get("sender").getAsString().equals(selectedContact)) {
+							write(task);
+						}
+					} else {
+						write("msgPart");
 					}
-					break;
 
-				default:
+					break;
+				case "msgFrom":
+					//JsonObject msg = new JsonParser().parse(task.substring(7)).getAsJsonObject();
+					write(task);
+					System.out.println("new Msg");
 					break;
 			}
 		}
@@ -226,9 +239,6 @@ public class ServerSideToClient implements Runnable {
 
 	public void addToUpdateQueue(String task) {
 		updates.add(task);
-		for (String update : updates) {
-			System.out.println(update);
-		}
 	}
 
 }

@@ -109,16 +109,24 @@ public class ClientSideToServer {
 		communicationInProgress = true;
 		try {
 			write("GETUPDATES");
+			controller.setOnlineStatus((String) in.readObject());
 			while (true) {
 				String line = (String) in.readObject();
-				if (!line.equals("finished") && line != null)
-					System.out.println(line);
-				if (line != null && line.equals("finished"))
+				if (line == null)
 					break;
-				else if (line.equals("newMsg")) {
-					Message message = new Gson().fromJson((String) in.readObject(), Message.class);
-					System.out.println(message);
-					controller.displayMsg(message);
+				if (line.equals("finished"))
+					break;
+				switch (line.substring(0, 7)) {
+					case "msgPart":
+						if (line.length() > 7)
+							controller.msgPart(line.substring(7));
+						else
+							controller.removeLiveMessage();
+						break;
+					case "msgFrom":
+						Message message = new Gson().fromJson(line.substring(7), Message.class);
+						controller.displayMsg(message);
+						break;
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
@@ -279,6 +287,13 @@ public class ClientSideToServer {
 				e.printStackTrace();
 		}
 		return buffImg;
+	}
+
+	public void setBlocking(boolean state) {
+		if (communicationInProgress && state)
+			while (communicationInProgress) {
+			}
+		communicationInProgress = state;
 	}
 
 }

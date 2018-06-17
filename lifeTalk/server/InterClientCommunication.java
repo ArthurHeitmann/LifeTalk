@@ -5,11 +5,9 @@ import java.util.HashMap;
 public class InterClientCommunication {
 	private static HashMap<String, ServerSideToClient> commMap = new HashMap<>();
 
-	public synchronized static void sendMsg(String[] targets, String msg) {
-		for (String uName : targets) {
-			if (commMap.containsKey(uName)) {
-				commMap.get(uName).addToUpdateQueue(msg);
-			}
+	public static void sendMsg(String target, String msg) {
+		if (commMap.containsKey(target)) {
+			commMap.get(target).addToUpdateQueue(msg);
 		}
 	}
 
@@ -17,12 +15,13 @@ public class InterClientCommunication {
 		commMap.put(uName, comm);
 	}
 
-	public synchronized static void removeClientComm(String uName) {
+	public static void removeClientComm(String uName) {
 		if (commMap.containsKey(uName))
 			commMap.remove(uName);
 	}
 
-	public synchronized static boolean userLoggedIn(String uName) {
+	public static boolean userLoggedIn(String uName) {
 		return commMap.containsKey(uName);
 	}
+
 }
