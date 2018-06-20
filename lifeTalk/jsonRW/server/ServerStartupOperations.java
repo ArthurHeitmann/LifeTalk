@@ -80,11 +80,8 @@ public class ServerStartupOperations {
 	 */
 	public static boolean registerUser(String usrName, String pw, String JsonLocation) throws IOException, URISyntaxException {
 		System.out.println("Registering " + usrName);
-		for (int i = 0; i < loginsData.size(); i++) {
-			if (((JsonObject) loginsData.get(i)).get("name").getAsString().equals(usrName)) {
-				return false;
-			}
-		}
+		if (userExists(usrName))
+			return false;
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		loginsData.add(new JsonParser().parse(gson.toJson(new User(usrName, pw))));
 		FileRW.writeToFile(JsonLocation, gson.toJson(loginsJson));
@@ -101,6 +98,15 @@ public class ServerStartupOperations {
 			return false;
 		}
 		return true;
+	}
+
+	public static boolean userExists(String uName) {
+		for (int i = 0; i < loginsData.size(); i++) {
+			if (((JsonObject) loginsData.get(i)).get("name").getAsString().equals(uName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//template for the de-serialization of the one user

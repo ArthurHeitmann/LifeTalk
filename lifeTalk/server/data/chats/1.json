@@ -24,7 +24,8 @@
 		"user":"user1",
 		"textContent":"Date testing  num2",
 		"date":"27.5.2018",
-		"time":"12:58"
+		"time":"12:58",
+		"state": 1
 	},
 
 	"4": {

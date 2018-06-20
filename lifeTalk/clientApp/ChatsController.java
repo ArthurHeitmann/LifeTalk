@@ -18,13 +18,16 @@ import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
@@ -85,6 +88,22 @@ public class ChatsController {
 	private VBox infoDialogue;
 	@FXML
 	private ImageView onlineStatusImg;
+	@FXML
+	private VBox contactRequest;
+	@FXML
+	private HBox mainLayout;
+	@FXML
+	private Button contactRequestBtn;
+	@FXML
+	private Button contactRDialogueCloseBtn;
+	@FXML
+	private HBox chatState;
+	@FXML
+	private ImageView chatStateArrow;
+	@FXML
+	private TextField contactRTField1, contactRTField2;
+	@FXML
+	private Text contactRResult;
 	/** The class that communicates with the server */
 	private ClientSideToServer serverCommunication;
 	/** Name of the person the user chats with */
@@ -100,11 +119,15 @@ public class ChatsController {
 	private MessageFx previousMsg;
 	private MessageFx writingMsg;
 	private ChangeListener<String> textInpListener;
+	private Timeline chatStateShow;
+	private Timeline chatStateHide;
+	private boolean chatStateVisible = false;
 	/** the current window */
 	private Stage window;
 	private Image statusUnknown;
 	private Image online;
 	private Image offline;
+	private int currentChatState = -2;
 
 	/**
 	 * Call every 0.5 seconds the server communication class and let it check whether
@@ -149,6 +172,11 @@ public class ChatsController {
 		};
 		msgInp.textProperty().addListener(textInpListener);
 
+		Scale chatStateScale = new Scale(1, 0, 0, 0);
+		chatState.getTransforms().add(chatStateScale);
+		chatStateHide = new Timeline(new KeyFrame(Duration.millis(250), new KeyValue(chatStateScale.yProperty(), 0)));
+		chatStateShow = new Timeline(new KeyFrame(Duration.millis(250), new KeyValue(chatStateScale.yProperty(), 1)));
+
 		online = new Image(this.getClass().getResource("resources/online.png").toExternalForm());
 		offline = new Image(this.getClass().getResource("resources/offline.png").toExternalForm());
 		statusUnknown = onlineStatusImg.getImage();
@@ -164,6 +192,59 @@ public class ChatsController {
 	public void setNameTitle(String name) {
 
 		nameTitle.setText(name);
+	}
+
+	public void makeNewContactRequest(MouseEvent event) {
+		if (event.getButton() != MouseButton.PRIMARY)
+			return;
+		Timeline windowDisplay = new Timeline(new KeyFrame(Duration.millis(300), //
+				new KeyValue(mainLayout.opacityProperty(), 0.5), //
+				new KeyValue(contactRequest.opacityProperty(), 1),//
+				new KeyValue(((StackPane) event.getSource()).opacityProperty(), 0.5)));
+		contactRequest.setVisible(true);
+		contactRequest.getParent().setPickOnBounds(true);
+		contactRDialogueCloseBtn.setOnAction(e -> {
+			Timeline windowhiding = new Timeline(new KeyFrame(Duration.millis(300), //
+					new KeyValue(mainLayout.opacityProperty(), 1), //
+					new KeyValue(contactRequest.opacityProperty(), 0),//
+					new KeyValue(((StackPane) event.getSource()).opacityProperty(), 1)));
+			windowhiding.play();
+			windowhiding.setOnFinished(e1 -> {
+				contactRequest.setVisible(false);
+				contactRequest.getParent().setPickOnBounds(false);
+			});
+		});
+		windowDisplay.play();
+
+		contactRequestBtn.setOnAction(e -> {
+			if (serverCommunication.sendRequest(contactRTField1.getText(), contactRTField2.getText()))
+				contactRResult.setText("Contact request sent!");
+			else
+				contactRResult.setText("Coulnd't find contact");
+		});
+	}
+
+	public void displayChatStates(MouseEvent event) {
+		if (event.getButton() != MouseButton.PRIMARY || selectedChatContact == null)
+			return;
+		if (chatStateVisible)
+			chatStateHide.play();
+		else
+			chatStateShow.play();
+		chatStateVisible = !chatStateVisible;
+
+	}
+
+	public void changeChatState(int state) {
+		currentChatState = state;
+		switch (state) {
+			case -1:
+				msgInp.setDisable(true);
+				break;
+			case 0:
+			case 1:
+				msgInp.setDisable(false);
+		}
 	}
 
 	/**
@@ -204,7 +285,12 @@ public class ChatsController {
 		chatElement.setOnMouseClicked(e -> {
 			//check whether the element is already selected or not OR 
 			//currently another clicking animation (duration = 250 ms) is currently in progress
-			if (switchingBlocked || (selectedChatContact != null && selectedChatContact.equals(title)))
+			if (selectedChatContact == null) {
+				onlineStatusImg.setVisible(true);
+				chatStateArrow.setVisible(true);
+				chatStateArrow.setDisable(false);
+			}
+			if (switchingBlocked || (selectedChatContact != null && selectedChatContact.equals(title)) || e.getButton() != MouseButton.PRIMARY)
 				return;
 			switchingBlocked = true;
 			msgInp.setText("");
@@ -361,6 +447,8 @@ public class ChatsController {
 	 * @param event
 	 */
 	public void sendMessage(MouseEvent event) {
+		if (event.getButton() != MouseButton.PRIMARY)
+			return;
 		String text = msgInp.getText();
 		if (text.isEmpty())
 			return;

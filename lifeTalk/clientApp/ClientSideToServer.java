@@ -98,6 +98,21 @@ public class ClientSideToServer {
 		});
 	}
 
+	public boolean sendRequest(String toUser, String msg) {
+		communicationInProgress = true;
+		try {
+			write("contactRequest");
+			write(toUser);
+			write(msg);
+			String result = (String) in.readObject();
+			return result.equals("SENT");
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		communicationInProgress = false;
+		return false;
+	}
+
 	/**
 	 * 
 	 */
@@ -159,6 +174,8 @@ public class ClientSideToServer {
 			String line = (String) in.readObject();
 			if (line.equals("ERROR") || line == null)
 				return null;
+			int chatState = (Integer) in.readObject();
+			controller.changeChatState(chatState);
 			messages = new JsonParser().parse(line).getAsJsonArray();
 			//create the MessageFxs and add them to the array list
 			double paneWidth = controller.getScrollPaneWidth();

@@ -6,9 +6,8 @@ public class InterClientCommunication {
 	private static HashMap<String, ServerSideToClient> commMap = new HashMap<>();
 
 	public static void sendMsg(String target, String msg) {
-		if (commMap.containsKey(target)) {
+		if (commMap.containsKey(target))
 			commMap.get(target).addToUpdateQueue(msg);
-		}
 	}
 
 	public synchronized static void putClientComm(String uName, ServerSideToClient comm) {

@@ -23,6 +23,8 @@
 	-fx-background-radius: 3px;
 }
 
+/* === Info button === */
+
 #infoBtn {
 	-fx-background-color: #1c1c1c;
 }
@@ -33,6 +35,83 @@
 
 #infoBtn:pressed {
 	-fx-background-color: #282828;
+}
+
+/* === Add contact button === */
+
+.addContact {
+	-fx-background-color: #28d62e;
+	-fx-background-radius: 50%;
+	-fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.56), 15, 0, 0, 5);
+}
+
+.addContact:hover {
+	-fx-background-color: #21ef28;
+	-fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.56), 19, 0, 0, 5);
+}
+
+.addContact:pressed {
+	-fx-background-color: #00ff21;
+	-fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.56), 19, 0, 0, 8);
+}
+
+/* === Button type 1 - 3 === */
+
+.btnType1 {
+	-fx-background-color: transparent;
+	-fx-border-color: grey;
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+}
+
+.btnType2 {
+	-fx-background-color: transparent;
+	-fx-border-color: grey;
+	-fx-border-radius: 50%;
+	-fx-background-radius: 50%;
+}
+
+.btnType2:hover, .btnType1:hover {
+	-fx-background-color: #d8d8d8;
+}
+
+.btnType2:pressed, .btnType1:pressed {
+	-fx-background-color: #bfbfbf;
+	-fx-effect: dropshadow(three-pass-box, rgba(32, 173, 37, 0.5), 4, 0, 0, 2);
+}
+
+/* === Accept, decline & block buttons === */
+
+.btnType3 {
+	-fx-background-color: transparent;
+}
+
+#acceptBtn:hover {
+	-fx-effect: dropshadow(three-pass-box, rgba(32, 173, 37, 0.5), 4, 0, 0, 3);
+}
+
+#declineBtn:hover {
+	-fx-effect: dropshadow(three-pass-box, rgba(91, 91, 91, 0.5), 4, 0, 0, 3);
+}
+
+#blockBtn:hover {
+	-fx-effect: dropshadow(three-pass-box, rgba(204, 34, 34, 0.5), 4, 0, 0, 3);
+}
+
+#acceptBtn:pressed {
+	-fx-effect: dropshadow(three-pass-box, rgba(32, 173, 37, 0.9), 4, 0, 0, 4);
+}
+
+#declineBtn:pressed {
+	-fx-effect: dropshadow(three-pass-box, rgba(91, 91, 91, 0.9), 4, 0, 0, 4);
+}
+
+#blockBtn:pressed {
+	-fx-effect: dropshadow(three-pass-box, rgba(204, 34, 34, 0.9), 4, 0, 0, 4);
+}
+
+.contactReqParent {
+	-fx-background-color: #eaeaea;
 }
 
 /* === Scroll Bar  === */

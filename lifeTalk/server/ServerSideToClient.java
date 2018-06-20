@@ -64,23 +64,26 @@ public class ServerSideToClient implements Runnable {
 		System.out.println("User connected to new server socket");
 		Gson gson = new Gson();
 		//init
-		while (true) {
+		initLoop: while (true) {
 			try {
 				//client text prompt
-				String line = (String) in.readObject();
-				if (line == null) {
+				String action = (String) in.readObject();
+				if (action == null) {
 					closeAllConnections();
 					return;
-				} else if (line.equals("GetUserInfo")) {
-					write(gson.toJson(ServerOperations.getUserInfo(this.getClass().getResource("data/userInfo/").toExternalForm(), username)));
-					serializeImg(ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + username + ".png").toExternalForm())));
-				} else if (line.equals("GetChatContacts")) {
-					sendContactList();
-					break;
-				} else {
-					write(null);
-					closeAllConnections();
-					return;
+				}
+				switch (action) {
+					case "GetUserInfo":
+						write(gson.toJson(ServerOperations.getUserInfo(this.getClass().getResource("data/userInfo/").toExternalForm(), username)));
+						serializeImg(ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + username + ".png").toExternalForm())));
+						break;
+					case "GetChatContacts":
+						sendContactList();
+						break initLoop;
+					default:
+						write(null);
+						closeAllConnections();
+						return;
 				}
 			} catch (ClassNotFoundException | IOException e) {
 				if (Boolean.parseBoolean(Info.getArgs()[0]))
@@ -92,11 +95,11 @@ public class ServerSideToClient implements Runnable {
 		//forever loop
 		while (true) {
 			try {
-				String line = (String) in.readObject();
-				if (line == null)
+				String action = (String) in.readObject();
+				if (action == null)
 					throw new IOException();
 
-				switch (line) {
+				switch (action) {
 					case "GETUPDATES":
 						handleUpdates();
 						break;
@@ -115,13 +118,26 @@ public class ServerSideToClient implements Runnable {
 						if (tmpJA == null)
 							write("ERROR");
 						write(tmpJA.toString());
+						write(ServerOperations.getChatState(uName, username));
 						break;
 					case "sendMsg":
 						Message msg = (Message) in.readObject();
 						InterClientCommunication.sendMsg(msg.receiver, "msgFrom" + gson.toJson(msg));
 						ServerOperations.addMessageToChat(msg);
 						break;
-					default:
+					case "contactRequest":
+						JsonObject request = new JsonObject();
+						String to = (String) in.readObject();
+						String requestMsg = (String) in.readObject();
+						request.addProperty("from", username);
+						request.addProperty("to", to);
+						request.addProperty("msg", requestMsg);
+						InterClientCommunication.sendMsg(request.get("to").getAsString(), request.toString());
+						if (!ServerOperations.sendContactRequest(username, to, requestMsg))
+							write("NO USERNAME");
+						else {
+							write("SENT");
+						}
 						break;
 				}
 
@@ -155,6 +171,7 @@ public class ServerSideToClient implements Runnable {
 					}
 
 					break;
+				case "chatState":
 				case "msgFrom":
 					//JsonObject msg = new JsonParser().parse(task.substring(7)).getAsJsonObject();
 					write(task);

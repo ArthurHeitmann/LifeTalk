@@ -12,6 +12,7 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -44,6 +45,37 @@ public class ServerOperations {
 	private static JsonArray chatPartners;
 	/** Whether the cache is outdated and needs to be updated or not */
 	public static boolean chatListUpdated = false;
+
+	public static boolean sendContactRequest(String from, String to, String msg) throws JsonSyntaxException, IOException, URISyntaxException {
+		String chatFolderLocation = Server.class.getResource("data/chats").toExternalForm() + "/";
+
+		if (!FileRW.readFromFile(chatFolderLocation + "index.json").contains(to))
+			return false;
+
+		String names[] = sortNamesAlphabetically(to, from);
+		from = names[0];
+		to = names[1];
+		JsonObject chatIndex = new JsonObject();
+		JsonArray chatIndexArr = new JsonParser().parse(//
+				FileRW.readFromFile(chatFolderLocation + "index.json"))//
+				.getAsJsonObject().get("chatUsers").getAsJsonArray();
+		JsonArray newContactPair = new JsonArray();
+		newContactPair.add(from);
+		newContactPair.add(to);
+		chatIndexArr.add(newContactPair);
+		chatIndex.add("chatUsers", chatIndexArr);
+		FileRW.writeToFile(chatFolderLocation + "index.json", //
+				new GsonBuilder().setPrettyPrinting().create().toJson(chatIndex));
+
+		FileRW.copyFile(chatFolderLocation + "template.json", //
+				chatFolderLocation + (chatIndexArr.size() - 1) + ".json");
+		String fileCont = FileRW.readFromFile(chatFolderLocation + "template.json");
+		fileCont = fileCont.replace("USER1", from);
+		fileCont = fileCont.replace("USER2", to);
+		FileRW.writeToFile(chatFolderLocation + (chatIndexArr.size() - 1) + ".json", fileCont);
+
+		return true;
+	}
 
 	/**
 	 * Returns basic information of the user like name, status, rights etc.
@@ -133,6 +165,14 @@ public class ServerOperations {
 
 		return out;
 
+	}
+
+	public static int getChatState(String uName1, String uName2) {
+		String[] tmpStrArr = sortNamesAlphabetically(uName1, uName2);
+		uName1 = tmpStrArr[0];
+		uName2 = tmpStrArr[1];
+
+		return chatsCache.get(uName1 + ", " + uName2).get("index").getAsJsonObject().get("state").getAsInt();
 	}
 
 	/**

@@ -3,7 +3,8 @@
 		"count": 4,
 		"lastuser":"admin",
 		"contact1": "admin",
-		"contact2": "user1"
+		"contact2": "user1",
+		"state": 1
 	},
 	
 	"1": {
