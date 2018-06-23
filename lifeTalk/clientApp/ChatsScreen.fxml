@@ -60,7 +60,7 @@
                               </HBox>
                            </children>
                         </HBox>
-                        <TextField id="search1" minHeight="36.0" prefHeight="79.0" prefWidth="400.0" promptText="🔎 Search Chats and Contact" VBox.vgrow="NEVER">
+                        <TextField id="search1" fx:id="chatSearch" minHeight="36.0" prefHeight="79.0" prefWidth="400.0" promptText="🔎 Search Chats and Contact" VBox.vgrow="NEVER">
                            <VBox.margin>
                               <Insets bottom="10.0" left="15.0" right="15.0" top="15.0" />
                            </VBox.margin>
@@ -70,9 +70,9 @@
                         </TextField>
                      </children>
                   </VBox>
-                  <ScrollPane id="alpha" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="400.0" style="-fx-background-color: #616161;" VBox.vgrow="ALWAYS">
+                  <ScrollPane id="alpha" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="400.0" scaleX="1.01" style="-fx-background-color: #616161;" VBox.vgrow="ALWAYS">
                      <content>
-                        <VBox id="alpha" fx:id="chatList" prefWidth="400.0" style="-fx-background-color: transparent;" />
+                        <VBox id="alpha" fx:id="chatList" minWidth="-Infinity" prefWidth="400.0" style="-fx-background-color: transparent;" />
                      </content>
                   </ScrollPane>
                </children>

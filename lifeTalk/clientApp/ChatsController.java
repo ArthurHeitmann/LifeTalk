@@ -108,6 +108,8 @@ public class ChatsController {
 	private Button acceptBtn, declineBtn, blockBtn;
 	@FXML
 	private StackPane fullScreenLoading;
+	@FXML
+	private TextField chatSearch;
 	/** The class that communicates with the server */
 	private ClientSideToServer serverCommunication;
 	/** Name of the person the user chats with */
@@ -195,6 +197,20 @@ public class ChatsController {
 			if (newV.doubleValue() == 0 || selectedChatContact != null) {
 				int messageCount = chatView.getChildren().size() - 1;
 				//addMessages(pos, messages);
+			}
+		});
+
+		chatSearch.textProperty().addListener((obsV, oldV, newV) -> {
+			for (int i = 0; i < chatList.getChildren().size(); i++) {
+				if (((Label) ((VBox) ((HBox) chatList.getChildren().get(i)).getChildren()//
+						.get(1)).getChildren()//
+								.get(0)).getText().contains(newV)) {
+					((HBox) chatList.getChildren().get(i)).setVisible(true);
+					((HBox) chatList.getChildren().get(i)).setManaged(true);
+				} else {
+					((HBox) chatList.getChildren().get(i)).setVisible(false);
+					((HBox) chatList.getChildren().get(i)).setManaged(false);
+				}
 			}
 		});
 

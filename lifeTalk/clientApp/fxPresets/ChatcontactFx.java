@@ -118,10 +118,8 @@ public class ChatcontactFx {
 
 	public void setSelected(boolean state) {
 		if (state)
-			//secondaryLayout.setEffect(new DropShadow(5, 0, 0, Color.BLACK));
 			primaryLayout.setStyle("-fx-background-color: #404040;");
 		else
-			//secondaryLayout.setEffect(null);
 			primaryLayout.setStyle("-fx-background-color: transparent;");
 	}
 
