@@ -4,7 +4,8 @@
 		"lastuser":"user1",
 		"contact1": "3rdUser_",
 		"contact2": "user1",
-		"state": 1
+		"canbeEditedBy": "user1",
+		"state": 0
 	}
 	
 }

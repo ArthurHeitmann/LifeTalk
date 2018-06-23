@@ -124,7 +124,7 @@
                               <Insets left="13.0" right="30.0" />
                            </HBox.margin>
                         </VBox>
-                        <ImageView fx:id="chatStateArrow" fitHeight="21.0" fitWidth="54.0" onMouseClicked="#displayChatStates" pickOnBounds="true" preserveRatio="true" visible="false">
+                        <ImageView fx:id="chatStateArrow" fitHeight="13.0" fitWidth="35.0" onMouseClicked="#displayChatStates" pickOnBounds="true" preserveRatio="true" visible="false">
                            <image>
                               <Image url="@resources/arrow_down_flat.png" />
                            </image>
@@ -136,19 +136,19 @@
                   </HBox>
                   <HBox fx:id="chatState" alignment="CENTER" spacing="75.0" styleClass="contactReqParent" VBox.vgrow="NEVER">
                      <children>
-                        <Button id="acceptBtn" mnemonicParsing="false" styleClass="btnType3" text="Accept">
+                        <Button id="acceptBtn" fx:id="acceptBtn" mnemonicParsing="false" onAction="#chatStateUserInput" styleClass="btnType3" text="Accept" textOverrun="CLIP">
                            <font>
                               <Font name="Alcubierre" size="20.0" />
                            </font>
                         </Button>
                         <Separator orientation="VERTICAL" />
-                        <Button id="declineBtn" layoutX="227.0" layoutY="10.0" mnemonicParsing="false" styleClass="btnType3" text="Decline">
+                        <Button id="declineBtn" fx:id="declineBtn" layoutX="227.0" layoutY="10.0" mnemonicParsing="false" onAction="#chatStateUserInput" styleClass="btnType3" text="Decline" textOverrun="CLIP">
                            <font>
                               <Font name="Alcubierre" size="20.0" />
                            </font>
                         </Button>
                         <Separator orientation="VERTICAL" />
-                        <Button id="blockBtn" mnemonicParsing="false" styleClass="btnType3" text="Block">
+                        <Button id="blockBtn" fx:id="blockBtn" mnemonicParsing="false" onAction="#chatStateUserInput" styleClass="btnType3" text="Block" textOverrun="CLIP">
                            <font>
                               <Font name="Alcubierre" size="20.0" />
                            </font>
@@ -284,7 +284,7 @@
       </StackPane>
       <StackPane pickOnBounds="false" prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox fx:id="contactRequest" maxHeight="250.0" maxWidth="500.0" opacity="0.0" spacing="10.0" style="-fx-background-color: #e2e2e2;">
+            <VBox fx:id="contactRequest" maxHeight="250.0" maxWidth="500.0" opacity="0.0" spacing="10.0" style="-fx-background-color: #e2e2e2;" visible="false">
                <effect>
                   <DropShadow color="#0000009f" height="40.0" offsetY="8.0" radius="19.5" width="40.0" />
                </effect>
@@ -345,6 +345,20 @@
                   <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
                </padding>
             </VBox>
+            <StackPane fx:id="fullScreenLoading" prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: #3d3d3d;">
+               <children>
+                  <ImageView fitHeight="231.0" fitWidth="241.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@resources/loading_v3.gif" />
+                     </image>
+                  </ImageView>
+                  <Text fill="#dddddd" strokeType="OUTSIDE" strokeWidth="0.0" text="loading..." translateY="150.0">
+                     <font>
+                        <Font name="Alcubierre" size="55.0" />
+                     </font>
+                  </Text>
+               </children>
+            </StackPane>
          </children>
       </StackPane>
    </children>

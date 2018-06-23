@@ -199,8 +199,6 @@ public class MessageFx {
 					genRandomString(content.length()) : //
 					content.substring(0, lastSpaceAt) + " " + genRandomString(content.length() - lastSpaceAt - 1);
 				} catch (StringIndexOutOfBoundsException e1) {
-					System.out.println(content + lastSpaceAt);
-					e1.printStackTrace();
 					break;
 				}
 

@@ -99,18 +99,19 @@ public class ClientSideToServer {
 	}
 
 	public boolean sendRequest(String toUser, String msg) {
+		waitForComm();
 		communicationInProgress = true;
+		String result = null;
 		try {
 			write("contactRequest");
 			write(toUser);
 			write(msg);
-			String result = (String) in.readObject();
-			return result.equals("SENT");
+			result = (String) in.readObject();
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		communicationInProgress = false;
-		return false;
+		return result.equals("SENT");
 	}
 
 	/**
@@ -141,6 +142,14 @@ public class ClientSideToServer {
 					case "msgFrom":
 						Message message = new Gson().fromJson(line.substring(7), Message.class);
 						controller.displayMsg(message);
+						break;
+					case "chatStt":
+						controller.changeChatState(line.substring(7));
+						break;
+					case "newChat":
+						JsonObject chat = new JsonParser().parse(line.substring(7)).getAsJsonObject();
+						Platform.runLater(() -> //
+						controller.addChatContact(chat.get("from").getAsString(), chat.get("msg").getAsString(), false, "", null, new Date()));
 						break;
 				}
 			}
@@ -174,8 +183,6 @@ public class ClientSideToServer {
 			String line = (String) in.readObject();
 			if (line.equals("ERROR") || line == null)
 				return null;
-			int chatState = (Integer) in.readObject();
-			controller.changeChatState(chatState);
 			messages = new JsonParser().parse(line).getAsJsonArray();
 			//create the MessageFxs and add them to the array list
 			double paneWidth = controller.getScrollPaneWidth();
@@ -196,6 +203,18 @@ public class ClientSideToServer {
 			communicationInProgress = false;
 			return null;
 		}
+	}
+
+	public void updateChatState() throws IOException, ClassNotFoundException {
+		while (communicationInProgress) {
+		}
+		communicationInProgress = true;
+
+		write("getChatState");
+		String state = (String) in.readObject();
+		controller.changeChatState(state);
+
+		communicationInProgress = false;
 	}
 
 	/**

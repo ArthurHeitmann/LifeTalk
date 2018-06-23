@@ -1,6 +1,7 @@
 package lifeTalk.jsonRW.server;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -43,15 +44,13 @@ public class ServerOperations {
 	 * sorted)
 	 */
 	private static JsonArray chatPartners;
-	/** Whether the cache is outdated and needs to be updated or not */
-	public static boolean chatListUpdated = false;
 
 	public static boolean sendContactRequest(String from, String to, String msg) throws JsonSyntaxException, IOException, URISyntaxException {
 		String chatFolderLocation = Server.class.getResource("data/chats").toExternalForm() + "/";
 
-		if (!FileRW.readFromFile(chatFolderLocation + "index.json").contains(to))
+		if (!ServerStartupOperations.userExists(to) || from.equals(to))
 			return false;
-
+		String secondName = to;
 		String names[] = sortNamesAlphabetically(to, from);
 		from = names[0];
 		to = names[1];
@@ -60,6 +59,7 @@ public class ServerOperations {
 				FileRW.readFromFile(chatFolderLocation + "index.json"))//
 				.getAsJsonObject().get("chatUsers").getAsJsonArray();
 		JsonArray newContactPair = new JsonArray();
+		chatPartners.add(newContactPair);
 		newContactPair.add(from);
 		newContactPair.add(to);
 		chatIndexArr.add(newContactPair);
@@ -72,9 +72,63 @@ public class ServerOperations {
 		String fileCont = FileRW.readFromFile(chatFolderLocation + "template.json");
 		fileCont = fileCont.replace("USER1", from);
 		fileCont = fileCont.replace("USER2", to);
+		fileCont = fileCont.replace("VARUSER", secondName);
 		FileRW.writeToFile(chatFolderLocation + (chatIndexArr.size() - 1) + ".json", fileCont);
 
 		return true;
+	}
+
+	public static void setChatState(int state, String uName1, String uName2) throws IOException, URISyntaxException {
+		String firstUName = uName1;
+		String[] names = sortNamesAlphabetically(uName1, uName2);
+		uName1 = names[0];
+		uName2 = names[1];
+		String key = uName1 + ", " + uName2;
+		if (!chatsCache.containsKey(key))
+			getChat(uName1, uName2, 0);
+
+		int currentState = chatsCache.get(key).get("index").getAsJsonObject().get("state").getAsInt();
+		String canBeEditedBy = chatsCache.get(key).get("index").getAsJsonObject().get("canbeEditedBy").getAsString();
+
+		if (currentState == 1) {
+			if (state == -2) {
+				chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", -2);
+				chatsCache.get(key).get("index").getAsJsonObject().addProperty("canbeEditedBy", firstUName);
+			}
+		} else {
+			if (canBeEditedBy.equals(firstUName)) {
+				switch (currentState) {
+					case 0:
+						if (state == 1 || state == -1) {
+							chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", state);
+							chatsCache.get(key).get("index").getAsJsonObject().addProperty("canbeEditedBy", firstUName);
+						}
+						break;
+					case -1:
+						if (state == 1 || state == -2) {
+							chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", state);
+							chatsCache.get(key).get("index").getAsJsonObject().addProperty("canbeEditedBy", firstUName);
+						}
+						break;
+					case -2:
+						if (state == -2) {
+							chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", 1);
+							chatsCache.get(key).get("index").getAsJsonObject().addProperty("canbeEditedBy", firstUName);
+						}
+						break;
+				}
+			}
+		}
+
+		chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", state);
+	}
+
+	public static String getChatState(String uName1, String uName2) {
+		String[] names = sortNamesAlphabetically(uName1, uName2);
+		uName1 = names[0];
+		uName2 = names[1];
+		return chatsCache.get(uName1 + ", " + uName2).get("index").getAsJsonObject().get("state").getAsInt() + " " + //
+				chatsCache.get(uName1 + ", " + uName2).get("index").getAsJsonObject().get("canbeEditedBy").getAsString();
 	}
 
 	/**
@@ -143,7 +197,7 @@ public class ServerOperations {
 	public static int[] getChatId(String uName) throws JsonSyntaxException, IOException {
 		ArrayList<Integer> chatIds = new ArrayList<>();
 		//check whether the cache has been initialized or is outdated, if so update it
-		if (chatListUpdated || chatPartners == null)
+		if (chatPartners == null)
 			chatPartners = new JsonParser().parse(//
 					FileRW.readFromFile(Server.class.getResource("data/chats/index.json").toExternalForm()))//
 					.getAsJsonObject()//
@@ -167,14 +221,6 @@ public class ServerOperations {
 
 	}
 
-	public static int getChatState(String uName1, String uName2) {
-		String[] tmpStrArr = sortNamesAlphabetically(uName1, uName2);
-		uName1 = tmpStrArr[0];
-		uName2 = tmpStrArr[1];
-
-		return chatsCache.get(uName1 + ", " + uName2).get("index").getAsJsonObject().get("state").getAsInt();
-	}
-
 	/**
 	 * Get the chat id of a chat between to specific users
 	 * 
@@ -194,7 +240,7 @@ public class ServerOperations {
 		if (userIdsCache.containsKey(key))
 			return userIdsCache.get(key);
 		//check whether other cache has been updated or is outdated, if so update it
-		if (chatListUpdated || chatPartners == null)
+		if (chatPartners == null)
 			chatPartners = new JsonParser().parse(//
 					FileRW.readFromFile(Server.class.getResource("data/chats/index.json").toExternalForm()))//
 					.getAsJsonObject()//
@@ -235,8 +281,20 @@ public class ServerOperations {
 			userChat = chatsCache.get(key);
 		else {
 			//parse user chat from file
+			String path = ServerSideToClient.class.getResource("data/chats/").toExternalForm() + getChatId(uName1, uName2) + ".json";
+			File file = new File(path);
+			long timeoutStart = System.currentTimeMillis();
+			while (true) {
+				if (file.exists() || System.currentTimeMillis() - timeoutStart > 1000)
+					break;
+				try {
+					Thread.sleep(75);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 			userChat = new JsonParser().parse(//
-					FileRW.readFromFile(ServerSideToClient.class.getResource("data/chats/" + getChatId(uName1, uName2) + ".json").toExternalForm()))//
+					FileRW.readFromFile(path))//
 					.getAsJsonObject();
 			chatsCache.put(key, userChat);
 		}
@@ -259,6 +317,12 @@ public class ServerOperations {
 		jsonMsg.addProperty("textContent", msg.content);
 		jsonMsg.addProperty("date", new SimpleDateFormat("d.M.y").format(new Date(msg.date)));
 		jsonMsg.addProperty("time", new SimpleDateFormat("H:m").format(new Date(msg.date)));
+		try {
+			Thread.sleep(100);
+			getChat(msg.receiver, msg.sender, 0);
+		} catch (JsonSyntaxException | IOException | URISyntaxException | InterruptedException e) {
+			e.printStackTrace();
+		}
 		int count = chatsCache.get(key).get("index").getAsJsonObject().get("count").getAsInt() + 1;
 		chatsCache.get(key).add(Integer.toString(count), //
 				jsonMsg);

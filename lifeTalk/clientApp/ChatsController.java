@@ -104,6 +104,10 @@ public class ChatsController {
 	private TextField contactRTField1, contactRTField2;
 	@FXML
 	private Text contactRResult;
+	@FXML
+	private Button acceptBtn, declineBtn, blockBtn;
+	@FXML
+	private StackPane fullScreenLoading;
 	/** The class that communicates with the server */
 	private ClientSideToServer serverCommunication;
 	/** Name of the person the user chats with */
@@ -119,15 +123,15 @@ public class ChatsController {
 	private MessageFx previousMsg;
 	private MessageFx writingMsg;
 	private ChangeListener<String> textInpListener;
-	private Timeline chatStateShow;
-	private Timeline chatStateHide;
+	private Timeline chatStateShow, chatStateHide, windowDisplay, windowhiding, scaleAnim, showMsgs;
 	private boolean chatStateVisible = false;
 	/** the current window */
 	private Stage window;
 	private Image statusUnknown;
 	private Image online;
 	private Image offline;
-	private int currentChatState = -2;
+	private Gson gson = new Gson();
+	private MessageFx[] bsMsgs;
 
 	/**
 	 * Call every 0.5 seconds the server communication class and let it check whether
@@ -176,12 +180,19 @@ public class ChatsController {
 		chatState.getTransforms().add(chatStateScale);
 		chatStateHide = new Timeline(new KeyFrame(Duration.millis(250), new KeyValue(chatStateScale.yProperty(), 0)));
 		chatStateShow = new Timeline(new KeyFrame(Duration.millis(250), new KeyValue(chatStateScale.yProperty(), 1)));
+		showMsgs = new Timeline(new KeyFrame(Duration.millis(70), //
+				new KeyValue(chatViewScrollPane.translateYProperty(), 0),//
+				new KeyValue(chatViewScrollPane.opacityProperty(), 1)));
+		Timeline hideFirstLoading = new Timeline(new KeyFrame(Duration.millis(400), new KeyValue(fullScreenLoading.opacityProperty(), 0)));
+		hideFirstLoading.setDelay(Duration.millis(100));
+		hideFirstLoading.setOnFinished(e -> fullScreenLoading.setVisible(false));
 
 		online = new Image(this.getClass().getResource("resources/online.png").toExternalForm());
 		offline = new Image(this.getClass().getResource("resources/offline.png").toExternalForm());
 		statusUnknown = onlineStatusImg.getImage();
 
 		((Text) infoDialogue.getChildren().get(0)).wrappingWidthProperty().bind(infoDialogue.widthProperty().subtract(50));
+		hideFirstLoading.play();
 	}
 
 	/**
@@ -197,17 +208,19 @@ public class ChatsController {
 	public void makeNewContactRequest(MouseEvent event) {
 		if (event.getButton() != MouseButton.PRIMARY)
 			return;
-		Timeline windowDisplay = new Timeline(new KeyFrame(Duration.millis(300), //
-				new KeyValue(mainLayout.opacityProperty(), 0.5), //
-				new KeyValue(contactRequest.opacityProperty(), 1),//
-				new KeyValue(((StackPane) event.getSource()).opacityProperty(), 0.5)));
-		contactRequest.setVisible(true);
-		contactRequest.getParent().setPickOnBounds(true);
-		contactRDialogueCloseBtn.setOnAction(e -> {
-			Timeline windowhiding = new Timeline(new KeyFrame(Duration.millis(300), //
+		if (windowDisplay == null || windowhiding == null) {
+			windowDisplay = new Timeline(new KeyFrame(Duration.millis(300), //
+					new KeyValue(mainLayout.opacityProperty(), 0.5), //
+					new KeyValue(contactRequest.opacityProperty(), 1),//
+					new KeyValue(((StackPane) event.getSource()).opacityProperty(), 0.5)));
+			windowhiding = new Timeline(new KeyFrame(Duration.millis(300), //
 					new KeyValue(mainLayout.opacityProperty(), 1), //
 					new KeyValue(contactRequest.opacityProperty(), 0),//
 					new KeyValue(((StackPane) event.getSource()).opacityProperty(), 1)));
+		}
+		contactRequest.setVisible(true);
+		contactRequest.getParent().setPickOnBounds(true);
+		contactRDialogueCloseBtn.setOnAction(e -> {
 			windowhiding.play();
 			windowhiding.setOnFinished(e1 -> {
 				contactRequest.setVisible(false);
@@ -217,9 +230,10 @@ public class ChatsController {
 		windowDisplay.play();
 
 		contactRequestBtn.setOnAction(e -> {
-			if (serverCommunication.sendRequest(contactRTField1.getText(), contactRTField2.getText()))
+			if (serverCommunication.sendRequest(contactRTField1.getText(), contactRTField2.getText())) {
 				contactRResult.setText("Contact request sent!");
-			else
+				addChatContact(contactRTField1.getText(), contactRTField2.getText(), true, "", null, new Date());
+			} else
 				contactRResult.setText("Coulnd't find contact");
 		});
 	}
@@ -235,16 +249,75 @@ public class ChatsController {
 
 	}
 
-	public void changeChatState(int state) {
-		currentChatState = state;
-		switch (state) {
-			case -1:
-				msgInp.setDisable(true);
-				break;
-			case 0:
-			case 1:
-				msgInp.setDisable(false);
+	public void changeChatState(String stateCombo) {
+		int state = Integer.parseInt(stateCombo.substring(0, 2).trim());
+		String canBeEditedBy = stateCombo.substring(2).trim();
+
+		if (state == 1 || state == 0)
+			msgInp.setEditable(true);
+		else
+			msgInp.setEditable(false);
+
+		if (state == 1) {
+			acceptBtn.setDisable(true);
+			declineBtn.setDisable(true);
+			blockBtn.setDisable(false);
+			onlineStatusImg.setVisible(true);
+			chatPInfo.setVisible(true);
+		} else {
+			onlineStatusImg.setVisible(false);
+			chatPInfo.setVisible(false);
+			chatPImg.setImage(statusUnknown);
+			if (canBeEditedBy.equals(nameTitle.getText())) {
+				switch (state) {
+					case 0:
+						acceptBtn.setDisable(false);
+						declineBtn.setDisable(false);
+						blockBtn.setDisable(true);
+						break;
+					case -1:
+						acceptBtn.setDisable(false);
+						declineBtn.setDisable(true);
+						blockBtn.setDisable(false);
+						break;
+					case -2:
+						acceptBtn.setDisable(false);
+						declineBtn.setDisable(true);
+						blockBtn.setDisable(true);
+				}
+			} else {
+				acceptBtn.setDisable(true);
+				declineBtn.setDisable(true);
+				blockBtn.setDisable(true);
+			}
 		}
+
+	}
+
+	public void chatStateUserInput(ActionEvent event) {
+		int state;
+		switch (((Button) event.getSource()).getText()) {
+			case "Accept":
+				state = 1;
+				break;
+			case "Decline":
+				state = -1;
+				break;
+			case "Block":
+				state = -2;
+				break;
+			default:
+				state = 0;
+		}
+		serverCommunication.setBlocking(true);
+		try {
+			serverCommunication.write("setChatState");
+			serverCommunication.write(state);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		serverCommunication.setBlocking(false);
+		changeChatState(state + " " + nameTitle.getText());
 	}
 
 	/**
@@ -257,7 +330,9 @@ public class ChatsController {
 	 * @param img The profile pic of the other user
 	 */
 	public void addChatContact(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img, Date dateTime) {
-		ChatcontactFx contactFx = new ChatcontactFx(title, firstLine, firstLineMe, statusInfo, img, dateTime);
+		ChatcontactFx contactFx = new ChatcontactFx(title, firstLine, firstLineMe, statusInfo, //
+				img == null ? new Image(this.getClass().getResource("resources/user.png").toExternalForm()) : img, //
+				dateTime);
 		HBox chatElement = contactFx.getLayout();
 		if (contacts.size() == 0) {
 			chatList.getChildren().add(chatElement);
@@ -303,10 +378,14 @@ public class ChatsController {
 			//setup visuals and play switching animations
 			chatPName.setText(title);
 			chatPInfo.setText(statusInfo);
-			chatPImg.setImage(img);
+			chatPImg.setImage(img == null ? new Image(this.getClass().getResource("resources/user.png").toExternalForm()) : img);
 			onlineStatusImg.setImage(statusUnknown);
 			swipeChat(title);
-			msgInp.setEditable(true);
+			try {
+				serverCommunication.updateChatState();
+			} catch (ClassNotFoundException | IOException e1) {
+				e1.printStackTrace();
+			}
 			contactFx.clearNewMsgCounter();
 		});
 	}
@@ -319,10 +398,14 @@ public class ChatsController {
 	 * @param uName
 	 */
 	private void swipeChat(String uName) {
+		try {
+			bsMsgs = serverCommunication.getMessages(uName, 0);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		Scale scaleCurrent = new Scale(1, 1, 0, 50);
-		Timeline scaleAnim = new Timeline();
 		//animate chat from list (x and y scale and opacity) and current chat (translateY and opacity)
-		scaleAnim.getKeyFrames().addAll(new KeyFrame(Duration.millis(250), //
+		Timeline scaleAnim = new Timeline(new KeyFrame(Duration.millis(250), //
 				new KeyValue(scaleCurrent.xProperty(), 1.5), //
 				new KeyValue(scaleCurrent.yProperty(), 1.5), new KeyValue(selectedContact.getLayout().opacityProperty(), 0))//
 				, new KeyFrame(Duration.millis(70), //
@@ -334,15 +417,7 @@ public class ChatsController {
 			scaleCurrent.setX(1);
 			scaleCurrent.setY(1);
 			selectedContact.getLayout().setOpacity(1);
-			Timeline showMsgs = new Timeline(new KeyFrame(Duration.millis(70), //
-					new KeyValue(chatViewScrollPane.translateYProperty(), 0),//
-					new KeyValue(chatViewScrollPane.opacityProperty(), 1)));
-			try {
-				addMessagesAtTop(serverCommunication.getMessages(uName, 0));
-			} catch (IOException | NullPointerException e1) {
-				showInfoDialogue("Error occured while loading messages: " + e1.getMessage());
-				e1.printStackTrace();
-			}
+			addMessagesAtTop(bsMsgs);
 			chatViewScrollPane.setTranslateY(15);
 			showMsgs.play();
 			//allow clicking on new chat elements again
@@ -431,7 +506,7 @@ public class ChatsController {
 	}
 
 	public void msgPart(String contentJson) {
-		Message tmpMsgPart = new Gson().fromJson(contentJson, Message.class);
+		Message tmpMsgPart = gson.fromJson(contentJson, Message.class);
 		if (tmpMsgPart.sender.equals(selectedChatContact)) {
 			if (writingMsg == null) {
 				writingMsg = new MessageFx(chatViewScrollPane.getWidth());

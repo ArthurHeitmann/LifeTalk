@@ -3,7 +3,9 @@
 		"count": 4,
 		"lastuser":"arthurTest",
 		"contact1": "arthurTest",
-		"contact2": "user1"
+		"contact2": "user1",
+		"canbeEditedBy": "",
+		"state": 1
 	},
 
 	"1": {

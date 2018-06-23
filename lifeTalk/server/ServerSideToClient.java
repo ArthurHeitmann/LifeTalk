@@ -111,6 +111,7 @@ public class ServerSideToClient implements Runnable {
 							InterClientCommunication.sendMsg(((Message) msgPart).receiver, "msgPart" + gson.toJson(msgPart));
 						break;
 					case "getMsg":
+						System.out.println(1);
 						String uName = (String) in.readObject();
 						selectedContact = uName;
 						int startNum = Integer.parseInt((String) in.readObject());
@@ -118,7 +119,6 @@ public class ServerSideToClient implements Runnable {
 						if (tmpJA == null)
 							write("ERROR");
 						write(tmpJA.toString());
-						write(ServerOperations.getChatState(uName, username));
 						break;
 					case "sendMsg":
 						Message msg = (Message) in.readObject();
@@ -132,12 +132,26 @@ public class ServerSideToClient implements Runnable {
 						request.addProperty("from", username);
 						request.addProperty("to", to);
 						request.addProperty("msg", requestMsg);
-						InterClientCommunication.sendMsg(request.get("to").getAsString(), request.toString());
-						if (!ServerOperations.sendContactRequest(username, to, requestMsg))
-							write("NO USERNAME");
-						else {
+						if (ServerOperations.sendContactRequest(username, to, requestMsg))
 							write("SENT");
+						else {
+							write("NO USERNAME");
+							continue;
 						}
+						ServerOperations.addMessageToChat(new Message(//
+								requestMsg.isEmpty() ? username + "want's to add you as a contact" : requestMsg, //
+								System.currentTimeMillis(), username, to, true));
+						InterClientCommunication.sendMsg(request.get("to").getAsString(), "newChat" + request.toString());
+						break;
+					case "getChatState":
+						System.out.println(username);
+						System.out.println(selectedContact);
+						write(ServerOperations.getChatState(username, selectedContact));
+						break;
+					case "setChatState":
+						int state = (Integer) in.readObject();
+						ServerOperations.setChatState(state, username, selectedContact);
+						InterClientCommunication.sendMsg(selectedContact, "chatStt" + ServerOperations.getChatState(username, selectedContact));
 						break;
 				}
 
@@ -171,9 +185,9 @@ public class ServerSideToClient implements Runnable {
 					}
 
 					break;
-				case "chatState":
+				case "newChat":
+				case "chatStt": 					//chatState
 				case "msgFrom":
-					//JsonObject msg = new JsonParser().parse(task.substring(7)).getAsJsonObject();
 					write(task);
 					System.out.println("new Msg");
 					break;
