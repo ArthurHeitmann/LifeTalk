@@ -17,7 +17,8 @@ import javafx.scene.text.Text;
 /**
  * This class represents one message which can be displayed. It contains the messages
  * content, the date and time. It can either be green or gray depending who is the
- * receiver/sender.
+ * receiver/sender. Or if it's a life message (the message hasn't been send yet) it has
+ * the option to constantly update the display text.
  * 
  * @author Arthur H.
  *
@@ -46,8 +47,7 @@ public class MessageFx {
 	 * @param contentText The main content of the message
 	 * @param msgByMe Whether message for send by the current client or not. TRUE:
 	 * alignment to the right, gray color; FALSE: alignment: left, green color
-	 * @param dateD Date when the message was sent
-	 * @param timeT Time when the message was sent (will be displayed below for the user)
+	 * @param dateTime Date when the message was sent
 	 * @param currentWidth The current width of the parent Panel/ScrolPane
 	 */
 	public MessageFx(String contentText, boolean msgByMe, Date dateTime, double currentWidth) {
@@ -116,6 +116,13 @@ public class MessageFx {
 		listener.changed(null, null, currentWidth);
 	}
 
+	/**
+	 * Constructs a message that is currently being written, so that the content gets
+	 * constantly updated. All text after the last space will be encrypted (for visual
+	 * purpose only). So "Hello World!" becomes "Hello u8Q/Tm"
+	 * 
+	 * @param currentWidth width of the parent ScrollPane
+	 */
 	public MessageFx(double currentWidth) {
 		writingInProgress = true;
 		//create all necessary nodes
@@ -176,11 +183,18 @@ public class MessageFx {
 
 	}
 
+	/**
+	 * Update the displayed life_mesasge
+	 * 
+	 * @param content the text to be displayed
+	 */
 	public void updateWriting(String content) {
+		//stop any parallel animations running
 		stopAnim();
-		if (!writingInProgress)
+		if (!writingInProgress)		//return if this object was not constructed as a life message
 			return;
 		new Thread(() -> {
+			//determine the index of the last space in the text; -1 if there are none
 			lastSpaceAt = -1;
 			for (int i = content.length() - 1; i > -1; i--) {
 				if (content.charAt(i) == ' ') {
@@ -216,6 +230,13 @@ public class MessageFx {
 		}).start();
 	}
 
+	/**
+	 * Generates a String with a specific length that contains the following random chars:
+	 * "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNM1234567890!?=.,-_~{}][°^<>|:;#'+*()/&%$"
+	 * 
+	 * @param length the length of the generated String
+	 * @return String that contains random chars
+	 */
 	private String genRandomString(int length) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < length; i++) {
@@ -224,6 +245,9 @@ public class MessageFx {
 		return sb.toString();
 	}
 
+	/**
+	 * Stops a currently running thread that updates the text
+	 */
 	public void stopAnim() {
 		killIt = true;
 		try {
@@ -233,24 +257,28 @@ public class MessageFx {
 		}
 	}
 
+	/**
+	 * @return True if the message has been sent | False if it's a life message
+	 */
 	public boolean isNormal() {
 		return !writingInProgress;
 	}
 
 	/**
-	 * 
 	 * @return The listener that adjusts the message responsive to the parent ScrollPane
 	 */
 	public ChangeListener<Number> getListener() {
 		return listener;
 	}
 
+	/**
+	 * @return The time and date when this message has been sent
+	 */
 	public Date getDate() {
 		return date;
 	}
 
 	/**
-	 * 
 	 * @return The main Node that contains all the other nodes
 	 */
 	public HBox getPrimaryLayout() {

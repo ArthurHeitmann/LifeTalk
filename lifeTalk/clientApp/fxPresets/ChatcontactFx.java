@@ -42,14 +42,15 @@ public class ChatcontactFx {
 	private Label lastLine;
 	/** Status info of the other person */
 	private Label statusInfo;
-	private StackPane newMessageIndicator;
-	private Text newMsgCount;
 	/** Whether the last message sent was by the current user or not */
 	private boolean lastMsgByMe;
 	/** The time and date when the last message was sent */
 	private Date lastMsgTime;
-	private Timeline showNotification;
-	private Timeline hideNotification;
+	/** Displays the number of new messages */
+	private StackPane newMessageIndicator;
+	private Text newMsgCount;
+	/** Animations for showing or hiding the new message indicator */
+	private Timeline showNotification, hideNotification;
 
 	/**
 	 * Creates and sets up all the necessary objects and nodes for this object
@@ -59,6 +60,7 @@ public class ChatcontactFx {
 	 * @param firstLineMe Whether the last message sent was by the current user or not
 	 * @param statusInfo The status info of the other user
 	 * @param img The profile picture of the other user
+	 * @param lastMsgTime The when the last message was sent
 	 */
 	public ChatcontactFx(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img, Date lastMsgTime) {
 		//Create the nodes for the GUI
@@ -116,6 +118,12 @@ public class ChatcontactFx {
 		styleLastLine();
 	}
 
+	/**
+	 * Marks this chat as (un-)selected and changes the background color
+	 * 
+	 * @param state True: background color: dark grayish False: background color
+	 * transparent
+	 */
 	public void setSelected(boolean state) {
 		if (state)
 			primaryLayout.setStyle("-fx-background-color: #404040;");
@@ -158,15 +166,22 @@ public class ChatcontactFx {
 			contactImage.setImage(img);
 	}
 
+	/**
+	 * Increment the number of new messages
+	 */
 	public void increaseNewMsgCounter() {
 		showNotification.play();
 		newMsgCount.setText(Integer.toString(Integer.parseInt(newMsgCount.getText()) + 1));
+		//scale the indicator text if it's to large, i. e. when it changes from 9 to 10
 		if (newMsgCount.getBoundsInLocal().getWidth() > newMessageIndicator.getWidth() - 6 && newMsgCount.getScaleX() == 1) {
-			newMsgCount.setScaleX(newMsgCount.getScaleX() * 0.6);
-			newMsgCount.setScaleY(newMsgCount.getScaleY() * 0.6);
+			newMsgCount.setScaleX(0.6);
+			newMsgCount.setScaleY(0.6);
 		}
 	}
 
+	/**
+	 * hide and resset the new message counter
+	 */
 	public void clearNewMsgCounter() {
 		hideNotification.play();
 		newMsgCount.setText("0");
@@ -174,6 +189,9 @@ public class ChatcontactFx {
 		newMsgCount.setScaleY(1);
 	}
 
+	/**
+	 * @return the name of the person
+	 */
 	public String getTitle() {
 		return nameLabel.getText();
 	}

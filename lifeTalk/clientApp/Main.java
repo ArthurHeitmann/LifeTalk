@@ -8,6 +8,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lifeTalk.jsonRW.client.ClientStartupOperations;
 
+/**
+ * Starts the application and loads the GUI
+ * 
+ * @author Arthur H.
+ *
+ */
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
@@ -19,7 +25,7 @@ public class Main extends Application {
 			primaryStage.setWidth(1200);
 			primaryStage.setHeight(800);
 			primaryStage.setScene(scene);
-			primaryStage.setTitle(Info.appName + " - " + Info.version);
+			primaryStage.setTitle(Info.APPNAME + " - " + Info.VERSION);
 			primaryStage.show();
 			//If user previously enabled auto connecting to the server than try to connect to the server automatically
 			Platform.runLater(() -> {
@@ -27,7 +33,7 @@ public class Main extends Application {
 					String srvAdr = ClientStartupOperations.getServerAddr();
 					int port = ClientStartupOperations.getServerPort();
 					loginController.setInfoText("Auto connecting to server");
-					loginController.mainStage = primaryStage;
+					loginController.setMainStage(primaryStage);
 					loginController.autoConnect(srvAdr, port);
 				}
 			});
@@ -37,6 +43,11 @@ public class Main extends Application {
 		}
 	}
 
+	/**
+	 * start the GUI and save the command line arguments
+	 * 
+	 * @param args command line arguments
+	 */
 	public static void main(String[] args) {
 		Info.setArgs(args);
 		launch(args);

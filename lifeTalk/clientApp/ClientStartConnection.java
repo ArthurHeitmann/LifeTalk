@@ -74,9 +74,7 @@ public class ClientStartConnection {
 	 */
 	public void autoLogin(LoginController controller, Stage stage) {
 		if (ClientStartupOperations.isAutoLoginEnabled()) {
-			controller.uNameInp.setText(ClientStartupOperations.getAutoLoginUsername());
-			controller.pwInp.setText(ClientStartupOperations.getloginID());
-			controller.autoLogin = true;
+			controller.setupAutologin(ClientStartupOperations.getAutoLoginUsername(), ClientStartupOperations.getloginID(), true);
 			controller.login(new ActionEvent(stage.getScene(), null));
 		}
 	}

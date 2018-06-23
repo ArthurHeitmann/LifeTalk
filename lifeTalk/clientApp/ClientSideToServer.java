@@ -98,6 +98,13 @@ public class ClientSideToServer {
 		});
 	}
 
+	/**
+	 * Send contact request to the server
+	 * 
+	 * @param toUser Target user
+	 * @param msg Requst sender
+	 * @return True: request sent successfully; False: invalid username
+	 */
 	public boolean sendRequest(String toUser, String msg) {
 		waitForComm();
 		communicationInProgress = true;
@@ -115,7 +122,7 @@ public class ClientSideToServer {
 	}
 
 	/**
-	 * 
+	 * Check the server for updates like new messages
 	 */
 	public void update() {
 		if (updateRunning)
@@ -133,23 +140,26 @@ public class ClientSideToServer {
 				if (line.equals("finished"))
 					break;
 				switch (line.substring(0, 7)) {
+					//life message
 					case "msgPart":
 						if (line.length() > 7)
 							controller.msgPart(line.substring(7));
 						else
 							controller.removeLiveMessage();
 						break;
+					//new message received
 					case "msgFrom":
 						Message message = new Gson().fromJson(line.substring(7), Message.class);
 						controller.displayMsg(message);
 						break;
+					//change in the chat state
 					case "chatStt":
 						controller.changeChatState(line.substring(7));
 						break;
+					//a new chat is available (through a contact request)
 					case "newChat":
 						JsonObject chat = new JsonParser().parse(line.substring(7)).getAsJsonObject();
-						Platform.runLater(() -> //
-						controller.addChatContact(chat.get("from").getAsString(), chat.get("msg").getAsString(), false, "", null, new Date()));
+						Platform.runLater(() -> controller.addChatContact(chat.get("from").getAsString(), chat.get("msg").getAsString(), false, "", null, new Date()));
 						break;
 				}
 			}
@@ -161,12 +171,10 @@ public class ClientSideToServer {
 	}
 
 	/**
-	 * gets up to 20 message from the server (to avoid unnecessary and big data
-	 * transfers).
+	 * Get all message from one chat
 	 * 
 	 * @param uName The name of the other chat partner
-	 * @param msgStartNum At which number to start (0 -> start with latest message)
-	 * @return Array of the last messages containing person, content, date/time
+	 * @return Array of all message (containing person, content, date/time)
 	 * @throws IOException
 	 */
 	public MessageFx[] getMessages(String uName) throws IOException {
@@ -204,9 +212,14 @@ public class ClientSideToServer {
 		}
 	}
 
+	/**
+	 * Update the state of the chat
+	 * 
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	public void updateChatState() throws IOException, ClassNotFoundException {
-		while (communicationInProgress) {
-		}
+		waitForComm();
 		communicationInProgress = true;
 
 		write("getChatState");
@@ -289,7 +302,6 @@ public class ClientSideToServer {
 	 */
 	private void waitForComm() {
 		while (communicationInProgress) {
-			//wait until current communication is finished
 		}
 	}
 
@@ -324,6 +336,12 @@ public class ClientSideToServer {
 		return buffImg;
 	}
 
+	/**
+	 * Indicate that a communication with the server is running, to pause any cued server
+	 * tasks
+	 * 
+	 * @param state
+	 */
 	public void setBlocking(boolean state) {
 		if (communicationInProgress && state)
 			while (communicationInProgress) {

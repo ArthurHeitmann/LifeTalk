@@ -37,15 +37,15 @@ public class LoginController extends Thread {
 	@FXML
 	private TextField portInput;
 	@FXML
-	public TextField uNameInp;
+	private TextField uNameInp;
 	@FXML
-	public TextField pwInp;
+	private TextField pwInp;
 	@FXML
 	private TextField uNameInpReg;
 	@FXML
 	private TextField pwInpReg;
 	@FXML
-	public Text infoText;
+	private Text infoText;
 	@FXML
 	private GridPane connectPane;
 	@FXML
@@ -62,8 +62,8 @@ public class LoginController extends Thread {
 	private CheckBox loggedinCheckBox;
 	@FXML
 	private ImageView loadingGIF1;
-	public boolean autoLogin = false;
-	public Stage mainStage;
+	private boolean autoLogin = false;
+	private Stage mainStage;
 	private ClientStartConnection connection = new ClientStartConnection();
 
 	/**
@@ -259,6 +259,11 @@ public class LoginController extends Thread {
 		}
 	}
 
+	/**
+	 * Display information text
+	 * 
+	 * @param text
+	 */
 	public void setInfoText(String text) {
 		infoText.setText(text);
 	}
@@ -275,5 +280,27 @@ public class LoginController extends Thread {
 		new ClientSideToServer(connection.getSocket(), fxmlLoader.getController(), connection.getOut(), connection.getIn()).retrieveUserInfo();
 		System.out.println(uNameInp.getText() + "logged in");
 
+	}
+
+	/**
+	 * Fill in the login field when auto login is enabled
+	 * 
+	 * @param uName Username
+	 * @param pw Password
+	 * @param autLoginEnabled
+	 */
+	public void setupAutologin(String uName, String pw, boolean autLoginEnabled) {
+		uNameInp.setText(uName);
+		pwInp.setText(pw);
+		autoLogin = autLoginEnabled;
+	}
+
+	/**
+	 * Set the current stage of the window
+	 * 
+	 * @param stage
+	 */
+	public void setMainStage(Stage stage) {
+		mainStage = stage;
 	}
 }

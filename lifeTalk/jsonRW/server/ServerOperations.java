@@ -260,11 +260,13 @@ public class ServerOperations {
 	}
 
 	/**
-	 * Get the chat as a json between to users
+	 * Get the chat as a json object
 	 * 
 	 * @param uName1 User 1
 	 * @param uName2 User 2
-	 * @return
+	 * 
+	 * @return JsonArray that contains all message from that chat
+	 * 
 	 * @throws URISyntaxException
 	 * @throws IOException
 	 * @throws JsonSyntaxException

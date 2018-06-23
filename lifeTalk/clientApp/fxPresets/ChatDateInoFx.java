@@ -7,10 +7,21 @@ import javafx.geometry.Insets;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+/**
+ * A visual seperator for message that displays a date
+ * 
+ * @author Arthur H.
+ *
+ */
 public class ChatDateInoFx {
 	/** Holds the text node */
 	private VBox textlayout;
 
+	/**
+	 * Constructs a date divider that can be placed between messages.
+	 * 
+	 * @param date The date (time will not be displayed)
+	 */
 	public ChatDateInoFx(Date date) {
 		//create text node with a readable date
 		Text text = new Text(new SimpleDateFormat("d.M.y").format(date).toString());

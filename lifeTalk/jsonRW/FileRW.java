@@ -50,23 +50,6 @@ public class FileRW {
 		return sb.toString();
 	}
 
-	public static String readFromFile(String location, int lastLine) throws URISyntaxException, IOException {
-		StringBuilder sb = null;
-		//Reads from the file
-		BufferedReader br = new BufferedReader(new FileReader(new File(new URI(location))));
-		sb = new StringBuilder();
-		String line = br.readLine();
-		//read the file line by line and append the new line to the StringBuilder
-		int linesRead = 1;
-		while (line != null && linesRead <= lastLine) {
-			sb.append(line + System.lineSeparator());
-			line = br.readLine();
-		}
-		br.close();
-		return sb.toString();
-
-	}
-
 	/**
 	 * Method to write text to a file
 	 * 
@@ -92,6 +75,15 @@ public class FileRW {
 		}
 	}
 
+	/**
+	 * Copies a file from one location to another (filename can be changed in the path)
+	 * 
+	 * @param srcLocation Path of the initial file
+	 * @param destinationLocation Destination path of the new file
+	 * 
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public static void copyFile(String srcLocation, String destinationLocation) throws IOException, URISyntaxException {
 		InputStream is = null;
 		OutputStream os = null;

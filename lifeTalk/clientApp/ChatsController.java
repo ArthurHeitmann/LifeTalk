@@ -122,17 +122,28 @@ public class ChatsController {
 	private ArrayList<ChatcontactFx> contacts = new ArrayList<>();
 	/** Tells which index a chat has in the chats list associated with a username */
 	private HashMap<String, Integer> contactsIndex = new HashMap<>();
+	/**
+	 * used to compare to new message and determine whether to place a date separator or
+	 * not
+	 */
 	private MessageFx previousMsg;
+	/** null if no message is currently being received otherwise a life message */
 	private MessageFx writingMsg;
 	private ChangeListener<String> textInpListener;
-	private Timeline chatStateShow, chatStateHide, windowDisplay, windowhiding, scaleAnim, showMsgs;
+	/**
+	 * Various animations (show/hide contact request accepting/declining/blocking;
+	 * show/hide the new contact request window; self explaining)
+	 */
+	private Timeline chatStateShow, chatStateHide, windowDisplay, windowhiding, showMsgs;
+	/** whether the menu to accept/deny/block contacts is visible or not */
 	private boolean chatStateVisible = false;
 	/** the current window */
 	private Stage window;
-	private Image statusUnknown;
-	private Image online;
-	private Image offline;
+	/** image indicators whether a person is online or not */
+	private Image statusUnknown, online, offline;
+	/** Json formatting tool */
 	private Gson gson = new Gson();
+	/** unnecessary variable but java */
 	private MessageFx[] bsMsgs;
 
 	/**
@@ -158,6 +169,8 @@ public class ChatsController {
 			updater.cancel();
 			removeLiveMessage();
 		});
+
+		//life message: send the currently written message to the server whenever the textProperty changes
 		textInpListener = (obsV, oldV, newV) -> {
 			try {
 				if (!newV.isEmpty() && !oldV.equals(newV)) {
@@ -165,6 +178,7 @@ public class ChatsController {
 					serverCommunication.write("msgPart");
 					serverCommunication.write(new Message(msgInp.getText(), System.currentTimeMillis(), nameTitle.getText(), selectedChatContact, false));
 					serverCommunication.setBlocking(false);
+					//indicate that this message has been sent or removed
 				} else if (newV.length() == 0 && oldV.length() > 0) {
 					serverCommunication.setBlocking(true);
 					serverCommunication.write("msgPart");
@@ -178,6 +192,7 @@ public class ChatsController {
 		};
 		msgInp.textProperty().addListener(textInpListener);
 
+		//setup various animations
 		Scale chatStateScale = new Scale(1, 0, 0, 0);
 		chatState.getTransforms().add(chatStateScale);
 		chatStateHide = new Timeline(new KeyFrame(Duration.millis(250), new KeyValue(chatStateScale.yProperty(), 0)));
@@ -189,17 +204,12 @@ public class ChatsController {
 		hideFirstLoading.setDelay(Duration.millis(100));
 		hideFirstLoading.setOnFinished(e -> fullScreenLoading.setVisible(false));
 
+		//online status of contact | image initialization
 		online = new Image(this.getClass().getResource("resources/online.png").toExternalForm());
 		offline = new Image(this.getClass().getResource("resources/offline.png").toExternalForm());
 		statusUnknown = onlineStatusImg.getImage();
 
-		chatViewScrollPane.vvalueProperty().addListener((obsV, oldV, newV) -> {
-			if (newV.doubleValue() == 0 || selectedChatContact != null) {
-				int messageCount = chatView.getChildren().size() - 1;
-				//addMessages(pos, messages);
-			}
-		});
-
+		//filter chats whenever typing something into the search bar
 		chatSearch.textProperty().addListener((obsV, oldV, newV) -> {
 			for (int i = 0; i < chatList.getChildren().size(); i++) {
 				if (((Label) ((VBox) ((HBox) chatList.getChildren().get(i)).getChildren()//
@@ -214,23 +224,22 @@ public class ChatsController {
 			}
 		});
 
+		//bind text (wrapping-)width to the width of the info dialogue
 		((Text) infoDialogue.getChildren().get(0)).wrappingWidthProperty().bind(infoDialogue.widthProperty().subtract(50));
+
+		//remove loading banner after this initialization
 		hideFirstLoading.play();
 	}
 
 	/**
-	 * Display the name of the current user
+	 * Send a contact (/friend) request to a person
 	 * 
-	 * @param name The name of the current user
+	 * @param event
 	 */
-	public void setNameTitle(String name) {
-
-		nameTitle.setText(name);
-	}
-
 	public void makeNewContactRequest(MouseEvent event) {
 		if (event.getButton() != MouseButton.PRIMARY)
 			return;
+		//initialize animations
 		if (windowDisplay == null || windowhiding == null) {
 			windowDisplay = new Timeline(new KeyFrame(Duration.millis(300), //
 					new KeyValue(mainLayout.opacityProperty(), 0.5), //
@@ -241,8 +250,10 @@ public class ChatsController {
 					new KeyValue(contactRequest.opacityProperty(), 0),//
 					new KeyValue(((StackPane) event.getSource()).opacityProperty(), 1)));
 		}
+		//show the window
 		contactRequest.setVisible(true);
 		contactRequest.getParent().setPickOnBounds(true);
+		windowDisplay.play();
 		contactRDialogueCloseBtn.setOnAction(e -> {
 			windowhiding.play();
 			windowhiding.setOnFinished(e1 -> {
@@ -250,8 +261,7 @@ public class ChatsController {
 				contactRequest.getParent().setPickOnBounds(false);
 			});
 		});
-		windowDisplay.play();
-
+		//setup close button
 		contactRequestBtn.setOnAction(e -> {
 			if (serverCommunication.sendRequest(contactRTField1.getText(), contactRTField2.getText())) {
 				contactRResult.setText("Contact request sent!");
@@ -261,6 +271,11 @@ public class ChatsController {
 		});
 	}
 
+	/**
+	 * Show/hide the contact accept/decline/block bar
+	 * 
+	 * @param event
+	 */
 	public void displayChatStates(MouseEvent event) {
 		if (event.getButton() != MouseButton.PRIMARY || selectedChatContact == null)
 			return;
@@ -272,6 +287,12 @@ public class ChatsController {
 
 	}
 
+	/**
+	 * Change the chat possibilities depending on it's state. -2 -> blocked, -1 ->
+	 * declined; 0 -> undecided; 1 -> accapted
+	 * 
+	 * @param stateCombo
+	 */
 	public void changeChatState(String stateCombo) {
 		int state = Integer.parseInt(stateCombo.substring(0, 2).trim());
 		String canBeEditedBy = stateCombo.substring(2).trim();
@@ -285,12 +306,10 @@ public class ChatsController {
 			acceptBtn.setDisable(true);
 			declineBtn.setDisable(true);
 			blockBtn.setDisable(false);
-			onlineStatusImg.setVisible(true);
 			chatPInfo.setVisible(true);
 		} else {
 			onlineStatusImg.setVisible(false);
 			chatPInfo.setVisible(false);
-			chatPImg.setImage(statusUnknown);
 			if (canBeEditedBy.equals(nameTitle.getText())) {
 				switch (state) {
 					case 0:
@@ -317,6 +336,11 @@ public class ChatsController {
 
 	}
 
+	/**
+	 * Change the chat state using one of the 3 buttons and send it to the server
+	 * 
+	 * @param event
+	 */
 	public void chatStateUserInput(ActionEvent event) {
 		int state;
 		switch (((Button) event.getSource()).getText()) {
@@ -351,12 +375,14 @@ public class ChatsController {
 	 * @param firstLineMe Whether the last message sent is from the current user
 	 * @param statusInfo The status info of the other user
 	 * @param img The profile pic of the other user
+	 * @param dateTime
 	 */
 	public void addChatContact(String title, String firstLine, boolean firstLineMe, String statusInfo, Image img, Date dateTime) {
 		ChatcontactFx contactFx = new ChatcontactFx(title, firstLine, firstLineMe, statusInfo, //
 				img == null ? new Image(this.getClass().getResource("resources/user.png").toExternalForm()) : img, //
 				dateTime);
 		HBox chatElement = contactFx.getLayout();
+		//place the chat in the list according to the date when the last message has been sent (newest at top)
 		if (contacts.size() == 0) {
 			chatList.getChildren().add(chatElement);
 			contacts.add(contactFx);
@@ -454,22 +480,7 @@ public class ChatsController {
 	}
 
 	/**
-	 * Setup the header of the current chat
-	 * 
-	 * @param name Name of the other user
-	 * @param info status info of the other user
-	 * @param contactImg profile pic of the other user
-	 */
-	public void setActiveChatPerson(String name, String info, Image contactImg) {
-		chatPImg = new ImageView(contactImg);
-		chatPInfo.setText(info);
-		chatPName.setText(name);
-	}
-
-	/**
-	 * Adds messages from an array to the current chat </br>
-	 * Adds new messages at the top. So to add messages the newest has to be the first and
-	 * the oldest the last.
+	 * Adds multiple message at the top of the chat
 	 * 
 	 * @param messages
 	 */
@@ -477,8 +488,14 @@ public class ChatsController {
 		addMessages(0, messages);
 	}
 
+	/**
+	 * Adds one message at the bottom
+	 * 
+	 * @param message
+	 */
 	public void addMessageAtBottom(MessageFx message) {
 		addMessages(chatView.getChildren().size(), new MessageFx[] { message });
+		//scroll down after adding new message
 		if (chatViewScrollPane.getVvalue() == 1) {
 			PauseTransition wait = new PauseTransition(Duration.millis(100));
 			wait.setOnFinished((e) -> chatViewScrollPane.setVvalue(1));
@@ -486,11 +503,20 @@ public class ChatsController {
 		}
 	}
 
+	/**
+	 * Adds messages from an array to the current chat </br>
+	 * Adds new messages at the top. So to add messages the newest has to be the first and
+	 * the oldest the last.
+	 * 
+	 * @param pos
+	 * @param messages
+	 */
 	private void addMessages(int pos, MessageFx[] messages) {
 		if (messages.length > 0 && !messages[0].isNormal()) {
 			chatView.getChildren().add(messages[0].getPrimaryLayout());
 			chatViewScrollPane.widthProperty().addListener(messages[0].getListener());
 		} else {
+			//add messages and date separators when they have been sent on different days
 			for (MessageFx msg : messages) {
 				if (previousMsg == null) {
 					chatView.getChildren().add(pos, msg.getPrimaryLayout());
@@ -508,21 +534,22 @@ public class ChatsController {
 			if (previousMsg != null && chatView.getChildren().size() == 0)
 				chatView.getChildren().add(pos, new ChatDateInoFx(previousMsg.getDate()).getLayout());
 		}
-		//wait a moment for the view to update than scroll to last message
-		PauseTransition wait = new PauseTransition(Duration.millis(5));
-		wait.setOnFinished(e -> chatViewScrollPane.setVvalue(1));
-		wait.play();
 	}
 
+	/**
+	 * Compare 2 message and return true if the newer message has been sent at least one
+	 * day later
+	 * 
+	 * @param prevMsg
+	 * @param newMsg
+	 * @return true if the newer message has been sent at least one day later otherwise
+	 * false
+	 */
 	private boolean olderThan1Day(MessageFx prevMsg, MessageFx newMsg) {
 		Calendar prevMsgCal = Calendar.getInstance();
 		Calendar newMsgCal = Calendar.getInstance();
 		prevMsgCal.setTime(prevMsg.getDate());
 		newMsgCal.setTime(newMsg.getDate());
-		prevMsgCal.get(Calendar.YEAR);
-		newMsgCal.get(Calendar.YEAR);
-		prevMsgCal.get(Calendar.DAY_OF_YEAR);
-		newMsgCal.get(Calendar.DAY_OF_YEAR);
 		if (prevMsg.getDate().toString().substring(0, 10).equals(newMsg.getDate().toString().substring(0, 10)))
 			return false;
 		else if (prevMsgCal.get(Calendar.YEAR) > newMsgCal.get(Calendar.YEAR))
@@ -533,6 +560,11 @@ public class ChatsController {
 		return false;
 	}
 
+	/**
+	 * update the life message with new content
+	 * 
+	 * @param contentJson
+	 */
 	public void msgPart(String contentJson) {
 		Message tmpMsgPart = gson.fromJson(contentJson, Message.class);
 		if (tmpMsgPart.sender.equals(selectedChatContact)) {
@@ -545,7 +577,7 @@ public class ChatsController {
 	}
 
 	/**
-	 * 
+	 * Send a message to the server/other contact
 	 * 
 	 * @param event
 	 */
@@ -563,17 +595,37 @@ public class ChatsController {
 			showInfoDialogue(e.getMessage());
 			e.printStackTrace();
 		}
+		serverCommunication.setBlocking(false);
 		addMessageAtBottom(new MessageFx(msgInp.getText(), true, new Date(), chatViewScrollPane.getWidth()));
+		//place life message at the bottom again after the new message has been added
 		if (writingMsg != null) {
 			chatView.getChildren().remove(writingMsg.getPrimaryLayout());
 			chatView.getChildren().add(writingMsg.getPrimaryLayout());
 		}
+		//reset text inputs
 		msgInp.textProperty().removeListener(textInpListener);
 		msgInp.clear();
 		msgInp.textProperty().addListener(textInpListener);
-		serverCommunication.setBlocking(false);
 	}
 
+	/**
+	 * Removes a life message
+	 */
+	public void removeLiveMessage() {
+		if (writingMsg != null) {
+			writingMsg.stopAnim();
+			Platform.runLater(() -> {
+				chatView.getChildren().remove(writingMsg.getPrimaryLayout());
+				writingMsg = null;
+			});
+		}
+	}
+
+	/**
+	 * Add a message either to the current chat or increment the notification counter
+	 * 
+	 * @param msg Message
+	 */
 	public void displayMsg(Message msg) {
 		Platform.runLater(() -> {
 			removeLiveMessage();
@@ -589,6 +641,11 @@ public class ChatsController {
 		});
 	}
 
+	/**
+	 * Change the image of the online indicator
+	 * 
+	 * @param state
+	 */
 	public void setOnlineStatus(String state) {
 		onlineStatusImg.setVisible(true);
 		switch (state) {
@@ -604,6 +661,11 @@ public class ChatsController {
 		}
 	}
 
+	/**
+	 * Closes the info dialogue pop up
+	 * 
+	 * @param event
+	 */
 	public void closeInfoDialogue(ActionEvent event) {
 		TranslateTransition hide = new TranslateTransition(Duration.millis(200), infoDialogue);
 		hide.setFromY(0);
@@ -611,6 +673,11 @@ public class ChatsController {
 		hide.play();
 	}
 
+	/**
+	 * Show the info dialogue with a text message
+	 * 
+	 * @param msg Text message
+	 */
 	public void showInfoDialogue(String msg) {
 		((Text) infoDialogue.getChildren().get(0)).setText(msg);
 		TranslateTransition show = new TranslateTransition(Duration.millis(200), infoDialogue);
@@ -619,15 +686,27 @@ public class ChatsController {
 		show.play();
 	}
 
+	/** testing method */
 	public void test1(ActionEvent event) {
 		System.out.println(2);
 	}
 
+	/** testing method */
 	public void buttonTest(MouseEvent event) {
 		MessageFx mFx = new MessageFx(chatViewScrollPane.getWidth());
 		addMessageAtBottom(mFx);
 		mFx.updateWriting("byee");
 		writingMsg = mFx;
+	}
+
+	/**
+	 * Display the name of the current user
+	 * 
+	 * @param name The name of the current user
+	 */
+	public void setNameTitle(String name) {
+	
+		nameTitle.setText(name);
 	}
 
 	/**
@@ -665,16 +744,6 @@ public class ChatsController {
 	 */
 	public void setProfilePic(Image img) {
 		userProfilePic.setImage(img);
-	}
-
-	public void removeLiveMessage() {
-		if (writingMsg != null) {
-			writingMsg.stopAnim();
-			Platform.runLater(() -> {
-				chatView.getChildren().remove(writingMsg.getPrimaryLayout());
-				writingMsg = null;
-			});
-		}
 	}
 
 }
