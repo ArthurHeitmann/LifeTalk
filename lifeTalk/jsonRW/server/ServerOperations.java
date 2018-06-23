@@ -3,6 +3,7 @@ package lifeTalk.jsonRW.server;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -85,7 +86,7 @@ public class ServerOperations {
 		uName2 = names[1];
 		String key = uName1 + ", " + uName2;
 		if (!chatsCache.containsKey(key))
-			getChat(uName1, uName2, 0);
+			getChat(uName1, uName2);
 
 		int currentState = chatsCache.get(key).get("index").getAsJsonObject().get("state").getAsInt();
 		String canBeEditedBy = chatsCache.get(key).get("index").getAsJsonObject().get("canbeEditedBy").getAsString();
@@ -263,14 +264,13 @@ public class ServerOperations {
 	 * 
 	 * @param uName1 User 1
 	 * @param uName2 User 2
-	 * @param start the beginning index of the first message
 	 * @return
 	 * @throws URISyntaxException
 	 * @throws IOException
 	 * @throws JsonSyntaxException
 	 */
-	public static JsonArray getChat(String uName1, String uName2, int start) throws JsonSyntaxException, IOException, URISyntaxException {
-		JsonArray chat20msgs = new JsonArray();
+	public static JsonArray getChat(String uName1, String uName2) throws JsonSyntaxException, IOException, URISyntaxException {
+		JsonArray chatMsgs = new JsonArray();
 		String[] tmpNames = sortNamesAlphabetically(uName1, uName2);
 		uName1 = tmpNames[0];
 		uName2 = tmpNames[1];
@@ -282,15 +282,18 @@ public class ServerOperations {
 		else {
 			//parse user chat from file
 			String path = ServerSideToClient.class.getResource("data/chats/").toExternalForm() + getChatId(uName1, uName2) + ".json";
-			File file = new File(path);
-			long timeoutStart = System.currentTimeMillis();
-			while (true) {
-				if (file.exists() || System.currentTimeMillis() - timeoutStart > 1000)
-					break;
-				try {
-					Thread.sleep(75);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+			File file = new File(new URI(path));
+			if (!file.getAbsoluteFile().exists()) {
+				long timeoutStart = System.currentTimeMillis();
+				while (true) {
+					System.out.print("waiting for file ");
+					if (file.getAbsoluteFile().exists() || System.currentTimeMillis() - timeoutStart > 1000)
+						break;
+					try {
+						Thread.sleep(75);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			userChat = new JsonParser().parse(//
@@ -299,14 +302,12 @@ public class ServerOperations {
 			chatsCache.put(key, userChat);
 		}
 		//get number of messages
-		int count = userChat.get("index").getAsJsonObject().get("count").getAsInt() - start;
-		if (count < 20 && start > 20)
-			return null;
+		int count = userChat.get("index").getAsJsonObject().get("count").getAsInt();
 		//add messages to the return json array
 		for (int i = 0; i < count; i++) {
-			chat20msgs.add(userChat.get(Integer.toString(count - i)));
+			chatMsgs.add(userChat.get(Integer.toString(count - i)));
 		}
-		return chat20msgs;
+		return chatMsgs;
 	}
 
 	public static void addMessageToChat(Message msg) {
@@ -319,7 +320,7 @@ public class ServerOperations {
 		jsonMsg.addProperty("time", new SimpleDateFormat("H:m").format(new Date(msg.date)));
 		try {
 			Thread.sleep(100);
-			getChat(msg.receiver, msg.sender, 0);
+			getChat(msg.receiver, msg.sender);
 		} catch (JsonSyntaxException | IOException | URISyntaxException | InterruptedException e) {
 			e.printStackTrace();
 		}

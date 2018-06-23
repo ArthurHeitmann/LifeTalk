@@ -191,6 +191,13 @@ public class ChatsController {
 		offline = new Image(this.getClass().getResource("resources/offline.png").toExternalForm());
 		statusUnknown = onlineStatusImg.getImage();
 
+		chatViewScrollPane.vvalueProperty().addListener((obsV, oldV, newV) -> {
+			if (newV.doubleValue() == 0 || selectedChatContact != null) {
+				int messageCount = chatView.getChildren().size() - 1;
+				//addMessages(pos, messages);
+			}
+		});
+
 		((Text) infoDialogue.getChildren().get(0)).wrappingWidthProperty().bind(infoDialogue.widthProperty().subtract(50));
 		hideFirstLoading.play();
 	}
@@ -399,7 +406,7 @@ public class ChatsController {
 	 */
 	private void swipeChat(String uName) {
 		try {
-			bsMsgs = serverCommunication.getMessages(uName, 0);
+			bsMsgs = serverCommunication.getMessages(uName);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -456,6 +463,11 @@ public class ChatsController {
 
 	public void addMessageAtBottom(MessageFx message) {
 		addMessages(chatView.getChildren().size(), new MessageFx[] { message });
+		if (chatViewScrollPane.getVvalue() == 1) {
+			PauseTransition wait = new PauseTransition(Duration.millis(100));
+			wait.setOnFinished((e) -> chatViewScrollPane.setVvalue(1));
+			wait.play();
+		}
 	}
 
 	private void addMessages(int pos, MessageFx[] messages) {

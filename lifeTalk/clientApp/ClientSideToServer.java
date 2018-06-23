@@ -169,7 +169,7 @@ public class ClientSideToServer {
 	 * @return Array of the last messages containing person, content, date/time
 	 * @throws IOException
 	 */
-	public MessageFx[] getMessages(String uName, int msgStartNum) throws IOException {
+	public MessageFx[] getMessages(String uName) throws IOException {
 		waitForComm();
 		communicationInProgress = true;
 		JsonArray messages;
@@ -177,7 +177,6 @@ public class ClientSideToServer {
 		//prompt server to get messages
 		write("getMsg");
 		write(uName);
-		write(Integer.toString(msgStartNum));
 		try {
 			//all messages are received in one JSON string
 			String line = (String) in.readObject();

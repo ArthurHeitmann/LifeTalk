@@ -9,11 +9,6 @@ import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import lifeTalk.jsonRW.FileRW;
 import lifeTalk.jsonRW.server.ServerStartupOperations;
 
 /**
@@ -25,17 +20,9 @@ import lifeTalk.jsonRW.server.ServerStartupOperations;
  */
 public class Server {
 	/**
-	 * An array of all users with their user names passwords etc.
-	 */
-	private static JsonArray loginsData;
-	/**
 	 * File location of the JSON file with the login data of the users
 	 */
 	private static final String JSONLOCATION = Server.class.getResource("data/logins.json").toExternalForm();
-	/**
-	 * Java representation of the JSON file with the user data
-	 */
-	private static JsonObject loginJson;
 
 	/**
 	 * @param args [0]: display exceptions or not (boolean); [1]: save messages or not
@@ -46,8 +33,6 @@ public class Server {
 		Info.setArgs(args);
 		//Create a server at port 2111
 		ServerSocket server = new ServerSocket(2111);
-		loginJson = new JsonParser().parse(FileRW.readFromFile(JSONLOCATION)).getAsJsonObject();
-		loginsData = loginJson.get("users").getAsJsonArray();
 		boolean connected = false;
 		System.out.println("Server running");
 		if (Boolean.parseBoolean(args[1]))

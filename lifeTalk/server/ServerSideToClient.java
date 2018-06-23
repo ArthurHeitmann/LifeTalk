@@ -111,11 +111,9 @@ public class ServerSideToClient implements Runnable {
 							InterClientCommunication.sendMsg(((Message) msgPart).receiver, "msgPart" + gson.toJson(msgPart));
 						break;
 					case "getMsg":
-						System.out.println(1);
 						String uName = (String) in.readObject();
 						selectedContact = uName;
-						int startNum = Integer.parseInt((String) in.readObject());
-						JsonArray tmpJA = ServerOperations.getChat(uName, username, startNum);
+						JsonArray tmpJA = ServerOperations.getChat(uName, username);
 						if (tmpJA == null)
 							write("ERROR");
 						write(tmpJA.toString());
@@ -144,8 +142,6 @@ public class ServerSideToClient implements Runnable {
 						InterClientCommunication.sendMsg(request.get("to").getAsString(), "newChat" + request.toString());
 						break;
 					case "getChatState":
-						System.out.println(username);
-						System.out.println(selectedContact);
 						write(ServerOperations.getChatState(username, selectedContact));
 						break;
 					case "setChatState":
