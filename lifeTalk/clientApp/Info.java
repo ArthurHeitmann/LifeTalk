@@ -15,7 +15,7 @@ public class Info {
 	/** The name of this application */
 	public static final String APPNAME = "Life_Talk";
 	/** Software version */
-	public static final String VERSION = "beta 1.0";
+	public static final String VERSION = "1.0";
 
 	/**
 	 * Initialize the command line arguments. Only allowed once
