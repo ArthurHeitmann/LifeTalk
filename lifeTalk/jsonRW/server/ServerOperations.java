@@ -46,15 +46,31 @@ public class ServerOperations {
 	 */
 	private static JsonArray chatPartners;
 
+	/**
+	 * Sends a contact/friend request to another user. A new chat (+ file) will be
+	 * created. Process will be terminated if the target does not exist, the target and
+	 * sender are the same user or they already have a chat.
+	 * 
+	 * @param from The person who sent the request
+	 * @param to The person who receives the request
+	 * @param msg An additianal message that will be added to the chat
+	 * 
+	 * @return False if 1. the target does not exist OR 2. from and to are equal OR 3.
+	 * they already have a chat OTHERWISE True
+	 * 
+	 * @throws JsonSyntaxException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public static boolean sendContactRequest(String from, String to, String msg) throws JsonSyntaxException, IOException, URISyntaxException {
-		String chatFolderLocation = Server.class.getResource("data/chats").toExternalForm() + "/";
-
-		if (!ServerStartupOperations.userExists(to) || from.equals(to))
+		if (!ServerStartupOperations.userExists(to) || from.equals(to) || getChatId(from, to) != -1)
 			return false;
+		String chatFolderLocation = Server.class.getResource("data/chats").toExternalForm() + "/";
 		String secondName = to;
 		String names[] = sortNamesAlphabetically(to, from);
 		from = names[0];
 		to = names[1];
+		//add contact to the chats index list/array
 		JsonObject chatIndex = new JsonObject();
 		JsonArray chatIndexArr = new JsonParser().parse(//
 				FileRW.readFromFile(chatFolderLocation + "index.json"))//
@@ -68,6 +84,7 @@ public class ServerOperations {
 		FileRW.writeToFile(chatFolderLocation + "index.json", //
 				new GsonBuilder().setPrettyPrinting().create().toJson(chatIndex));
 
+		//copy template chat file and replace place holders with usernames
 		FileRW.copyFile(chatFolderLocation + "template.json", //
 				chatFolderLocation + (chatIndexArr.size() - 1) + ".json");
 		String fileCont = FileRW.readFromFile(chatFolderLocation + "template.json");
@@ -79,6 +96,17 @@ public class ServerOperations {
 		return true;
 	}
 
+	/**
+	 * Change the chat state (-2 -> blocked, -1 -> declined, 0 -> undecided, 1 ->
+	 * accepted)
+	 * 
+	 * @param state The target state
+	 * @param uName1 The person who wants to do the changes
+	 * @param uName2 the target chat partner
+	 * 
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public static void setChatState(int state, String uName1, String uName2) throws IOException, URISyntaxException {
 		String firstUName = uName1;
 		String[] names = sortNamesAlphabetically(uName1, uName2);
@@ -89,30 +117,33 @@ public class ServerOperations {
 			getChat(uName1, uName2);
 
 		int currentState = chatsCache.get(key).get("index").getAsJsonObject().get("state").getAsInt();
+		//the person who can change the state (i. e. the person who sent the friend request cannot accept it for some one else)
 		String canBeEditedBy = chatsCache.get(key).get("index").getAsJsonObject().get("canbeEditedBy").getAsString();
-
-		if (currentState == 1) {
-			if (state == -2) {
-				chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", -2);
-				chatsCache.get(key).get("index").getAsJsonObject().addProperty("canbeEditedBy", firstUName);
-			}
+		//if state is 1 both have the option to block the other user
+		if (currentState == 1 && state == -2) {
+			chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", -2);
+			chatsCache.get(key).get("index").getAsJsonObject().addProperty("canbeEditedBy", firstUName);
 		} else {
+			//check whether the user is allowed to change the state
 			if (canBeEditedBy.equals(firstUName)) {
 				switch (currentState) {
+					//if UNDECIDED the user can allow or decline the request
 					case 0:
 						if (state == 1 || state == -1) {
 							chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", state);
 							chatsCache.get(key).get("index").getAsJsonObject().addProperty("canbeEditedBy", firstUName);
 						}
 						break;
+					//if DECLINED the user can either accept the user or block him entirely
 					case -1:
 						if (state == 1 || state == -2) {
 							chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", state);
 							chatsCache.get(key).get("index").getAsJsonObject().addProperty("canbeEditedBy", firstUName);
 						}
 						break;
+					//if BLOCKED the user can ublock the chat again
 					case -2:
-						if (state == -2) {
+						if (state == 1) {
 							chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", 1);
 							chatsCache.get(key).get("index").getAsJsonObject().addProperty("canbeEditedBy", firstUName);
 						}
@@ -124,6 +155,15 @@ public class ServerOperations {
 		chatsCache.get(key).get("index").getAsJsonObject().addProperty("state", state);
 	}
 
+	/**
+	 * Returns a combination of the chat state and the person who is allowed to edit it
+	 * (state + " " + thePerson).
+	 * 
+	 * @param uName1 Username 1
+	 * @param uName2 Username 1
+	 * @return Combination of the state (int) and the person allow to edit it (int + " " +
+	 * string)
+	 */
 	public static String getChatState(String uName1, String uName2) {
 		String[] names = sortNamesAlphabetically(uName1, uName2);
 		uName1 = names[0];
@@ -294,7 +334,8 @@ public class ServerOperations {
 					try {
 						Thread.sleep(75);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						if (Boolean.parseBoolean(Info.getArgs()[0]))
+							e.printStackTrace();
 					}
 				}
 			}
@@ -312,6 +353,11 @@ public class ServerOperations {
 		return chatMsgs;
 	}
 
+	/**
+	 * Adds a message to the chat associated with it.
+	 * 
+	 * @param msg The message
+	 */
 	public static void addMessageToChat(Message msg) {
 		String[] names = sortNamesAlphabetically(msg.sender, msg.receiver);
 		String key = names[0] + ", " + names[1];
@@ -320,11 +366,13 @@ public class ServerOperations {
 		jsonMsg.addProperty("textContent", msg.content);
 		jsonMsg.addProperty("date", new SimpleDateFormat("d.M.y").format(new Date(msg.date)));
 		jsonMsg.addProperty("time", new SimpleDateFormat("H:m").format(new Date(msg.date)));
-		try {
-			Thread.sleep(100);
-			getChat(msg.receiver, msg.sender);
-		} catch (JsonSyntaxException | IOException | URISyntaxException | InterruptedException e) {
-			e.printStackTrace();
+		if (!chatsCache.containsKey(key)) {
+			try {
+				getChat(msg.receiver, msg.sender);
+			} catch (JsonSyntaxException | IOException | URISyntaxException e) {
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
+			}
 		}
 		int count = chatsCache.get(key).get("index").getAsJsonObject().get("count").getAsInt() + 1;
 		chatsCache.get(key).add(Integer.toString(count), //
@@ -332,6 +380,13 @@ public class ServerOperations {
 		chatsCache.get(key).get("index").getAsJsonObject().addProperty("count", count);
 	}
 
+	/**
+	 * Takes two strings as an input in returns them in an array sorted alphabetically.
+	 * 
+	 * @param uName1 Username 1
+	 * @param uName2 Username 2
+	 * @return alphabetically sorted string array of the two usernames
+	 */
 	private static String[] sortNamesAlphabetically(String uName1, String uName2) {
 		int i = 0;
 		while (true) {
@@ -356,17 +411,22 @@ public class ServerOperations {
 		return new String[] { uName1, uName2 };
 	}
 
+	/**
+	 * Get all the profile images from the usernames associated with that id
+	 * 
+	 * @param ids Array of all chat IDs
+	 * @param uName The user that wants to receive the images
+	 * @return Array of images
+	 */
 	public static BufferedImage[] getImagesFromId(int[] ids, String uName) {
 		BufferedImage[] images = new BufferedImage[ids.length];
 		int i = 0;
 		for (int id : ids) {
+			//get both users that are in that chat
 			String p1 = chatPartners.get(id).getAsJsonArray().get(0).getAsString();
 			String p2 = chatPartners.get(id).getAsJsonArray().get(1).getAsString();
 			try {
-				/*String subPath = "data/userInfo/" + (p1.equals(uName) ? p2 : p1) + ".png";
-				String path = Server.class.getResource(".").toExternalForm();
-				//String pathS = path.toExternalForm();
-				URL tmpURL = new URL(path + subPath);*/
+				//get the profile image of the user that is not the initial user (uName)
 				images[i] = ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + (p1.equals(uName) ? p2 : p1) + ".png").toExternalForm()));
 			} catch (IOException e) {
 				if (Boolean.parseBoolean(Info.getArgs()[0]))
@@ -379,6 +439,12 @@ public class ServerOperations {
 		return images;
 	}
 
+	/**
+	 * Returns all cached chats. Used to save the changes to a file from a different
+	 * thread
+	 * 
+	 * @return the cached chat
+	 */
 	public static HashMap<String, JsonObject> getChatCache() {
 		return chatsCache;
 	}

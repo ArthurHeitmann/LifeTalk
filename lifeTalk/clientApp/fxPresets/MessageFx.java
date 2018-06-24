@@ -13,6 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+import lifeTalk.clientApp.Info;
 
 /**
  * This class represents one message which can be displayed. It contains the messages
@@ -224,7 +225,8 @@ public class MessageFx {
 				try {
 					Thread.sleep(REFRESHRATE);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					if (Boolean.parseBoolean(Info.getArgs()[0]))
+						e.printStackTrace();
 				}
 			}
 		}).start();
@@ -253,7 +255,8 @@ public class MessageFx {
 		try {
 			Thread.sleep(REFRESHRATE);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		}
 	}
 

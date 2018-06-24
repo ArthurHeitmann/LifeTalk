@@ -9,10 +9,11 @@ import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import lifeTalk.clientApp.Info;
 import lifeTalk.jsonRW.server.ServerStartupOperations;
 
 /**
- * This class with it's subclass establishes connections with clients and than either logs
+ * This class with it's subclass establishes connections with clients and then either logs
  * them in or registers them to the server.
  * 
  * @author Arthur H.
@@ -26,7 +27,7 @@ public class Server {
 
 	/**
 	 * @param args [0]: display exceptions or not (boolean); [1]: save messages or not
-	 * (boolean)
+	 * (boolean) [2]: the intervals when to save the cached chats
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
@@ -39,8 +40,8 @@ public class Server {
 			new Thread(new BackgroundService()).start();
 		while (true) {
 			try {
-				//Wait for a connection with a client and than start a 
-				//new thread to manage the client and than keep waiting for new connections
+				//Wait for a connection with a client and then start a 
+				//new thread to manage the client and then keep waiting for new connections
 				new CLientHandler(server.accept()).start();
 				connected = true;
 			} catch (IOException e) {
@@ -85,7 +86,7 @@ public class Server {
 		}
 
 		/**
-		 * This method get's called once the initialization is completed and than waits
+		 * This method get's called once the initialization is completed and then waits
 		 * for the user to request a login or register a new account
 		 */
 		@Override
@@ -234,7 +235,8 @@ public class Server {
 
 			} catch (NoSuchAlgorithmException e) {
 				//shouldn't occur
-				e.printStackTrace();
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
 				return stringToHash;
 			}
 		}

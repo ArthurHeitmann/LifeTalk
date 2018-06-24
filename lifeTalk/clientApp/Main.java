@@ -27,7 +27,7 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.setTitle(Info.APPNAME + " - " + Info.VERSION);
 			primaryStage.show();
-			//If user previously enabled auto connecting to the server than try to connect to the server automatically
+			//If user previously enabled auto connecting to the server then try to connect to the server automatically
 			Platform.runLater(() -> {
 				if (ClientStartupOperations.isAutoConnectActive()) {
 					String srvAdr = ClientStartupOperations.getServerAddr();
@@ -46,7 +46,8 @@ public class Main extends Application {
 	/**
 	 * start the GUI and save the command line arguments
 	 * 
-	 * @param args command line arguments
+	 * @param args command line arguments </br>
+	 * [0]: display exceptions or not (boolean); [1]: update interval in milliseconds
 	 */
 	public static void main(String[] args) {
 		Info.setArgs(args);

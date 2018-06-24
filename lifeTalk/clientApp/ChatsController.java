@@ -186,7 +186,8 @@ public class ChatsController {
 					serverCommunication.setBlocking(false);
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				if (Boolean.parseBoolean(Info.getArgs()[0]))
+					e.printStackTrace();
 				serverCommunication.setBlocking(false);
 			}
 		};
@@ -361,7 +362,9 @@ public class ChatsController {
 			serverCommunication.write("setChatState");
 			serverCommunication.write(state);
 		} catch (IOException e) {
-			e.printStackTrace();
+			showInfoDialogue(e.getMessage());
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		}
 		serverCommunication.setBlocking(false);
 		changeChatState(state + " " + nameTitle.getText());
@@ -593,7 +596,8 @@ public class ChatsController {
 			serverCommunication.write(new Message(text, System.currentTimeMillis(), nameTitle.getText(), selectedChatContact, true));
 		} catch (IOException e) {
 			showInfoDialogue(e.getMessage());
-			e.printStackTrace();
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		}
 		serverCommunication.setBlocking(false);
 		addMessageAtBottom(new MessageFx(msgInp.getText(), true, new Date(), chatViewScrollPane.getWidth()));
@@ -679,19 +683,38 @@ public class ChatsController {
 	 * @param msg Text message
 	 */
 	public void showInfoDialogue(String msg) {
-		((Text) infoDialogue.getChildren().get(0)).setText(msg);
-		TranslateTransition show = new TranslateTransition(Duration.millis(200), infoDialogue);
-		show.setFromY(infoDialogue.getHeight());
-		show.setToY(0);
-		show.play();
+		if (Platform.isFxApplicationThread()) {
+			((Text) infoDialogue.getChildren().get(0)).setText(msg);
+			TranslateTransition show = new TranslateTransition(Duration.millis(200), infoDialogue);
+			show.setFromY(infoDialogue.getHeight());
+			show.setToY(0);
+			show.play();
+		} else {
+			Platform.runLater(() -> {
+				((Text) infoDialogue.getChildren().get(0)).setText(msg);
+				TranslateTransition show = new TranslateTransition(Duration.millis(200), infoDialogue);
+				show.setFromY(infoDialogue.getHeight());
+				show.setToY(0);
+				show.play();
+			});
+		}
+
 	}
 
-	/** testing method */
+	/**
+	 * testing method
+	 * 
+	 * @param event
+	 */
 	public void test1(ActionEvent event) {
 		System.out.println(2);
 	}
 
-	/** testing method */
+	/**
+	 * testing method
+	 * 
+	 * @param event
+	 */
 	public void buttonTest(MouseEvent event) {
 		MessageFx mFx = new MessageFx(chatViewScrollPane.getWidth());
 		addMessageAtBottom(mFx);
@@ -705,7 +728,7 @@ public class ChatsController {
 	 * @param name The name of the current user
 	 */
 	public void setNameTitle(String name) {
-	
+
 		nameTitle.setText(name);
 	}
 

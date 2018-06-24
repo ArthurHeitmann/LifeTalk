@@ -7,7 +7,10 @@ package lifeTalk.clientApp;
  *
  */
 public class Info {
-	/** command line arguments */
+	/**
+	 * command line arguments </br>
+	 * [0]: display exceptions or not (boolean); [1]: update interval in milliseconds
+	 */
 	private static String[] args;
 	/** The name of this application */
 	public static final String APPNAME = "Life_Talk";

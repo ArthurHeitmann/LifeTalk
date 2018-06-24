@@ -38,6 +38,7 @@ public class ServerSideToClient implements Runnable {
 	private String username;
 	/** list of updates like new messages or similar */
 	private ArrayList<String> updates = new ArrayList<>();
+	/** The contact/chat the client has currently selected */
 	private String selectedContact;
 
 	/**
@@ -56,27 +57,28 @@ public class ServerSideToClient implements Runnable {
 	}
 
 	/**
-	 * Main infinite method of this thread. Receives text from the user and than sends
-	 * info back.
+	 * Main infinite method of this thread. Receives text from the user, parses it and
+	 * then sends info back.
 	 */
 	@Override
 	public void run() {
 		System.out.println("User connected to new server socket");
 		Gson gson = new Gson();
-		//init
+		//init | give the user basic infos
 		initLoop: while (true) {
 			try {
-				//client text prompt
 				String action = (String) in.readObject();
 				if (action == null) {
 					closeAllConnections();
 					return;
 				}
 				switch (action) {
+					//General information of this user
 					case "GetUserInfo":
 						write(gson.toJson(ServerOperations.getUserInfo(this.getClass().getResource("data/userInfo/").toExternalForm(), username)));
 						serializeImg(ImageIO.read(new URL(Server.class.getResource("data/userInfo/" + username + ".png").toExternalForm())));
 						break;
+					//list of chats the user has | last task than stop this loop
 					case "GetChatContacts":
 						sendContactList();
 						break initLoop;
@@ -92,7 +94,7 @@ public class ServerSideToClient implements Runnable {
 			}
 		}
 		System.out.println("init completed");
-		//forever loop
+		//infinite loop
 		while (true) {
 			try {
 				String action = (String) in.readObject();
@@ -100,9 +102,11 @@ public class ServerSideToClient implements Runnable {
 					throw new IOException();
 
 				switch (action) {
+					//check for new updates
 					case "GETUPDATES":
 						handleUpdates();
 						break;
+					//life message / message is currently being written, so it get's continuously send to the target user
 					case "msgPart":
 						Object msgPart = in.readObject();
 						if (msgPart.getClass().getName().equals("java.lang.String"))
@@ -110,6 +114,7 @@ public class ServerSideToClient implements Runnable {
 						else
 							InterClientCommunication.sendMsg(((Message) msgPart).receiver, "msgPart" + gson.toJson(msgPart));
 						break;
+					//get all messages from one chat
 					case "getMsg":
 						String uName = (String) in.readObject();
 						selectedContact = uName;
@@ -118,11 +123,13 @@ public class ServerSideToClient implements Runnable {
 							write("ERROR");
 						write(tmpJA.toString());
 						break;
+					//send a message to another user
 					case "sendMsg":
 						Message msg = (Message) in.readObject();
 						InterClientCommunication.sendMsg(msg.receiver, "msgFrom" + gson.toJson(msg));
 						ServerOperations.addMessageToChat(msg);
 						break;
+					//send a contact request to another user
 					case "contactRequest":
 						JsonObject request = new JsonObject();
 						String to = (String) in.readObject();
@@ -141,9 +148,11 @@ public class ServerSideToClient implements Runnable {
 								System.currentTimeMillis(), username, to, true));
 						InterClientCommunication.sendMsg(request.get("to").getAsString(), "newChat" + request.toString());
 						break;
+					//get the state of a chat
 					case "getChatState":
 						write(ServerOperations.getChatState(username, selectedContact));
 						break;
+					//try to change a chats state
 					case "setChatState":
 						int state = (Integer) in.readObject();
 						ServerOperations.setChatState(state, username, selectedContact);
@@ -152,7 +161,7 @@ public class ServerSideToClient implements Runnable {
 				}
 
 			} catch (ClassNotFoundException | IOException | URISyntaxException e) {
-				if (e.getClass().getName() != "java.net.SocketException")
+				if (e.getClass().getName() != "java.net.SocketException" && Boolean.parseBoolean(Info.getArgs()[0]))
 					e.printStackTrace();
 				closeAllConnections();
 				break;
@@ -193,6 +202,11 @@ public class ServerSideToClient implements Runnable {
 		updates.clear();
 	}
 
+	/**
+	 * Send an image to the client in an byte array
+	 * 
+	 * @param img Image
+	 */
 	private void serializeImg(BufferedImage img) {
 		try {
 			ByteArrayOutputStream bStream = new ByteArrayOutputStream();
@@ -264,6 +278,11 @@ public class ServerSideToClient implements Runnable {
 		out.flush();
 	}
 
+	/**
+	 * Adds a task received from another user to the update queue
+	 * 
+	 * @param task Task
+	 */
 	public void addToUpdateQueue(String task) {
 		updates.add(task);
 	}

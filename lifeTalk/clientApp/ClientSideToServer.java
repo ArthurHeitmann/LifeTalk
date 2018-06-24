@@ -115,7 +115,9 @@ public class ClientSideToServer {
 			write(msg);
 			result = (String) in.readObject();
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			controller.showInfoDialogue("A problem occured while starting: " + e.getMessage());
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		}
 		communicationInProgress = false;
 		return result.equals("SENT");
@@ -164,7 +166,9 @@ public class ClientSideToServer {
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			controller.showInfoDialogue("A problem occured while starting: " + e.getMessage());
+			if (Boolean.parseBoolean(Info.getArgs()[0]))
+				e.printStackTrace();
 		}
 		communicationInProgress = false;
 		updateRunning = false;
@@ -205,6 +209,7 @@ public class ClientSideToServer {
 			communicationInProgress = false;
 			return messageFxs.toArray(new MessageFx[messageFxs.size()]);
 		} catch (IOException | ParseException | ClassNotFoundException e) {
+			controller.showInfoDialogue("A problem occured while starting: " + e.getMessage());
 			if (Boolean.parseBoolean(Info.getArgs()[0]))
 				e.printStackTrace();
 			communicationInProgress = false;
@@ -289,6 +294,7 @@ public class ClientSideToServer {
 			communicationInProgress = false;
 			return new JsonParser().parse((String) in.readObject()).getAsJsonObject();
 		} catch (IOException | JsonSyntaxException | ClassNotFoundException e) {
+			controller.showInfoDialogue("A problem occured while starting: " + e.getMessage());
 			if (Boolean.parseBoolean(Info.getArgs()[0]))
 				e.printStackTrace();
 			communicationInProgress = false;
@@ -308,7 +314,7 @@ public class ClientSideToServer {
 	/**
 	 * Send an object, that can be serialized, to the server
 	 * 
-	 * @param msg The text message for the server
+	 * @param obj A serializable object
 	 * @throws IOException
 	 */
 	public synchronized void write(Object obj) throws IOException {
@@ -330,6 +336,7 @@ public class ClientSideToServer {
 			ByteArrayInputStream bStream = new ByteArrayInputStream(imgBytes);
 			buffImg = ImageIO.read(bStream);
 		} catch (IOException | ClassNotFoundException e) {
+			controller.showInfoDialogue("A problem occured while starting: " + e.getMessage());
 			if (Boolean.parseBoolean(Info.getArgs()[0]))
 				e.printStackTrace();
 		}

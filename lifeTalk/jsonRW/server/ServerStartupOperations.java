@@ -44,7 +44,7 @@ public class ServerStartupOperations {
 	}
 
 	/**
-	 * Try to log a user in. Search the array for the user name and than check if the
+	 * Try to log a user in. Search the array for the user name and then check if the
 	 * given password matches the one in the file
 	 * 
 	 * @param uName Username of the user
@@ -68,7 +68,7 @@ public class ServerStartupOperations {
 	}
 
 	/**
-	 * First check whether the user name already exists or not and than create a new user
+	 * First check whether the user name already exists or not and then create a new user
 	 * account.
 	 * 
 	 * @param usrName Username
@@ -100,6 +100,12 @@ public class ServerStartupOperations {
 		return true;
 	}
 
+	/**
+	 * Tells whether a user is registered to this server
+	 * 
+	 * @param uName The username
+	 * @return True: the user is registered; False: The user is not registered
+	 */
 	public static boolean userExists(String uName) {
 		for (int i = 0; i < loginsData.size(); i++) {
 			if (((JsonObject) loginsData.get(i)).get("name").getAsString().equals(uName)) {
