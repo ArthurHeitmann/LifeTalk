@@ -1,0 +1,46 @@
+{
+  "index": {
+    "count": 6,
+    "lastuser": "user1",
+    "contact1": "3rdUser_",
+    "contact2": "user1",
+    "canbeEditedBy": "user1",
+    "state": 0
+  },
+  "1": {
+    "user": "user1",
+    "textContent": "Hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+    "date": "25.8.2018",
+    "time": "12:31"
+  },
+  "2": {
+    "user": "user1",
+    "textContent": "Why is it still crashing?",
+    "date": "25.8.2018",
+    "time": "12:33"
+  },
+  "3": {
+    "user": "3rdUser_",
+    "textContent": "Are you still alive?",
+    "date": "25.8.2018",
+    "time": "12:33"
+  },
+  "4": {
+    "user": "user1",
+    "textContent": "aparently",
+    "date": "25.8.2018",
+    "time": "12:33"
+  },
+  "5": {
+    "user": "3rdUser_",
+    "textContent": "so it was just a strange bug",
+    "date": "25.8.2018",
+    "time": "12:34"
+  },
+  "6": {
+    "user": "user1",
+    "textContent": "probably bb",
+    "date": "25.8.2018",
+    "time": "12:34"
+  }
+}

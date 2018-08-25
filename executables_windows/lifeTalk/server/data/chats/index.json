@@ -1,0 +1,20 @@
+{
+  "chatUsers": [
+    [
+      "admin",
+      "user1"
+    ],
+    [
+      "arthurTest",
+      "user1"
+    ],
+    [
+      "3rdUser_",
+      "user1"
+    ],
+    [
+      "3rdUser_",
+      "arthurTest"
+    ]
+  ]
+}

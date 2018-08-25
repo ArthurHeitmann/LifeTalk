@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@chats.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lifeTalk.clientApp.ChatsController">
+   <children>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#616161" height="800.0" stroke="TRANSPARENT" strokeType="INSIDE" width="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <HBox fx:id="mainLayout" layoutX="17.0" layoutY="9.0" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox id="alpha" maxWidth="400.0" prefHeight="200.0" prefWidth="400.0" HBox.hgrow="NEVER">
+               <children>
+                  <VBox prefHeight="137.0" prefWidth="400.0" VBox.vgrow="NEVER">
+                     <children>
+                        <HBox id="topBar" maxHeight="76.0" minHeight="76.0" VBox.vgrow="NEVER">
+                           <children>
+                              <ImageView fx:id="userProfilePic" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                                 <HBox.margin>
+                                    <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                 </HBox.margin>
+                              </ImageView>
+                              <Label fx:id="nameTitle" prefHeight="52.0" prefWidth="411.0" styleClass="smooth" textFill="#20ad25">
+                                 <font>
+                                    <Font name="Alcubierre" size="38.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets bottom="12.0" left="20.0" top="12.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Pane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                              <HBox onMouseClicked="#buttonTest" spacing="6.0">
+                                 <HBox.margin>
+                                    <Insets bottom="11.0" right="15.0" top="11.0" />
+                                 </HBox.margin>
+                                 <children>
+                                    <Circle fill="#616161" radius="4.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                                    <Circle fill="#616161" layoutX="16.0" layoutY="16.0" radius="4.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                                    <Circle fill="#616161" layoutX="28.0" layoutY="16.0" radius="4.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="23.0" left="9.0" right="9.0" top="23.0" />
+                                 </padding>
+                              </HBox>
+                           </children>
+                        </HBox>
+                        <TextField id="search1" fx:id="chatSearch" minHeight="36.0" prefHeight="79.0" prefWidth="400.0" promptText="🔎 Search Chats and Contact" VBox.vgrow="NEVER">
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="15.0" right="15.0" top="15.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font name="Alcubierre" size="16.0" />
+                           </font>
+                        </TextField>
+                     </children>
+                  </VBox>
+                  <ScrollPane id="alpha" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="400.0" scaleX="1.01" style="-fx-background-color: #616161;" VBox.vgrow="ALWAYS">
+                     <content>
+                        <VBox id="alpha" fx:id="chatList" minWidth="-Infinity" prefWidth="400.0" style="-fx-background-color: transparent;" />
+                     </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+            <VBox id="bg" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox id="topBar" fx:id="chatHeader" minHeight="76.0" prefHeight="76.0" prefWidth="800.0" VBox.vgrow="NEVER">
+                     <children>
+                        <ImageView fx:id="chatPImg" fitHeight="100.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <HBox.margin>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                           </HBox.margin>
+                        </ImageView>
+                        <VBox prefHeight="76.0" prefWidth="627.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <HBox>
+                                 <children>
+                                    <Label fx:id="chatPName" styleClass="smooth">
+                                       <font>
+                                          <Font name="Alcubierre" size="26.0" />
+                                       </font>
+                                       <HBox.margin>
+                                          <Insets top="8.0" />
+                                       </HBox.margin>
+                                    </Label>
+                                    <Pane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                                    <ImageView fx:id="onlineStatusImg" fitHeight="26.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                                       <image>
+                                          <Image url="@resources/onlineOffline_anim.gif" />
+                                       </image>
+                                       <HBox.margin>
+                                          <Insets left="10.0" top="16.0" />
+                                       </HBox.margin>
+                                    </ImageView>
+                                 </children>
+                              </HBox>
+                              <HBox>
+                                 <children>
+                                    <Label fx:id="chatPInfo" styleClass="smooth">
+                                       <font>
+                                          <Font name="Alcubierre" size="19.0" />
+                                       </font>
+                                    </Label>
+                                    <Pane HBox.hgrow="ALWAYS" />
+                                 </children>
+                              </HBox>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="13.0" right="30.0" />
+                           </HBox.margin>
+                        </VBox>
+                        <ImageView fx:id="chatStateArrow" fitHeight="13.0" fitWidth="35.0" onMouseClicked="#displayChatStates" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@resources/arrow_down_flat.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets bottom="20.0" right="30.0" top="30.0" />
+                           </HBox.margin>
+                        </ImageView>
+                     </children>
+                  </HBox>
+                  <HBox fx:id="chatState" alignment="CENTER" spacing="75.0" styleClass="contactReqParent" VBox.vgrow="NEVER">
+                     <children>
+                        <Button id="acceptBtn" fx:id="acceptBtn" mnemonicParsing="false" onAction="#chatStateUserInput" styleClass="btnType3" text="Accept" textOverrun="CLIP">
+                           <font>
+                              <Font name="Alcubierre" size="20.0" />
+                           </font>
+                        </Button>
+                        <Separator orientation="VERTICAL" />
+                        <Button id="declineBtn" fx:id="declineBtn" layoutX="227.0" layoutY="10.0" mnemonicParsing="false" onAction="#chatStateUserInput" styleClass="btnType3" text="Decline" textOverrun="CLIP">
+                           <font>
+                              <Font name="Alcubierre" size="20.0" />
+                           </font>
+                        </Button>
+                        <Separator orientation="VERTICAL" />
+                        <Button id="blockBtn" fx:id="blockBtn" mnemonicParsing="false" onAction="#chatStateUserInput" styleClass="btnType3" text="Block" textOverrun="CLIP">
+                           <font>
+                              <Font name="Alcubierre" size="20.0" />
+                           </font>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                     </padding>
+                     <effect>
+                        <DropShadow color="#0000002c" height="26.93" offsetY="9.0" radius="11.4825" />
+                     </effect>
+                  </HBox>
+                  <StackPane VBox.vgrow="ALWAYS">
+                     <children>
+                        <ScrollPane id="alpha" fx:id="chatViewScrollPane" fitToWidth="true" hbarPolicy="NEVER" pannable="true" vbarPolicy="NEVER">
+                           <content>
+                              <VBox fx:id="chatView" alignment="TOP_CENTER" fillWidth="false" minWidth="150.0" spacing="13.0">
+                                 <padding>
+                                    <Insets right="25.0" />
+                                 </padding>
+                              </VBox>
+                           </content>
+                        </ScrollPane>
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="20.0" left="70.0" right="45.0" top="20.0" />
+                     </padding>
+                  </StackPane>
+                  <HBox prefHeight="68.0" prefWidth="800.0" VBox.vgrow="NEVER">
+                     <children>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@resources/arrow_triangle.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets bottom="12.0" left="15.0" top="13.0" />
+                           </HBox.margin>
+                           <effect>
+                              <DropShadow />
+                           </effect>
+                        </ImageView>
+                        <TextField fx:id="msgInp" editable="false" prefHeight="46.0" prefWidth="656.0" promptText="Enter message" style="-fx-background-color: #565656; -fx-prompt-text-fill: white; -fx-text-inner-color: white;" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets bottom="12.0" left="15.0" top="10.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font name="Alcubierre" size="20.0" />
+                           </font>
+                        </TextField>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" onMouseClicked="#sendMessage" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@resources/sendMsg_button.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets bottom="12.0" left="15.0" right="15.0" top="13.0" />
+                           </HBox.margin>
+                           <effect>
+                              <DropShadow />
+                           </effect>
+                        </ImageView>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@resources/file_upload.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets bottom="12.0" left="15.0" right="15.0" top="13.0" />
+                           </HBox.margin>
+                           <effect>
+                              <DropShadow />
+                           </effect>
+                        </ImageView>
+                     </children>
+                  </HBox>
+               </children>
+               <effect>
+                  <DropShadow blurType="TWO_PASS_BOX" color="#000000d0" height="0.0" radius="8.4575" width="35.83" />
+               </effect>
+            </VBox>
+         </children>
+      </HBox>
+      <VBox fx:id="infoDialogue" prefHeight="125.0" prefWidth="100.0" spacing="10.0" style="-fx-background-color: #262626;" translateY="125.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+         <children>
+            <Text fill="#28d62e" strokeType="OUTSIDE" strokeWidth="0.0" VBox.vgrow="ALWAYS">
+               <font>
+                  <Font name="Alcubierre" size="30.0" />
+               </font>
+            </Text>
+            <Button id="infoBtn" mnemonicParsing="false" onAction="#closeInfoDialogue" prefHeight="35.0" prefWidth="80.0" style="-fx-background-insets: 0;" text="OK" textFill="#f5f5f5">
+               <font>
+                  <Font name="Alcubierre" size="18.0" />
+               </font>
+            </Button>
+         </children>
+         <padding>
+            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+         </padding>
+      </VBox>
+      <VBox id="topBar" layoutX="180.0" layoutY="2.0" spacing="8.0" visible="false" AnchorPane.leftAnchor="180.0" AnchorPane.topAnchor="2.0">
+         <effect>
+            <DropShadow color="#0000008b" height="44.72" radius="19.6375" width="35.83" />
+         </effect>
+         <children>
+            <Label text="Change status" VBox.vgrow="ALWAYS">
+               <font>
+                  <Font name="Alcubierre" size="21.0" />
+               </font>
+            </Label>
+            <Line endX="202.0" stroke="#b5b5b5" VBox.vgrow="ALWAYS" />
+            <Label layoutX="18.0" layoutY="18.0" text="Change profile image">
+               <font>
+                  <Font name="Alcubierre" size="21.0" />
+               </font>
+            </Label>
+            <Line endX="202.0" layoutX="19.0" layoutY="54.0" stroke="#b5b5b5" />
+            <Label layoutX="18.0" layoutY="18.0" text="Settings">
+               <font>
+                  <Font name="Alcubierre" size="21.0" />
+               </font>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </padding>
+      </VBox>
+      <StackPane layoutX="334.0" layoutY="736.0" maxHeight="50.0" maxWidth="50.0" minHeight="50.0" minWidth="50.0" onMouseClicked="#makeNewContactRequest" prefHeight="50.0" prefWidth="50.0" styleClass="addContact" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="334.0">
+         <children>
+            <Rectangle arcHeight="3.0" arcWidth="3.0" height="20.0" stroke="TRANSPARENT" strokeType="INSIDE" strokeWidth="0.0" width="2.0" />
+            <Rectangle arcHeight="3.0" arcWidth="3.0" height="2.0" layoutX="34.0" layoutY="20.0" stroke="TRANSPARENT" strokeType="INSIDE" strokeWidth="0.0" width="20.0" />
+         </children>
+      </StackPane>
+      <StackPane pickOnBounds="false" prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox fx:id="contactRequest" maxHeight="250.0" maxWidth="500.0" opacity="0.0" spacing="10.0" style="-fx-background-color: #e2e2e2;" visible="false">
+               <effect>
+                  <DropShadow color="#0000009f" height="40.0" offsetY="8.0" radius="19.5" width="40.0" />
+               </effect>
+               <children>
+                  <HBox>
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Search for a user">
+                           <font>
+                              <Font name="Alcubierre" size="22.0" />
+                           </font>
+                        </Text>
+                        <Pane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="contactRDialogueCloseBtn" mnemonicParsing="false" styleClass="btnType2" text="🞩" translateX="35.0" translateY="-35.0" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <TextField fx:id="contactRTField1" promptText="Enter username" style="-fx-background-radius: 5px; -fx-border-width: 0; -fx-text-box-border: transparent; -fx-background-color: #656565; -fx-prompt-text-fill: white; -fx-text-inner-color: white;">
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </padding>
+                     <font>
+                        <Font name="Alcubierre" size="17.0" />
+                     </font>
+                  </TextField>
+                  <TextField fx:id="contactRTField2" layoutX="60.0" layoutY="98.0" promptText="(optional) Enter additional message" style="-fx-background-radius: 5px; -fx-border-width: 0; -fx-text-box-border: transparent; -fx-background-color: #656565; -fx-prompt-text-fill: white; -fx-text-inner-color: white;">
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </padding>
+                     <font>
+                        <Font name="Alcubierre" size="17.0" />
+                     </font>
+                  </TextField>
+                  <HBox>
+                     <children>
+                        <Text fx:id="contactRResult" strokeType="OUTSIDE" strokeWidth="0.0">
+                           <font>
+                              <Font name="Alcubierre" size="17.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="7.0" top="7.0" />
+                           </HBox.margin>
+                        </Text>
+                        <Pane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="contactRequestBtn" mnemonicParsing="false" styleClass="btnType1" text="Send request">
+                           <font>
+                              <Font name="Alcubierre" size="16.0" />
+                           </font>
+                        </Button>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="30.0" />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+               </padding>
+            </VBox>
+            <StackPane fx:id="fullScreenLoading" prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: #3d3d3d;">
+               <children>
+                  <ImageView fitHeight="231.0" fitWidth="241.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@resources/loading_v3.gif" />
+                     </image>
+                  </ImageView>
+                  <Text fill="#dddddd" strokeType="OUTSIDE" strokeWidth="0.0" text="loading..." translateY="150.0">
+                     <font>
+                        <Font name="Alcubierre" size="55.0" />
+                     </font>
+                  </Text>
+               </children>
+            </StackPane>
+         </children>
+      </StackPane>
+   </children>
+</AnchorPane>

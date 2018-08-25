@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #e5e5e5;" stylesheets="@application.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lifeTalk.clientApp.LoginController">
+   <children>
+      <Pane layoutX="-10.0" prefHeight="800.0" prefWidth="400" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-10.0" AnchorPane.topAnchor="0.0">
+         <effect>
+            <DropShadow blurType="TWO_PASS_BOX" color="#2b2b2bad" height="0.0" radius="18.0925" spread="0.29" width="74.37" />
+         </effect>
+         <children>
+            <GridPane layoutY="14.0" prefHeight="523.0" prefWidth="340.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="165.0" minWidth="10.0" prefWidth="32.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="311.0" minWidth="10.0" prefWidth="109.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="311.0" minWidth="10.0" prefWidth="156.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="311.0" minWidth="10.0" prefWidth="89.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="314.0" minHeight="6.0" prefHeight="78.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="464.0" minHeight="7.0" prefHeight="77.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="589.0" minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="589.0" minHeight="10.0" prefHeight="203.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="610.0" minHeight="10.0" prefHeight="112.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Group />
+                  <Text id="h1" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome to" GridPane.columnIndex="1" GridPane.columnSpan="3">
+                     <styleClass>
+                        <String fx:value="text" />
+                        <String fx:value="smooth" />
+                     </styleClass></Text>
+                  <Text id="h1" strokeType="OUTSIDE" strokeWidth="0.0" text="Life_Talk" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1">
+                     <styleClass>
+                        <String fx:value="text" />
+                        <String fx:value="smooth" />
+                     </styleClass></Text>
+                  <Text id="h3" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="smooth" text="Please enter your login details below" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2">
+                  </Text>
+                  <Region prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                  <TabPane fx:id="loginTabs" prefHeight="221.0" prefWidth="320.0" tabClosingPolicy="UNAVAILABLE" translateX="-335.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3">
+                    <tabs>
+                      <Tab closable="false" text="Login">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <GridPane fx:id="loginGrid" layoutX="14.0" layoutY="14.0" prefHeight="126.0" prefWidth="270.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints maxHeight="44.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                          <RowConstraints maxHeight="64.0" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                          <TextField id="inpField" fx:id="uNameInp" GridPane.columnIndex="1" />
+                                          <PasswordField id="inpField" fx:id="pwInp" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <CheckBox id="defCheckBox" fx:id="loggedinCheckBox" mnemonicParsing="false" text="Stay logged in" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                                          <Button id="defBtn" ellipsisString="L" mnemonicParsing="false" onAction="#login" prefHeight="35.0" prefWidth="75.0" text="Login" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                                          </Button>
+                                          <Label id="inpLabel" text="Username">
+                                          </Label>
+                                          <Label id="inpLabel" text="Password" GridPane.rowIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                      </Tab>
+                      <Tab closable="false" text="Register">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <GridPane fx:id="registerGrid" layoutX="14.0" layoutY="12.0" prefHeight="157.0" prefWidth="270.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints maxHeight="39.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                                          <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="51.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                          <TextField id="inpField" fx:id="uNameInpReg" GridPane.columnIndex="1" />
+                                          <PasswordField id="inpField" fx:id="pwInpReg" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <PasswordField id="inpField" fx:id="pwInpConf" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Button id="defBtn" mnemonicParsing="false" onAction="#register" prefHeight="35.0" prefWidth="75.0" text="Register" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                                          </Button>
+                                          <Label id="inpLabel" text="Username">
+                                          </Label>
+                                          <Label id="inpLabel" text="Password" GridPane.rowIndex="1" />
+                                          <Label id="inpLabel" layoutX="10.0" layoutY="67.0" text="Repeat password" GridPane.rowIndex="2" />
+                                       </children>
+                                    </GridPane>
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                      </Tab>
+                    </tabs>
+                  </TabPane>
+                  <VBox alignment="TOP_CENTER" prefHeight="129.0" prefWidth="145.0" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                     <children>
+                        <Text fx:id="infoText" strokeType="OUTSIDE" strokeWidth="0.0">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </Text>
+                        <ImageView fx:id="loadingGIF1" fitHeight="96.0" fitWidth="131.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@resources/loading_v1.gif" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </VBox>
+               </children>
+            </GridPane>
+            <AnchorPane layoutX="3.0" prefHeight="800.0" prefWidth="361.0" stylesheets="@application.css" visible="false" />
+            <GridPane fx:id="connectPane" layoutX="42.0" layoutY="224.0" prefHeight="165.0" prefWidth="255.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="54.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="87.0" minHeight="10.0" prefHeight="79.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <TextField id="inpField" fx:id="srvAdrInput" GridPane.columnIndex="1" />
+                  <TextField id="inpField" fx:id="portInput" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Button id="defBtn" mnemonicParsing="false" onAction="#connectToServer" prefHeight="35.0" prefWidth="75.0" text="Connect" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                  </Button>
+                  <Label id="inpLabel" focusTraversable="false" text="Server adress">
+                  </Label>
+                  <Label id="inpLabel" focusTraversable="false" text="Port" GridPane.rowIndex="1" />
+                  <CheckBox id="defCheckBox" fx:id="connectedCheckBox" mnemonicParsing="false" text="Stay connected" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+               </children>
+            </GridPane>
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>

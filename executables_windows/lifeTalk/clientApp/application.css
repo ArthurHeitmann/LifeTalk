@@ -1,0 +1,114 @@
+/* Adds custom font */
+@font-face {
+	font-family: Alcubierre;
+	src: url("resources/Alcubierre.otf");
+}
+
+/* Set default font */
+
+.text {
+	-fx-font-family: "Alcubierre";
+}
+
+.smooth {
+	-fx-font-smoothing-type: GRAY;
+}
+
+/* Button styling */
+
+.button {
+	-fx-font-size: 15px;
+	-fx-padding: 3px;
+}
+
+/* Text styling */
+
+#h1 {
+	-fx-font-size: 63px;
+	-fx-font-family: "ONE DAY";
+}
+
+#h3 {
+	-fx-font-size: 18px;
+	-fx-font-family: "Alcubierre";
+}
+
+#h4 {
+	-fx-font-size: 16px;
+	-fx-font-family: "Alcubierre";
+}
+
+.label {
+	-fx-font-size: 15px;
+	-fx-font-family: "Alcubierre";	
+}
+
+/* TextField */
+
+#inpField {
+  -fx-border-color: #aaaaaa;
+  -fx-border-width: 0 0 1 0;
+  -fx-background-color: transparent;
+}
+
+#inpField:focused {
+  -fx-border-color: #20ad25;
+  -fx-border-width: 0 0 1.5px 0;
+}
+
+/* Default button */
+
+#defBtn {
+	-fx-background-color: white;
+	-fx-border-color: #8e8e8e;
+}
+
+#defBtn:hover {
+	-fx-background-color: #e8e8e8;
+}
+
+#defBtn:pressed {
+	-fx-background-color: #d3d3d3;
+	-fx-effect: dropshadow(three-pass-box, rgba(32, 173, 37, 0.5), 4, 0, 0, 2);
+}
+
+/** Default Check box */
+
+#defCheckBox .box {	
+  -fx-border-color: #8e8e8e;
+  -fx-background-radius: 15px;
+  -fx-border-radius: 8px;
+  -fx-background-color: transparent;
+}
+
+#defCheckBox:selected .mark {
+	-fx-background-color: #20ad25;
+}
+
+#defCheckBox .box:hover {
+	-fx-background-color: #e8e8e8;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+	-fx-background-color: transparent;
+}
+
+.tab-pane .tab-header-area .tab {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0;
+	-fx-border-color: darkgrey;
+	-fx-border-width: 1px 1px 0 1px;
+}
+
+.tab-pane .tab:selected{
+	-fx-focus-color: transparent;
+	-fx-faint-focus-color: transparent;
+	-fx-background-color: #efefef;
+	-fx-background-radius: 0;
+	-fx-border-color: #20ad25;
+	-fx-border-width: 0;
+}
+
+.tab-pane .tab-header-area {
+	-fx-padding: 8px 8px 8px 8px;
+}

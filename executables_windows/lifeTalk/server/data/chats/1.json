@@ -1,0 +1,35 @@
+{
+  "index": {
+    "count": 4,
+    "lastuser": "arthurTest",
+    "contact1": "arthurTest",
+    "contact2": "user1",
+    "canbeEditedBy": "",
+    "state": 1
+  },
+  "1": {
+    "user": "user1",
+    "textContent": "Happy B-Day J.",
+    "date": "19.5.2018",
+    "time": "10:32"
+  },
+  "2": {
+    "user": "arthurTest",
+    "textContent": "Date testing num1",
+    "date": "19.5.2018",
+    "time": "12:30"
+  },
+  "3": {
+    "user": "user1",
+    "textContent": "Date testing  num2",
+    "date": "27.5.2018",
+    "time": "12:58",
+    "state": 1
+  },
+  "4": {
+    "user": "arthurTest",
+    "textContent": "Date testing  num3",
+    "date": "28.5.2018",
+    "time": "12:59"
+  }
+}

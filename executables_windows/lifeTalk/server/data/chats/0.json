@@ -1,0 +1,46 @@
+{
+  "index": {
+    "count": 6,
+    "lastuser": "admin",
+    "contact1": "admin",
+    "contact2": "user1",
+    "canbeEditedBy": "",
+    "state": 1
+  },
+  "1": {
+    "user": "admin",
+    "textContent": "This is the genesis message",
+    "date": "06.05.2018",
+    "time": "13:58"
+  },
+  "2": {
+    "user": "user1",
+    "textContent": "It\u0027s really a pain to write these message right know",
+    "date": "06.05.2018",
+    "time": "14:00"
+  },
+  "3": {
+    "user": "admin",
+    "textContent": "You are right enogh dummy text back to programming",
+    "date": "06.05.2018",
+    "time": "14:01"
+  },
+  "4": {
+    "user": "admin",
+    "textContent": "Wait second, not quiet yet. Wait second, not quiet yet. Wait second, not quiet yet. Wait second, not quiet yet. Wait second, not quiet yet. Wait second, not quiet yet. ",
+    "date": "06.05.2018",
+    "time": "14:01"
+  },
+  "5": {
+    "user": "user1",
+    "textContent": "Yo Hi",
+    "date": "8.8.2018",
+    "time": "12:9"
+  },
+  "6": {
+    "user": "user1",
+    "textContent": "test",
+    "date": "8.8.2018",
+    "time": "12:10"
+  }
+}
